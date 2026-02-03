@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+
+}
+
+datasource db {
+  provider     = "postgresql"
+  relationMode = "foreignKeys"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String?
+  email     String   @unique
+  role      Role     @default(CITIZEN)
+  reports   Report[]
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id          String      @id @default(uuid())
+  title       String?
+  description String?
+  latitude    Float
+  longitude   Float
+  status      ReportStatus @default(PENDING)
+  severity    Int?
+  createdAt   DateTime    @default(now())
+
+  userId      String?
+  user        User?       @relation(fields: [userId], references: [id])
+
+  media       Media[]
+}
+
+model Media {
+  id        String     @id @default(uuid())
+  mediaUrl  String
+  mediaType MediaType
+  uploadedAt DateTime  @default(now())
+
+  reportId String
+  report   Report  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  detections Detection[]
+}
+
+model Detection {
+  id            String   @id @default(uuid())
+  detectedClass String   @default("pothole")
+  confidence    Float
+  bboxX         Float
+  bboxY         Float
+  bboxWidth     Float
+  bboxHeight    Float
+  frameTime     Float?  
+
+  createdAt DateTime @default(now())
+
+  mediaId   String
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  ADMIN
+  CITIZEN
+}
+
+enum ReportStatus {
+  PENDING
+  VERIFIED
+  RESOLVED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
