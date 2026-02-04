@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import prisma from "@/lib/prisma";
-import { existsSync } from "fs";
+import cloudinary from "@/lib/cloudinary";
 import { fetchRoadInfo } from "@/lib/osm";
 
 export async function POST(req: Request) {
@@ -37,20 +35,32 @@ export async function POST(req: Request) {
       );
     }
 
-    // Convert to buffer
+    // Convert file to base64 for Cloudinary upload
     const buffer = Buffer.from(await file.arrayBuffer());
+    const base64Data = `data:${file.type};base64,${buffer.toString('base64')}`;
 
-    // Ensure uploads directory
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    if (!existsSync(uploadsDir)) await mkdir(uploadsDir, { recursive: true });
+    // Generate unique public_id for Cloudinary
+    const timestamp = Date.now();
+    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_').replace(/\.[^/.]+$/, '');
+    const publicId = `reports/${file.type.startsWith("image") ? "images" : "videos"}/${timestamp}_${sanitizedName}`;
 
-    // Save file
-    const filename = `${Date.now()}-${file.name}`;
-    const filepath = path.join(uploadsDir, filename);
-    await writeFile(filepath, buffer);
+    // Upload to Cloudinary
+    console.log('📤 Uploading report media to Cloudinary...');
+    const uploadResult = await cloudinary.uploader.upload(base64Data, {
+      public_id: publicId,
+      folder: "pothole-system/reports",
+      resource_type: file.type.startsWith("image") ? "image" : "video",
+      transformation: file.type.startsWith("image") ? [
+        { quality: "auto" },
+        { fetch_format: "auto" }
+      ] : undefined,
+      tags: ["report", "user-upload"]
+    });
 
-    const fileUrl = `/uploads/${filename}`;
-    const fullUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}${fileUrl}`;
+    const fileUrl = uploadResult.secure_url;
+    const fullUrl = uploadResult.secure_url;
+
+    console.log(`✅ Uploaded to Cloudinary: ${uploadResult.public_id}`);
 
     // Ensure report exists
     const report = await prisma.report.findUnique({ where: { id: reportId } });

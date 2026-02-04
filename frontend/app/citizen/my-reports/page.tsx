@@ -11,6 +11,18 @@ import {
   ExternalLink,
 } from "lucide-react";
 
+interface Media {
+  id: string;
+  mediaUrl: string;
+  mediaType: string;
+  uploadedAt: string;
+  detections: Array<{
+    id: string;
+    detectedClass: string;
+    confidence: number;
+  }>;
+}
+
 interface Report {
   id: string;
   title: string;
@@ -22,36 +34,54 @@ interface Report {
   imageUrl: string | null;
   createdAt: string;
   updatedAt: string;
+  media: Media[];
 }
 
 export default function MyReportsPage() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
+  console.log("Current user:", user);
+  
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchMyReports();
-  }, []);
+    if (isLoaded && user) {
+      fetchMyReports();
+    } else if (isLoaded && !user) {
+      setLoading(false);
+      setError("Please sign in to view your reports");
+    }
+  }, [user, isLoaded]);
 
   async function fetchMyReports() {
     try {
+      setLoading(true);
+      setError("");
+      
       // Get database user first
       const dbUserRes = await fetch("/api/auth/check-user");
       const dbUserData = await dbUserRes.json();
-
-      if (dbUserData.success && dbUserData.exists) {
-        const res = await fetch(`/api/reports?userId=${dbUserData.user.id}`);
-        const data = await res.json();
-
-        if (data.success) {
-          setReports(data.reports || []);
-        } else {
-          setError(data.error || "Failed to fetch reports");
-        }
-      } else {
+      
+      console.log("Database user data:", dbUserData);
+      
+      if (!dbUserData.success || !dbUserData.exists) {
         setError("User not found in database. Please complete role selection.");
+        return;
       }
+      
+      // Use database user ID to fetch reports
+      const res = await fetch(`/api/reports?userId=${dbUserData.user.id}`);
+      const data = await res.json();
+      
+      console.log("Reports response:", data);
+
+      if (data.success) {
+        setReports(data.reports || []);
+      } else {
+        setError(data.error || "Failed to fetch reports");
+      }
+      
     } catch (err) {
       console.error("Failed to fetch reports:", err);
       setError("Failed to fetch reports");
@@ -60,16 +90,27 @@ export default function MyReportsPage() {
     }
   }
 
+  function getReportImageUrl(report: Report): string | null {
+    // Priority: imageUrl first (citizen upload), then media (AI processed)
+    if (report.imageUrl) {
+      return report.imageUrl;
+    }
+    if (report.media && report.media.length > 0) {
+      return report.media[0].mediaUrl;
+    }
+    return null;
+  }
+
   function getStatusColor(status: string) {
     switch (status.toUpperCase()) {
       case "PENDING":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+        return "bg-yellow-500/10 text-yellow-500 border-yellow-500/30";
       case "VERIFIED":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "bg-purple-500/10 text-purple-500 border-purple-500/30";
       case "RESOLVED":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-[#00E676]/10 text-[#00E676] border-[#00E676]/30";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-500/10 text-gray-500 border-gray-500/30";
     }
   }
 
@@ -83,63 +124,95 @@ export default function MyReportsPage() {
     });
   }
 
+  // Show loading while checking auth
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-[#050B16] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-12 h-12 animate-spin text-[#00E676]" />
+          <span className="text-[#00E676] font-mono tracking-widest animate-pulse">AUTHENTICATING...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to sign-in if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#050B16] flex items-center justify-center">
+        <div className="text-center p-8 border border-[#1F2937] rounded-xl bg-[#0B1220]">
+          <h1 className="text-xl font-bold text-red-500 mb-4 uppercase tracking-widest">ACCESS DENIED</h1>
+          <p className="text-[#94A3B8] mb-6 font-mono text-sm">Citizen credentials required for access.</p>
+          <Link
+            href="/sign-in"
+            className="bg-[#00E676] text-black px-6 py-3 rounded font-bold hover:bg-[#00E676]/80 transition uppercase tracking-wider"
+          >
+            Initiate Log In
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b">
+    <div className="min-h-screen bg-[#050B16] text-white">
+      <nav className="bg-[#050B16]/90 border-b border-[#1F2937] backdrop-blur sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <Link
               href="/citizen"
-              className="text-gray-600 hover:text-gray-900 flex items-center gap-2"
+              className="text-[#94A3B8] hover:text-[#00E676] flex items-center gap-2 transition"
             >
               <ArrowLeft className="w-5 h-5" />
-              Back
+              <span className="font-bold uppercase text-xs tracking-wider">Return to Base</span>
             </Link>
-            <h1 className="text-2xl font-bold text-blue-600">My Reports</h1>
+            <h1 className="text-xl font-black italic uppercase tracking-tighter text-white">
+              Submission<span className="text-[#00B8D4]">Log</span>
+            </h1>
           </div>
           <UserButton afterSignOutUrl="/" />
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto p-8">
-        <div className="flex justify-between items-center mb-6">
+      <div className="max-w-7xl mx-auto p-6 md:p-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h2 className="text-3xl font-bold mb-2">Your Submitted Reports</h2>
-            <p className="text-gray-600">
-              Track the status of all your pothole reports
+            <h2 className="text-3xl font-bold mb-2 uppercase tracking-wide">Report History</h2>
+            <p className="text-[#94A3B8] font-mono text-sm">
+              ARCHIVE OF SUBMITTED HAZARD DETECTIONS
             </p>
           </div>
           <Link
             href="/citizen/report"
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+            className="bg-[#00E676] text-black border border-[#00E676] px-6 py-3 rounded font-bold hover:bg-[#00E676]/80 transition uppercase tracking-wider flex items-center gap-2"
           >
-            + New Report
+            + New Signal
           </Link>
         </div>
 
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-            {error}
+          <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded p-4 text-red-500 font-mono text-sm">
+            ERROR: {error}
           </div>
         )}
 
         {loading ? (
-          <div className="bg-white rounded-lg shadow p-12 flex items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-            <span className="ml-3 text-gray-600">Loading your reports...</span>
+          <div className="bg-[#0B1220] border border-[#1F2937] rounded-xl p-12 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-[#00B8D4]" />
+            <span className="ml-3 text-[#00B8D4] font-mono animate-pulse">Retrieving archived data...</span>
           </div>
         ) : reports.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <div className="text-6xl mb-4">📝</div>
-            <h3 className="text-xl font-bold mb-2">No Reports Yet</h3>
-            <p className="text-gray-600 mb-6">
-              You haven't submitted any pothole reports yet.
+          <div className="bg-[#0B1220] border border-[#1F2937] rounded-xl p-12 text-center">
+            <div className="text-6xl mb-4 opacity-20 filter grayscale">📝</div>
+            <h3 className="text-xl font-bold mb-2 text-white">No Detections Logged</h3>
+            <p className="text-[#94A3B8] mb-6 font-mono text-sm">
+              Sector looks clear. Report hazards to update map.
             </p>
             <Link
               href="/citizen/report"
-              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+              className="inline-block bg-[#1F2937] text-white border border-[#374151] px-6 py-3 rounded font-bold hover:border-white transition uppercase tracking-wider text-xs"
             >
-              Submit Your First Report
+              Initialize First Report
             </Link>
           </div>
         ) : (
@@ -147,56 +220,60 @@ export default function MyReportsPage() {
             {reports.map((report) => (
               <div
                 key={report.id}
-                className="bg-white rounded-lg shadow hover:shadow-md transition p-6"
+                className="bg-[#0B1220] border border-[#1F2937] rounded-xl hover:border-[#00B8D4]/50 transition duration-300 p-6 group relative overflow-hidden"
               >
-                <div className="flex gap-6">
-                  {report.imageUrl && (
-                    <div className="flex-shrink-0">
-                      <img
-                        src={report.imageUrl}
-                        alt={report.title}
-                        className="w-32 h-32 object-cover rounded-lg"
-                      />
-                    </div>
-                  )}
+                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#00E676]/5 to-transparent rounded-bl-3xl pointer-events-none"></div>
+                <div className="flex flex-col md:flex-row gap-6">
+                  {(() => {
+                    const imageUrl = getReportImageUrl(report);
+                    return imageUrl ? (
+                      <div className="flex-shrink-0 relative group/img">
+                        <div className="absolute inset-0 bg-[#00E676]/10 mix-blend-overlay opacity-0 group-hover/img:opacity-100 transition pointer-events-none"></div>
+                        <img
+                          src={imageUrl}
+                          alt={report.title}
+                          className="w-full md:w-32 h-32 object-cover rounded border border-[#1F2937]"
+                        />
+                      </div>
+                    ) : null;
+                  })()}
 
                   <div className="flex-1">
-                    <div className="flex justify-between items-start mb-3">
+                    <div className="flex flex-col md:flex-row justify-between items-start mb-3 gap-2">
                       <div>
-                        <h3 className="text-xl font-bold mb-1">
-                          {report.title || "Pothole Report"}
+                        <h3 className="text-xl font-bold mb-1 text-white group-hover:text-[#00B8D4] transition uppercase tracking-wide">
+                          {report.title || "UNLABELED EVENT"}
                         </h3>
                         {report.description && (
-                          <p className="text-gray-600 mb-2">
+                          <p className="text-[#94A3B8] text-sm mb-2 max-w-2xl">
                             {report.description}
                           </p>
                         )}
                       </div>
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(report.status)}`}
+                        className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider border ${getStatusColor(report.status)}`}
                       >
                         {report.status}
                       </span>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-4 text-sm">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <MapPin className="w-4 h-4" />
+                    <div className="grid md:grid-cols-3 gap-4 text-xs font-mono text-[#94A3B8] mt-4 bg-[#050B16] p-3 rounded border border-[#1F2937]">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-[#00E676]" />
                         <span>
-                          {report.latitude.toFixed(6)},{" "}
-                          {report.longitude.toFixed(6)}
+                          {report.latitude.toFixed(6)}, {report.longitude.toFixed(6)}
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Calendar className="w-4 h-4" />
-                        <span>{formatDate(report.createdAt)}</span>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-[#00E676]" />
+                        <span>{formatDate(report.createdAt).toUpperCase()}</span>
                       </div>
 
                       {report.severity !== null && (
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <span className="font-medium">Severity:</span>
-                          <span>{report.severity}/10</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-[#FFC400]">SEVERITY:</span>
+                          <span className="text-white">{report.severity}/10</span>
                         </div>
                       )}
                     </div>
@@ -206,9 +283,9 @@ export default function MyReportsPage() {
                         href={`https://www.google.com/maps?q=${report.latitude},${report.longitude}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
+                        className="text-[#00B8D4] hover:text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1 hover:underline"
                       >
-                        View on Map
+                        Open Global Positioning
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
@@ -220,8 +297,8 @@ export default function MyReportsPage() {
         )}
 
         {reports.length > 0 && (
-          <div className="mt-6 text-center text-sm text-gray-500">
-            Showing {reports.length} report{reports.length !== 1 ? "s" : ""}
+          <div className="mt-6 text-center text-xs font-mono text-[#94A3B8]">
+            ARCHIVE COUNT: <span className="text-white font-bold">{reports.length}</span> RECORDS
           </div>
         )}
       </div>

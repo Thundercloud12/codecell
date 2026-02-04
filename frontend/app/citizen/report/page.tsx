@@ -133,18 +133,18 @@ export default function ReportPotholePage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-10 h-10 text-green-600" />
+      <div className="min-h-screen bg-[#050B16] flex items-center justify-center p-4">
+        <div className="bg-[#0B1220] border border-[#00E676] rounded-xl shadow-[0_0_50px_rgba(0,230,118,0.2)] p-8 max-w-md text-center">
+          <div className="w-20 h-20 bg-[#00E676]/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+            <CheckCircle className="w-12 h-12 text-[#00E676]" />
           </div>
-          <h2 className="text-2xl font-bold mb-2">Report Submitted!</h2>
-          <p className="text-gray-600 mb-6">
-            Thank you for helping keep our roads safe. Your report has been
-            submitted and will be reviewed by our team.
+          <h2 className="text-3xl font-black italic text-white mb-2 uppercase tracking-tighter">Transmission Complete</h2>
+          <p className="text-[#94A3B8] mb-8 font-mono text-sm leading-relaxed">
+            Data packet received. Central Command is analyzing the telemetry.
+            Thank you for your contribution to the grid safety protocols.
           </p>
-          <div className="text-sm text-gray-500">
-            Redirecting to your reports...
+          <div className="text-xs text-[#00E676] font-mono animate-pulse">
+            REDIRECTING_TO_ARCHIVES...
           </div>
         </div>
       </div>
@@ -152,69 +152,73 @@ export default function ReportPotholePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b">
+    <div className="min-h-screen bg-[#050B16] text-white">
+      <nav className="bg-[#050B16]/90 border-b border-[#1F2937] backdrop-blur sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <Link
               href="/citizen"
-              className="text-gray-600 hover:text-gray-900 flex items-center gap-2"
+              className="text-[#94A3B8] hover:text-[#00E676] flex items-center gap-2 transition"
             >
               <ArrowLeft className="w-5 h-5" />
-              Back
+              <span className="font-bold uppercase text-xs tracking-wider">Abort Mission</span>
             </Link>
-            <h1 className="text-2xl font-bold text-blue-600">Report Pothole</h1>
+            <h1 className="text-xl font-bold uppercase tracking-widest text-[#00E676]">
+              New Hazard Report
+            </h1>
           </div>
           <UserButton afterSignOutUrl="/" />
         </div>
       </nav>
 
-      <div className="max-w-3xl mx-auto p-8">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-2">Submit a Pothole Report</h2>
-            <p className="text-gray-600">
-              Help us identify and fix potholes in your area
+      <div className="max-w-3xl mx-auto p-4 md:p-8">
+        <div className="bg-[#0B1220] border border-[#1F2937] rounded-xl p-8 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#00E676] to-transparent"></div>
+          
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-2 uppercase tracking-wide">Hazard Data Entry</h2>
+            <p className="text-[#94A3B8] text-sm font-mono">
+              ENTER COORDINATES AND VISUAL EVIDENCE FOR ANALYSIS
             </p>
           </div>
 
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-              {error}
+            <div className="mb-8 bg-[#FF1744]/10 border border-[#FF1744]/30 rounded p-4 text-[#FF1744] font-mono text-sm">
+              ERROR: {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Title (Optional)
+              <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
+                Event Title (Optional)
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., Large pothole on Main Street"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                placeholder="e.g. SECTOR 7 ROAD DAMAGE"
+                className="w-full px-4 py-3 bg-[#050B16] border border-[#1F2937] text-white rounded focus:border-[#00E676] focus:ring-1 focus:ring-[#00E676] outline-none font-mono text-sm placeholder:text-[#94A3B8]/30 transition"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
                 Description (Optional)
               </label>
               <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe the pothole, its size, or any hazards..."
-                rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
-              />
+                 value={description}
+                 onChange={(e) => setDescription(e.target.value)}
+                 placeholder="PROVIDE ADDITIONAL CONTEXT..."
+                 rows={4}
+                 className="w-full px-4 py-3 bg-[#050B16] border border-[#1F2937] text-white rounded focus:border-[#00E676] focus:ring-1 focus:ring-[#00E676] outline-none font-mono text-sm placeholder:text-[#94A3B8]/30 transition resize-none"
+               />
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Latitude *
+                <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
+                   Latitude *
                 </label>
                 <input
                   type="number"
@@ -222,14 +226,14 @@ export default function ReportPotholePage() {
                   value={latitude}
                   onChange={(e) => setLatitude(e.target.value)}
                   required
-                  placeholder="e.g., 40.7128"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  placeholder="00.0000"
+                  className="w-full px-4 py-3 bg-[#050B16] border border-[#1F2937] text-[#00E676] rounded focus:border-[#00E676] focus:ring-1 focus:ring-[#00E676] outline-none font-mono text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Longitude *
+                <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
+                   Longitude *
                 </label>
                 <input
                   type="number"
@@ -237,8 +241,8 @@ export default function ReportPotholePage() {
                   value={longitude}
                   onChange={(e) => setLongitude(e.target.value)}
                   required
-                  placeholder="e.g., -74.0060"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  placeholder="00.0000"
+                  className="w-full px-4 py-3 bg-[#050B16] border border-[#1F2937] text-[#00E676] rounded focus:border-[#00E676] focus:ring-1 focus:ring-[#00E676] outline-none font-mono text-sm"
                 />
               </div>
             </div>
@@ -247,26 +251,26 @@ export default function ReportPotholePage() {
               type="button"
               onClick={getCurrentLocation}
               disabled={gettingLocation}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 py-2 bg-[#00B8D4]/10 text-[#00B8D4] border border-[#00B8D4]/30 rounded hover:bg-[#00B8D4]/20 transition disabled:opacity-50 disabled:cursor-not-allowed font-mono text-xs font-bold uppercase tracking-wider"
             >
               {gettingLocation ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Getting location...
-                </>
-              ) : (
-                <>
-                  <MapPin className="w-4 h-4" />
-                  Use my current location
-                </>
-              )}
+                 <>
+                   <Loader2 className="w-4 h-4 animate-spin" />
+                   ACQUIRING_SATELLITE_LOCK...
+                 </>
+               ) : (
+                 <>
+                   <MapPin className="w-4 h-4" />
+                   AUTO_DETECT_COORDS
+                 </>
+               )}
             </button>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Photo (Optional)
+              <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
+                 Visual Evidence (Optional)
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition">
+              <div className="border-2 border-dashed border-[#1F2937] bg-[#050B16]/50 rounded-xl p-8 text-center hover:border-[#00E676]/50 transition cursor-pointer group">
                 <input
                   type="file"
                   accept="image/*"
@@ -276,36 +280,36 @@ export default function ReportPotholePage() {
                 />
                 <label
                   htmlFor="image-upload"
-                  className="cursor-pointer flex flex-col items-center"
+                  className="cursor-pointer flex flex-col items-center w-full h-full"
                 >
                   {imagePreview ? (
-                    <div className="relative">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="max-h-64 rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setImageFile(null);
-                          setImagePreview("");
-                        }}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600"
-                      >
-                        ✕
-                      </button>
+                    <div className="relative w-full">
+                       <img
+                         src={imagePreview}
+                         alt="Pre-transmission"
+                         className="max-h-64 rounded-lg border border-[#00E676]/30 mx-auto"
+                       />
+                       <button
+                         type="button"
+                         onClick={(e) => {
+                           e.preventDefault();
+                           setImageFile(null);
+                           setImagePreview("");
+                         }}
+                         className="absolute top-2 right-2 bg-red-500/80 text-white rounded-full p-2 hover:bg-red-600 transition backdrop-blur"
+                       >
+                         ✕
+                       </button>
                     </div>
                   ) : (
                     <>
-                      <Upload className="w-12 h-12 text-gray-400 mb-2" />
-                      <span className="text-gray-600 font-medium">
-                        Click to upload a photo
-                      </span>
-                      <span className="text-sm text-gray-400 mt-1">
-                        PNG, JPG up to 10MB
-                      </span>
+                       <Upload className="w-12 h-12 text-[#94A3B8] mb-4 group-hover:text-[#00E676] group-hover:scale-110 transition duration-300" />
+                       <span className="text-white font-bold uppercase tracking-wide group-hover:text-[#00E676] transition">
+                         Initiate File Upload
+                       </span>
+                       <span className="text-xs text-[#94A3B8] font-mono mt-2">
+                         SUPPORTED FORMATS: PNG, JPG (MAX 10MB)
+                       </span>
                     </>
                   )}
                 </label>
@@ -316,21 +320,21 @@ export default function ReportPotholePage() {
               <button
                 type="submit"
                 disabled={loading || !latitude || !longitude}
-                className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                className="flex-1 bg-[#00E676] text-black px-6 py-4 rounded font-bold hover:bg-[#00E676]/80 disabled:bg-[#1F2937] disabled:text-[#94A3B8] disabled:cursor-not-allowed transition flex items-center justify-center gap-2 uppercase tracking-wider text-sm"
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Submitting...
+                    TRANSMITTING...
                   </>
                 ) : (
-                  "Submit Report"
+                  "CONFIRM TRANSMISSION"
                 )}
               </button>
 
               <Link
                 href="/citizen"
-                className="px-6 py-3 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition text-center"
+                className="px-6 py-4 border border-[#374151] text-[#94A3B8] rounded font-bold hover:border-white hover:text-white transition text-center uppercase tracking-wider text-sm"
               >
                 Cancel
               </Link>

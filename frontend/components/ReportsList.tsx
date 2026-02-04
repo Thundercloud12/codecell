@@ -47,18 +47,18 @@ export default function ReportsList({
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      PENDING: "bg-blue-100 text-blue-800 border-blue-300",
-      VERIFIED: "bg-amber-100 text-amber-800 border-amber-300",
-      RESOLVED: "bg-green-100 text-green-800 border-green-300",
+      PENDING: "bg-[#FBBF24]/10 text-[#FBBF24] border-[#FBBF24]/30",
+      VERIFIED: "bg-[#2DD4BF]/10 text-[#2DD4BF] border-[#2DD4BF]/30",
+      RESOLVED: "bg-[#22C55E]/10 text-[#22C55E] border-[#22C55E]/30",
     };
     return styles[status] || styles.PENDING;
   };
 
   const getSeverityColor = (severity?: number) => {
-    if (!severity) return "text-gray-400";
-    if (severity >= 4) return "text-red-600";
-    if (severity >= 3) return "text-orange-500";
-    return "text-yellow-500";
+    if (!severity) return "text-[#9CA3AF]";
+    if (severity >= 4) return "text-[#F87171]";
+    if (severity >= 3) return "text-[#FBBF24]";
+    return "text-[#22C55E]";
   };
 
   const sortedAndFilteredReports = reports

@@ -60,22 +60,22 @@ export default function CitizenDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0A0F1A] text-[#E5E7EB]">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
+      <div className="bg-[#141B2A] border-b border-[#1F2937]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Citizen Dashboard
+              <h1 className="text-3xl font-bold text-[#E5E7EB] uppercase tracking-wide">
+                Citizen <span className="text-[#22C55E]">Dashboard</span>
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-[#9CA3AF] mt-1 font-mono text-sm">
                 Report potholes and track your submissions
               </p>
             </div>
             <a
               href="/admin/dashboard"
-              className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
+              className="px-4 py-2 text-sm bg-[#1F2937] text-[#9CA3AF] rounded-md hover:bg-[#374151] hover:text-[#E5E7EB] transition border border-[#374151]"
             >
               Admin View →
             </a>
@@ -83,29 +83,29 @@ export default function CitizenDashboard() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <div className="text-2xl font-bold text-blue-800">
+            <div className="bg-[#60A5FA]/10 p-4 rounded-lg border border-[#60A5FA]/30">
+              <div className="text-2xl font-bold text-[#60A5FA]">
                 {stats.total}
               </div>
-              <div className="text-sm text-blue-600">Total Reports</div>
+              <div className="text-sm text-[#9CA3AF] font-mono uppercase">Total Reports</div>
             </div>
-            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-              <div className="text-2xl font-bold text-yellow-800">
+            <div className="bg-[#FBBF24]/10 p-4 rounded-lg border border-[#FBBF24]/30">
+              <div className="text-2xl font-bold text-[#FBBF24]">
                 {stats.pending}
               </div>
-              <div className="text-sm text-yellow-600">Pending</div>
+              <div className="text-sm text-[#9CA3AF] font-mono uppercase">Pending</div>
             </div>
-            <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-              <div className="text-2xl font-bold text-amber-800">
+            <div className="bg-[#2DD4BF]/10 p-4 rounded-lg border border-[#2DD4BF]/30">
+              <div className="text-2xl font-bold text-[#2DD4BF]">
                 {stats.verified}
               </div>
-              <div className="text-sm text-amber-600">Verified</div>
+              <div className="text-sm text-[#9CA3AF] font-mono uppercase">Verified</div>
             </div>
-            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-              <div className="text-2xl font-bold text-green-800">
+            <div className="bg-[#22C55E]/10 p-4 rounded-lg border border-[#22C55E]/30">
+              <div className="text-2xl font-bold text-[#22C55E]">
                 {stats.resolved}
               </div>
-              <div className="text-sm text-green-600">Resolved</div>
+              <div className="text-sm text-[#9CA3AF] font-mono uppercase">Resolved</div>
             </div>
           </div>
         </div>
@@ -117,20 +117,20 @@ export default function CitizenDashboard() {
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setActiveTab("submit")}
-            className={`px-6 py-3 rounded-lg font-semibold transition ${
+            className={`px-6 py-3 rounded-lg font-semibold transition uppercase tracking-wider text-sm ${
               activeTab === "submit"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50"
+                ? "bg-[#22C55E] text-black border border-[#22C55E]"
+                : "bg-[#141B2A] text-[#9CA3AF] hover:bg-[#1F2937] border border-[#1F2937]"
             }`}
           >
             📝 Submit Report
           </button>
           <button
             onClick={() => setActiveTab("reports")}
-            className={`px-6 py-3 rounded-lg font-semibold transition ${
+            className={`px-6 py-3 rounded-lg font-semibold transition uppercase tracking-wider text-sm ${
               activeTab === "reports"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50"
+                ? "bg-[#22C55E] text-black border border-[#22C55E]"
+                : "bg-[#141B2A] text-[#9CA3AF] hover:bg-[#1F2937] border border-[#1F2937]"
             }`}
           >
             📋 My Reports ({stats.total})
@@ -141,8 +141,8 @@ export default function CitizenDashboard() {
         {activeTab === "submit" ? (
           <ReportSubmissionForm />
         ) : loading ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <div className="text-gray-600">Loading reports...</div>
+          <div className="bg-[#141B2A] rounded-lg border border-[#1F2937] p-8 text-center">
+            <div className="text-[#2DD4BF] font-mono animate-pulse">Loading reports...</div>
           </div>
         ) : (
           <MyReports reports={reports} />

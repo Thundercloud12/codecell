@@ -104,15 +104,82 @@ export default function TicketDetailPage() {
       });
 
       const data = await res.json();
-
       if (data.success) {
-        setMessage("Worker assigned successfully!");
+        setMessage("Worker assigned successfully");
         fetchTicket();
       } else {
-        setError(data.error);
+        setError(data.error || "Failed to assign worker");
       }
     } catch (err) {
       setError("Failed to assign worker");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function markAsResolved() {
+    if (!confirm("Are you sure you want to mark this ticket as resolved?")) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+      setMessage("");
+      setError("");
+
+      const res = await fetch(`/api/admin/review/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "APPROVE",
+          reviewedBy: "admin-user",
+          reviewNotes: "Work approved and completed",
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setMessage("✅ Ticket marked as resolved successfully!");
+        fetchTicket();
+      } else {
+        setError(data.error || "Failed to mark as resolved");
+      }
+    } catch (err) {
+      setError("Failed to mark as resolved");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function rejectProof() {
+    if (!confirm("Are you sure you want to reject this proof?")) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+      setMessage("");
+      setError("");
+
+      const res = await fetch(`/api/admin/review/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "REJECT",
+          reviewedBy: "admin-user",
+          reviewNotes: "Work proof rejected - please resubmit",
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setMessage("Proof rejected - worker can resubmit");
+        fetchTicket();
+      } else {
+        setError(data.error || "Failed to reject proof");
+      }
+    } catch (err) {
+      setError("Failed to reject proof");
     } finally {
       setActionLoading(false);
     }
@@ -332,6 +399,47 @@ export default function TicketDetailPage() {
         <div className="text-sm text-gray-600 mb-4">
           Current: <span className="font-semibold">{ticket.status}</span>
         </div>
+        
+        {/* Admin Actions for AWAITING_VERIFICATION */}
+        {ticket.status === "AWAITING_VERIFICATION" && (
+          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <h3 className="font-bold text-yellow-900 mb-3">🔍 Admin Review Required</h3>
+            <p className="text-sm text-yellow-800 mb-4">
+              The worker has submitted proof of completion. Please review and approve or reject.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={markAsResolved}
+                disabled={actionLoading}
+                className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-bold text-lg shadow-lg transition transform hover:scale-105"
+              >
+                {actionLoading ? "Processing..." : "✅ Mark as Resolved"}
+              </button>
+              <button
+                onClick={rejectProof}
+                disabled={actionLoading}
+                className="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 disabled:bg-gray-400 font-bold text-lg shadow-lg transition transform hover:scale-105"
+              >
+                {actionLoading ? "Processing..." : "❌ Reject Proof"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Status indicator for RESOLVED */}
+        {ticket.status === "RESOLVED" && (
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center gap-2 text-green-800">
+              <span className="text-2xl">✅</span>
+              <span className="font-bold">Ticket Resolved</span>
+            </div>
+            <p className="text-sm text-green-700 mt-2">
+              This ticket has been completed and approved.
+            </p>
+          </div>
+        )}
+
+        {/* Other status transitions */}
         <div className="flex flex-wrap gap-2">
           {ticket.status === "DETECTED" && (
             <button

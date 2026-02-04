@@ -5,6 +5,8 @@ import prisma from "@/lib/prisma";
 export async function GET() {
   try {
     const { userId } = await auth();
+    console.log(userId);
+    
 
     if (!userId) {
       return NextResponse.json(
@@ -16,9 +18,6 @@ export async function GET() {
     // Check if user exists in database
     const user = await prisma.user.findUnique({
       where: { clerk_user_id: userId },
-      include: {
-        worker: true,
-      },
     });
 
     if (!user) {
@@ -37,7 +36,6 @@ export async function GET() {
         email: user.email,
         name: user.name,
         role: user.role,
-        hasWorkerProfile: !!user.worker,
       },
     });
   } catch (error: any) {

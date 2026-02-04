@@ -269,8 +269,9 @@ export async function POST(req: Request) {
         });
 
         // Create Detection record linked to detected media
+        let detection = null;
         if (aiResponse.bbox && aiResponse.confidence) {
-          await tx.detection.create({
+          detection = await tx.detection.create({
             data: {
               mediaId: detectedMedia.id,
               confidence: aiResponse.confidence,
@@ -281,6 +282,28 @@ export async function POST(req: Request) {
               bboxHeight: aiResponse.bbox.height,
             },
           });
+          
+          // Automatically create pothole if confidence is high enough (>= 70%)
+          if (aiResponse.confidence >= 0.7) {
+            try {
+              await tx.pothole.create({
+                data: {
+                  detectionId: detection.id,
+                  latitude: report.latitude,
+                  longitude: report.longitude,
+                  imageUrl: originalImageUrl,
+                  // Set priority based on confidence
+                  priorityScore: aiResponse.confidence * 10, // 0.7 confidence = 7.0 priority score
+                  priorityLevel: aiResponse.confidence >= 0.9 ? "HIGH" : 
+                                aiResponse.confidence >= 0.8 ? "MEDIUM" : "LOW",
+                },
+              });
+              console.log(`🕳️ Pothole auto-created for detection ${detection.id} with confidence ${aiResponse.confidence}`);
+            } catch (potholeError) {
+              console.warn("Failed to auto-create pothole:", potholeError);
+              // Continue without failing the whole transaction
+            }
+          }
         }
 
         return {

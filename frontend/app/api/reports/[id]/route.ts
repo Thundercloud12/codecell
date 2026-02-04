@@ -4,10 +4,10 @@ import { prisma } from "@/lib/prisma";
 // PATCH: Update status (e.g., PENDING -> RESOLVED)
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }, // Change String to string
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     const { status, severity } = body;
 
@@ -35,10 +35,10 @@ export async function PATCH(
 // DELETE: Delete a report (Optional, for Admin cleanup)
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }, // Change String to string
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await prisma.report.delete({
       where: { id: id }, // Remove String() wrapper
     });

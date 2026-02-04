@@ -18,7 +18,7 @@ export type TicketStatus =
  * Each status maps to an array of valid next statuses
  */
 const VALID_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
-  DETECTED: ["RANKED", "REJECTED"], // Can rank or reject early
+  DETECTED: ["RANKED", "ASSIGNED", "REJECTED"], // Can rank, directly assign, or reject early
   RANKED: ["ASSIGNED", "REJECTED"], // Can assign or reject
   ASSIGNED: ["IN_PROGRESS", "RANKED", "REJECTED"], // Worker can start, or reassign/reject
   IN_PROGRESS: ["AWAITING_VERIFICATION", "ASSIGNED", "REJECTED"], // Complete or reassign

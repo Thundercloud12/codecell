@@ -111,26 +111,26 @@ export default function ReportsMap({
 
   const getStatusBadge = (status: string) => {
     const colors: Record<string, string> = {
-      PENDING: "bg-blue-100 text-blue-800",
-      VERIFIED: "bg-amber-100 text-amber-800",
-      RESOLVED: "bg-green-100 text-green-800",
+      PENDING: "bg-blue-900/50 text-blue-200 border border-blue-500/50",
+      VERIFIED: "bg-amber-900/50 text-amber-200 border border-amber-500/50",
+      RESOLVED: "bg-green-900/50 text-green-200 border border-green-500/50",
     };
     return colors[status] || colors.PENDING;
   };
 
   return (
-    <div className="h-[500px] w-full rounded-lg overflow-hidden border border-gray-200 shadow-md">
+    <div className="h-[600px] w-full rounded-2xl overflow-hidden border border-[#1F2937] shadow-[0_0_15px_rgba(0,0,0,0.5)] bg-[#050B16]">
       <MapContainer
         center={center}
         zoom={zoom}
-        style={{ height: "100%", width: "100%" }}
+        style={{ height: "100%", width: "100%", background: '#050B16' }}
         className="z-0"
       >
         <MapController center={center} zoom={zoom} />
 
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
 
         {reports.map((report) => {

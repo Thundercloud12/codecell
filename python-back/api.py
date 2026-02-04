@@ -17,6 +17,20 @@ import cloudinary.uploader
 import os
 from dotenv import load_dotenv
 import torch
+import logging
+import sys
+import traceback
+
+# Configure comprehensive logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('detection.log', mode='a')
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # ⚠️ FIX: Patch torch.load for PyTorch 2.6+ compatibility
 original_load = torch.load
@@ -27,8 +41,10 @@ torch.load = patched_load
 
 # Load environment variables
 load_dotenv()
+logger.info("🔧 Environment variables loaded")
 
 app = FastAPI(title="Pothole Detection API")
+logger.info("🚀 FastAPI app initialized")
 
 # -------------------------
 # CORS
@@ -40,15 +56,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+logger.info("🌐 CORS middleware configured")
 
 # -------------------------
 # Cloudinary Config
 # -------------------------
-cloudinary.config(
-    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.getenv("CLOUDINARY_API_KEY"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
-)
+try:
+    cloudinary.config(
+        cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+        api_key=os.getenv("CLOUDINARY_API_KEY"),
+        api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    )
+    logger.info("☁️ Cloudinary configured successfully")
+    logger.info(f"   Cloud name: {os.getenv('CLOUDINARY_CLOUD_NAME')}")
+except Exception as e:
+    logger.error(f"❌ Cloudinary configuration failed: {e}")
+    logger.error(f"   Full traceback: {traceback.format_exc()}")
+    raise
 
 # -------------------------
 # YOLO MODEL AUTO DOWNLOAD
@@ -58,26 +82,36 @@ MODEL_URL = "https://huggingface.co/peterhdd/pothole-detection-yolov8/resolve/ma
 DEVICE = "cpu"
 
 def download_model():
-    print("⬇️ Downloading pothole YOLO model...")
-    r = requests.get(MODEL_URL, stream=True)
-    r.raise_for_status()
-    with open(MODEL_PATH, "wb") as f:
-        for chunk in r.iter_content(chunk_size=1024 * 1024):
-            f.write(chunk)
-    print("✅ Model downloaded successfully")
+    logger.info("⬇️ Downloading pothole YOLO model...")
+    try:
+        r = requests.get(MODEL_URL, stream=True, timeout=300)
+        r.raise_for_status()
+        with open(MODEL_PATH, "wb") as f:
+            for chunk in r.iter_content(chunk_size=1024 * 1024):
+                f.write(chunk)
+        logger.info("✅ Model downloaded successfully")
+    except Exception as e:
+        logger.error(f"❌ Model download failed: {e}")
+        logger.error(f"   Full traceback: {traceback.format_exc()}")
+        raise
 
 # Download if missing
 if not os.path.exists(MODEL_PATH):
+    logger.warning("⚠️ Model file not found, downloading...")
     download_model()
+else:
+    logger.info(f"📁 Using existing model file: {MODEL_PATH}")
 
 # Load model
 try:
-    print("📥 Loading YOLO pothole model...")
+    logger.info("📥 Loading YOLO pothole model...")
     model = YOLO(MODEL_PATH)
     model.to(DEVICE)
-    print("✅ Model loaded successfully")
+    logger.info(f"✅ Model loaded successfully on device: {DEVICE}")
+    logger.info(f"   Model classes: {model.names}")
 except Exception as e:
-    print(f"❌ Failed to load model: {e}")
+    logger.error(f"❌ Failed to load model: {e}")
+    logger.error(f"   Full traceback: {traceback.format_exc()}")
     raise
 
 
@@ -118,30 +152,60 @@ def root():
 
 @app.post("/detect", response_model=DetectionResponse)
 async def detect_pothole(request: DetectionRequest):
-
+    logger.info(f"🔍 Starting detection for image: {request.imageUrl}")
+    
     try:
-        # Download image
-        response = requests.get(request.imageUrl, timeout=15)
-        response.raise_for_status()
+        # 1. Download image
+        logger.debug("📥 Step 1: Downloading image...")
+        try:
+            response = requests.get(request.imageUrl, timeout=15)
+            response.raise_for_status()
+            logger.info(f"✅ Image downloaded successfully. Size: {len(response.content)} bytes")
+            logger.debug(f"   Content type: {response.headers.get('content-type')}")
+        except Exception as e:
+            logger.error(f"❌ Image download failed: {e}")
+            logger.error(f"   URL: {request.imageUrl}")
+            logger.error(f"   Full traceback: {traceback.format_exc()}")
+            raise HTTPException(400, f"Image download failed: {str(e)}")
 
-        # Load image safely
-        image = Image.open(io.BytesIO(response.content)).convert("RGB")
-        image_array = np.array(image)
+        # 2. Load and convert image
+        logger.debug("🖼️ Step 2: Loading and converting image...")
+        try:
+            image = Image.open(io.BytesIO(response.content)).convert("RGB")
+            image_array = np.array(image)
+            logger.info(f"✅ Image loaded. Dimensions: {image.size}, Array shape: {image_array.shape}")
+        except Exception as e:
+            logger.error(f"❌ Image processing failed: {e}")
+            logger.error(f"   Full traceback: {traceback.format_exc()}")
+            raise HTTPException(400, f"Image processing failed: {str(e)}")
 
-        # Run YOLO detection
-        results = model.predict(
-            image_array,
-            device=DEVICE,
-            conf=0.20,  # Lowered threshold for better detection
-            verbose=False
-        )
+        # 3. Run YOLO detection
+        logger.debug("🤖 Step 3: Running YOLO prediction...")
+        try:
+            results = model.predict(
+                image_array,
+                device=DEVICE,
+                conf=0.20,
+                verbose=False
+            )
+            logger.info(f"✅ YOLO prediction completed. Results count: {len(results)}")
+            if len(results) > 0:
+                logger.debug(f"   Detections in result 0: {len(results[0].boxes)}")
+        except Exception as e:
+            logger.error(f"❌ YOLO prediction failed: {e}")
+            logger.error(f"   Input shape: {image_array.shape}")
+            logger.error(f"   Input dtype: {image_array.dtype}")
+            logger.error(f"   Full traceback: {traceback.format_exc()}")
+            raise HTTPException(500, f"Model prediction failed: {str(e)}")
 
-        # No detections
+        # 4. Process detection results
+        logger.debug("📊 Step 4: Processing detection results...")
         if len(results[0].boxes) == 0:
-            print("⚠️ No potholes detected")
+            logger.info("⚠️ No potholes detected")
             return DetectionResponse(detected=False)
 
         boxes = results[0].boxes
+        logger.info(f"🎯 Found {len(boxes)} detections")
 
         # Pick best detection
         best_idx = boxes.conf.argmax()
@@ -151,35 +215,69 @@ async def detect_pothole(request: DetectionRequest):
         class_id = int(best_box.cls[0])
         class_name = results[0].names[class_id]
 
-        print(f"🔍 Detection: {class_name} (confidence: {confidence:.2f})")
+        logger.info(f"🔍 Best detection: {class_name} (confidence: {confidence:.2f})")
 
-        # Bounding box
-        x1, y1, x2, y2 = best_box.xyxy[0].tolist()
+        # 5. Extract bounding box
+        logger.debug("📐 Step 5: Extracting bounding box...")
+        try:
+            x1, y1, x2, y2 = best_box.xyxy[0].tolist()
+            bbox = BBox(
+                x=float(x1),
+                y=float(y1),
+                width=float(x2 - x1),
+                height=float(y2 - y1),
+            )
+            logger.debug(f"   BBox: x={x1:.1f}, y={y1:.1f}, w={x2-x1:.1f}, h={y2-y1:.1f}")
+        except Exception as e:
+            logger.error(f"❌ Bounding box extraction failed: {e}")
+            logger.error(f"   Box data: {best_box}")
+            logger.error(f"   Full traceback: {traceback.format_exc()}")
+            raise HTTPException(500, f"Bounding box extraction failed: {str(e)}")
 
-        bbox = BBox(
-            x=float(x1),
-            y=float(y1),
-            width=float(x2 - x1),
-            height=float(y2 - y1),
-        )
+        # 6. Generate annotated image
+        logger.debug("🎨 Step 6: Generating annotated image...")
+        try:
+            annotated_img = results[0].plot()
+            annotated_pil = Image.fromarray(annotated_img)
+            logger.debug(f"   Annotated image shape: {annotated_img.shape}")
+            logger.debug(f"   PIL image size: {annotated_pil.size}")
+        except Exception as e:
+            logger.error(f"❌ Image annotation failed: {e}")
+            logger.error(f"   Full traceback: {traceback.format_exc()}")
+            raise HTTPException(500, f"Image annotation failed: {str(e)}")
 
-        # Generate annotated image
-        annotated_img = results[0].plot()
-        annotated_pil = Image.fromarray(annotated_img)
+        # 7. Convert to buffer
+        logger.debug("💾 Step 7: Converting image to buffer...")
+        try:
+            buffer = io.BytesIO()
+            annotated_pil.save(buffer, format="JPEG", quality=95)
+            buffer.seek(0)
+            buffer_size = len(buffer.getvalue())
+            logger.debug(f"   Buffer size: {buffer_size} bytes")
+        except Exception as e:
+            logger.error(f"❌ Buffer conversion failed: {e}")
+            logger.error(f"   Full traceback: {traceback.format_exc()}")
+            raise HTTPException(500, f"Buffer conversion failed: {str(e)}")
 
-        buffer = io.BytesIO()
-        annotated_pil.save(buffer, format="JPEG", quality=95)
-        buffer.seek(0)
+        # 8. Upload to Cloudinary
+        logger.debug("☁️ Step 8: Uploading to Cloudinary...")
+        try:
+            upload = cloudinary.uploader.upload(
+                buffer,
+                folder="pothole-detections",
+                resource_type="image"
+            )
+            annotated_url = upload["secure_url"]
+            logger.info(f"✅ Cloudinary upload successful: {annotated_url}")
+            logger.debug(f"   Upload response keys: {list(upload.keys())}")
+        except Exception as e:
+            logger.error(f"❌ Cloudinary upload failed: {e}")
+            logger.error(f"   Buffer size: {buffer_size} bytes")
+            logger.error(f"   Full traceback: {traceback.format_exc()}")
+            raise HTTPException(500, f"Cloudinary upload failed: {str(e)}")
 
-        # Upload to Cloudinary
-        upload = cloudinary.uploader.upload(
-            buffer,
-            folder="pothole-detections",
-            resource_type="image"
-        )
-
-        annotated_url = upload["secure_url"]
-
+        # 9. Return successful response
+        logger.info("🎉 Detection completed successfully!")
         return DetectionResponse(
             detected=True,
             confidence=confidence,
@@ -188,10 +286,13 @@ async def detect_pothole(request: DetectionRequest):
             detectedClass="pothole"
         )
 
-    except requests.RequestException as e:
-        raise HTTPException(400, f"Image download failed: {str(e)}")
-
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
+        logger.error(f"💥 Unexpected error in detect_pothole: {e}")
+        logger.error(f"   Request URL: {request.imageUrl}")
+        logger.error(f"   Full traceback: {traceback.format_exc()}")
         raise HTTPException(500, f"Detection failed: {str(e)}")
 
 
@@ -205,4 +306,5 @@ def health():
 # -------------------------
 if __name__ == "__main__":
     import uvicorn
+    logger.info("🚀 Starting FastAPI server...")
     uvicorn.run("api:app", host="127.0.0.1", port=8000, reload=True)

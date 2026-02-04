@@ -1,29 +1,73 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Hackathon Power Mode Palette */
+  --bg: #050B16;          /* ultra dark command room */
+  --card: #0B1220;        /* glass panels */
+  --primary: #00E676;     /* neon mint */
+  --secondary: #00B8D4;   /* cyber teal */
+  --warning: #FFC400;     /* amber */
+  --danger: #FF1744;      /* emergency red */
+  --muted: #94A3B8;       /* soft text */
+  --border: #1F2937;      /* subtle glow */
+  
+  --background: var(--bg);
+  --foreground: #ffffff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  
+  --color-hack-bg: var(--bg);
+  --color-hack-card: var(--card);
+  --color-hack-primary: var(--primary);
+  --color-hack-secondary: var(--secondary);
+  --color-hack-warning: var(--warning);
+  --color-hack-danger: var(--danger);
+  --color-hack-muted: var(--muted);
+  --color-hack-border: var(--border);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* Dark mode enforced globally */
 
 body {
-  background: var(--background);
+  background: var(--bg);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
 }
+
+/* 🌌 GLOBAL UI STYLES (Hackathon Power Mode) */
+
+.glass-panel {
+  @apply bg-[#0B1220]/80 backdrop-blur-lg border border-[#1F2937] text-white;
+  box-shadow: 0 0 15px rgba(0, 230, 118, 0.1);
+}
+
+.neon-text {
+  text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
+}
+
+.cyber-button {
+  background: linear-gradient(to right, #00E676, #00B8D4);
+  color: #000;
+  font-weight: bold;
+  @apply transition-all hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/50;
+}
+
+.cyber-input {
+  background: rgba(11, 18, 32, 0.6);
+  border: 1px solid var(--border);
+  color: white;
+}
+
+.cyber-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 10px rgba(0, 230, 118, 0.2);
+  outline: none;
+}
+
 
 /* Custom styles for leaflet map */
 .leaflet-container {

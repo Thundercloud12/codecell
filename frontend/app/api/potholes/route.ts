@@ -136,6 +136,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       potholes,
+      total,
+      count: total, // Add count for backward compatibility 
       pagination: {
         total,
         limit,

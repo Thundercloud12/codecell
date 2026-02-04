@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 // GET: Fetch all reports (for map view - no userId filter)
 export async function GET(req: Request) {
@@ -18,6 +18,11 @@ export async function GET(req: Request) {
             id: true,
             name: true,
             email: true,
+          },
+        },
+        media: {
+          include: {
+            detections: true,
           },
         },
       },

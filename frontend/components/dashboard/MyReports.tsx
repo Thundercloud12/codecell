@@ -28,17 +28,17 @@ interface MyReportsProps {
 export default function MyReports({ reports }: MyReportsProps) {
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      PENDING: "bg-blue-100 text-blue-800 border-blue-300",
-      VERIFIED: "bg-amber-100 text-amber-800 border-amber-300",
-      RESOLVED: "bg-green-100 text-green-800 border-green-300",
+      PENDING: "bg-[#FBBF24]/10 text-[#FBBF24] border-[#FBBF24]/30",
+      VERIFIED: "bg-[#2DD4BF]/10 text-[#2DD4BF] border-[#2DD4BF]/30",
+      RESOLVED: "bg-[#22C55E]/10 text-[#22C55E] border-[#22C55E]/30",
     };
     return styles[status] || styles.PENDING;
   };
 
   if (reports.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-8 text-center">
-        <div className="text-gray-400 mb-4">
+      <div className="bg-[#141B2A] rounded-lg border border-[#1F2937] p-8 text-center">
+        <div className="text-[#9CA3AF] mb-4">
           <svg
             className="w-16 h-16 mx-auto"
             fill="none"
@@ -53,10 +53,10 @@ export default function MyReports({ reports }: MyReportsProps) {
             />
           </svg>
         </div>
-        <h3 className="text-xl font-semibold text-gray-600 mb-2">
+        <h3 className="text-xl font-semibold text-[#E5E7EB] mb-2 uppercase tracking-wide">
           No Reports Yet
         </h3>
-        <p className="text-gray-500">
+        <p className="text-[#9CA3AF]">
           Submit your first pothole report to get started
         </p>
       </div>
@@ -64,8 +64,8 @@ export default function MyReports({ reports }: MyReportsProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">My Reports</h2>
+    <div className="bg-[#141B2A] rounded-lg border border-[#1F2937] p-6">
+      <h2 className="text-2xl font-bold text-[#E5E7EB] mb-6 uppercase tracking-wide">My <span className="text-[#22C55E]">Reports</span></h2>
 
       <div className="space-y-4">
         {reports.map((report) => {
@@ -83,7 +83,7 @@ export default function MyReports({ reports }: MyReportsProps) {
           return (
             <div
               key={report.id}
-              className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              className="border border-[#1F2937] rounded-lg p-4 hover:border-[#22C55E]/50 transition-all bg-[#0A0F1A]"
             >
               <div className="flex gap-4">
                 {/* Thumbnail */}
@@ -93,16 +93,16 @@ export default function MyReports({ reports }: MyReportsProps) {
                       <img
                         src={originalMedia.mediaUrl}
                         alt="Report"
-                        className="w-32 h-32 object-cover rounded-lg border border-gray-200"
+                        className="w-32 h-32 object-cover rounded-lg border border-[#1F2937]"
                       />
                       {hasDetection && (
-                        <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+                        <div className="absolute -top-2 -right-2 bg-[#22C55E] text-black text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
                           ✓
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
+                    <div className="w-32 h-32 bg-[#1F2937] rounded-lg flex items-center justify-center text-[#9CA3AF]">
                       No Image
                     </div>
                   )}
@@ -111,7 +111,7 @@ export default function MyReports({ reports }: MyReportsProps) {
                 {/* Content */}
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-gray-800">
+                    <h3 className="text-lg font-semibold text-[#E5E7EB]">
                       {report.title || "Pothole Report"}
                     </h3>
                     <span
@@ -122,31 +122,31 @@ export default function MyReports({ reports }: MyReportsProps) {
                   </div>
 
                   {report.description && (
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                    <p className="text-[#9CA3AF] text-sm mb-3 line-clamp-2">
                       {report.description}
                     </p>
                   )}
 
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-500">Location:</span>
-                      <p className="text-gray-700 font-medium">
+                      <span className="text-[#9CA3AF]">Location:</span>
+                      <p className="text-[#E5E7EB] font-medium font-mono">
                         {report.latitude.toFixed(4)},{" "}
                         {report.longitude.toFixed(4)}
                       </p>
                     </div>
 
                     <div>
-                      <span className="text-gray-500">Submitted:</span>
-                      <p className="text-gray-700 font-medium">
+                      <span className="text-[#9CA3AF]">Submitted:</span>
+                      <p className="text-[#E5E7EB] font-medium">
                         {new Date(report.createdAt).toLocaleDateString()}
                       </p>
                     </div>
 
                     {report.severity && (
                       <div>
-                        <span className="text-gray-500">Severity:</span>
-                        <p className="text-red-600 font-bold">
+                        <span className="text-[#9CA3AF]">Severity:</span>
+                        <p className="text-[#F87171] font-bold">
                           {report.severity} / 5
                         </p>
                       </div>
@@ -154,8 +154,8 @@ export default function MyReports({ reports }: MyReportsProps) {
 
                     {hasDetection && (
                       <div>
-                        <span className="text-gray-500">AI Detection:</span>
-                        <p className="text-green-600 font-medium">
+                        <span className="text-[#9CA3AF]">AI Detection:</span>
+                        <p className="text-[#22C55E] font-medium">
                           ✓ {(highestConfidence * 100).toFixed(0)}% Confidence
                         </p>
                       </div>
