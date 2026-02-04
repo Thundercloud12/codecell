@@ -52,123 +52,133 @@ export default function CitizenDashboard() {
   const impactScore = reports.length * 150;
 
   return (
-    <div className="min-h-screen bg-[#050B16] text-white font-sans selection:bg-[#00E676] selection:text-black">
-      <nav className="border-b border-[#1F2937] bg-[#050B16]/90 backdrop-blur sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#00E676] rounded flex items-center justify-center font-bold text-black">
-              C
+    <div className="min-h-screen bg-[#F8F6F1] text-[#1E3A5F] font-sans">
+      {/* Header */}
+      <nav className="bg-[#1E3A5F] shadow-md sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+              <span className="text-[#1E3A5F] text-xl">🏛️</span>
             </div>
-            <h1 className="text-xl font-bold tracking-widest uppercase text-white">
-              Civic<span className="text-[#00E676]">Connect</span>
-            </h1>
+            <div>
+              <h1 className="text-xl font-bold text-white tracking-wide">Citizen Portal</h1>
+              <p className="text-[#A8C5E2] text-xs">Report Infrastructure Issues</p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right hidden md:block">
-              <div className="text-xs text-[#94A3B8] font-mono">OPERATOR_ID</div>
-              <div className="font-bold text-[#00E676] uppercase tracking-wider">{user?.firstName}</div>
+              <p className="text-white font-medium">Welcome, {user?.firstName}!</p>
+              <p className="text-[#A8C5E2] text-xs">Citizen Reporter</p>
             </div>
             <UserButton afterSignOutUrl="/" />
           </div>
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto p-6 md:p-8">
-        <div className="mb-12 relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#00E676]/20 to-transparent p-1 border border-[#00E676]/30">
-          <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20"></div>
-          <div className="bg-[#050B16]/80 backdrop-blur p-8 rounded-xl relative z-10 flex flex-col md:flex-row justify-between items-end">
-             <div>
-                <h2 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter mb-2">
-                  Welcome Back,<br/><span className="text-[#00E676]">{user?.firstName}</span>
-                </h2>
-                <p className="text-[#94A3B8] max-w-lg font-mono text-sm">
-                  Your contributions actively improve urban infrastructure safety.
-                  Monitor global hazard levels and submit new detections below.
-                </p>
-             </div>
-             <div className="mt-6 md:mt-0 text-right">
-                <div className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-1">Total Impact Score</div>
-                <div className="text-6xl font-black text-white leading-none tracking-tighter filter drop-shadow-[0_0_10px_rgba(0,230,118,0.5)]">
-                  {impactScore.toLocaleString()}
-                </div>
-             </div>
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Welcome Banner */}
+        <div className="mb-8 bg-white border-2 border-[#E5E1D8] rounded-xl p-6 shadow-sm">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <h2 className="text-2xl font-bold text-[#1E3A5F] mb-2">
+                Welcome back, {user?.firstName}!
+              </h2>
+              <p className="text-[#5A6C7D] max-w-lg">
+                Your contributions help improve road safety in your community. 
+                Report hazards, track your submissions, and view the city-wide risk map.
+              </p>
+            </div>
+            <div className="bg-[#E8F4FD] border border-[#B8D4E8] rounded-xl p-4 text-center min-w-[140px]">
+              <div className="text-xs font-medium text-[#5A6C7D] mb-1">Impact Score</div>
+              <div className="text-4xl font-bold text-[#1E3A5F]">{impactScore}</div>
+              <div className="text-xs text-[#5A6C7D]">points earned</div>
+            </div>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-          {/* Action 1 */}
-          <Link
-            href="/citizen/report"
-            className="group relative h-48 rounded-xl bg-[#0B1220] border border-[#1F2937] overflow-hidden hover:border-[#00E676] transition-all duration-300 flex flex-col justify-end p-6"
-          >
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-              <span className="text-9xl font-black">!</span>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-[#00E676]/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
-            
-            <div className="relative z-10">
-               <div className="w-12 h-12 bg-[#00E676] rounded-full flex items-center justify-center text-black font-bold mb-3 group-hover:scale-110 transition">
-                 +
-               </div>
-               <h3 className="text-xl font-bold uppercase tracking-wider text-white group-hover:text-[#00E676] transition">Log New Hazard</h3>
-               <p className="text-xs text-[#94A3B8] font-mono mt-1">Geo-tag and upload evidence</p>
-            </div>
-          </Link>
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <h3 className="text-lg font-bold text-[#1E3A5F] mb-4 flex items-center gap-2">
+            <span className="w-1 h-6 bg-[#1E3A5F] rounded-full"></span>
+            Quick Actions
+          </h3>
+          <div className="grid md:grid-cols-3 gap-4">
+            {/* Report New Issue */}
+            <Link
+              href="/citizen/report"
+              className="bg-white border-2 border-[#E5E1D8] rounded-xl p-6 hover:border-[#1E3A5F] hover:shadow-lg transition group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 bg-[#E8F5E9] border-2 border-[#C8E6C9] rounded-lg flex items-center justify-center group-hover:scale-105 transition">
+                  <span className="text-2xl">📝</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-[#1E3A5F] mb-1">Report New Issue</h3>
+                  <p className="text-[#5A6C7D] text-sm">Submit a pothole or road hazard with photo evidence</p>
+                </div>
+              </div>
+            </Link>
 
-          {/* Action 2 */}
-          <Link
-            href="/citizen/my-reports"
-            className="group relative h-48 rounded-xl bg-[#0B1220] border border-[#1F2937] overflow-hidden hover:border-[#00B8D4] transition-all duration-300 flex flex-col justify-end p-6"
-          >
-             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-              <span className="text-9xl font-black">#</span>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-[#00B8D4]/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
-            
-            <div className="relative z-10">
-               <h3 className="text-xl font-bold uppercase tracking-wider text-white group-hover:text-[#00B8D4] transition">My Submissions</h3>
-               <p className="text-xs text-[#94A3B8] font-mono mt-1">Track status and rewards</p>
-               <div className="mt-2 text-2xl font-mono text-[#00B8D4] font-bold">{reports.length} <span className="text-xs text-[#94A3B8] align-top">Active</span></div>
-            </div>
-          </Link>
+            {/* My Submissions */}
+            <Link
+              href="/citizen/my-reports"
+              className="bg-white border-2 border-[#E5E1D8] rounded-xl p-6 hover:border-[#1E3A5F] hover:shadow-lg transition group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 bg-[#E8F4FD] border-2 border-[#B8D4E8] rounded-lg flex items-center justify-center group-hover:scale-105 transition">
+                  <span className="text-2xl">📋</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-[#1E3A5F] mb-1">My Submissions</h3>
+                  <p className="text-[#5A6C7D] text-sm">Track status of your {reports.length} report{reports.length !== 1 ? 's' : ''}</p>
+                </div>
+              </div>
+            </Link>
 
-          {/* Action 3 */}
-          <Link
-            href="/citizen/map"
-            className="group relative h-48 rounded-xl bg-[#0B1220] border border-[#1F2937] overflow-hidden hover:border-[#FFC400] transition-all duration-300 flex flex-col justify-end p-6"
-          >
-            <div className="absolute inset-0 bg-[url('/map-grid.png')] bg-cover opacity-20 mix-blend-overlay"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-[#FFC400]/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
-            
-            <div className="relative z-10">
-               <h3 className="text-xl font-bold uppercase tracking-wider text-white group-hover:text-[#FFC400] transition">Live Risk Map</h3>
-               <p className="text-xs text-[#94A3B8] font-mono mt-1">View city-wide danger zones</p>
-            </div>
-          </Link>
+            {/* View Map */}
+            <Link
+              href="/citizen/map"
+              className="bg-white border-2 border-[#E5E1D8] rounded-xl p-6 hover:border-[#1E3A5F] hover:shadow-lg transition group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 bg-[#FEF3E8] border-2 border-[#E8D4B8] rounded-lg flex items-center justify-center group-hover:scale-105 transition">
+                  <span className="text-2xl">🗺️</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-[#1E3A5F] mb-1">View Risk Map</h3>
+                  <p className="text-[#5A6C7D] text-sm">See all reported issues in your area</p>
+                </div>
+              </div>
+            </Link>
+          </div>
         </div>
 
-        <div className="bg-[#0B1220] border border-[#1F2937] rounded-xl overflow-hidden">
-          <div className="p-6 border-b border-[#1F2937] flex justify-between items-center">
-             <h3 className="text-lg font-bold uppercase tracking-wider flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#00E676] animate-pulse"></span>
-                Recent Activity Log
-             </h3>
-             <Link href="/citizen/my-reports" className="text-xs text-[#00E676] hover:underline font-mono uppercase">View All Logs</Link>
+        {/* Recent Activity */}
+        <div className="bg-white border-2 border-[#E5E1D8] rounded-xl overflow-hidden shadow-sm">
+          <div className="p-5 border-b border-[#E5E1D8] flex justify-between items-center">
+            <h3 className="text-lg font-bold text-[#1E3A5F] flex items-center gap-2">
+              <span className="w-1 h-6 bg-[#1E3A5F] rounded-full"></span>
+              Recent Activity
+            </h3>
+            <Link href="/citizen/my-reports" className="text-sm text-[#1E3A5F] hover:underline font-medium">
+              View All →
+            </Link>
           </div>
           
           {loading ? (
-            <div className="p-12 text-center text-[#94A3B8] font-mono animate-pulse">
-              SYNCING_DATABASE...
+            <div className="p-12 text-center text-[#5A6C7D]">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#1E3A5F] mx-auto mb-4"></div>
+              Loading your reports...
             </div>
           ) : reports.length === 0 ? (
             <div className="p-12 text-center">
-              <div className="text-4xl mb-4 opacity-20">📂</div>
-              <p className="text-[#94A3B8] text-sm font-mono uppercase">No records found in local database.</p>
+              <div className="text-5xl mb-4 opacity-30">📂</div>
+              <p className="text-[#5A6C7D] mb-4">You haven't submitted any reports yet.</p>
               <Link
                 href="/citizen/report"
-                className="inline-block mt-4 text-[#00E676] border border-[#00E676] px-4 py-2 rounded text-xs font-bold uppercase hover:bg-[#00E676] hover:text-black transition"
+                className="inline-block bg-[#1E3A5F] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#2A4A6F] transition"
               >
-                Initiate First Report
+                Submit Your First Report
               </Link>
             </div>
           ) : (
@@ -176,25 +186,26 @@ export default function CitizenDashboard() {
               {reports.slice(0, 5).map((report, idx) => (
                 <div
                   key={report.id}
-                  className="p-4 border-b border-[#1F2937] hover:bg-[#1F2937]/50 transition flex flex-col sm:flex-row justify-between sm:items-center gap-4 group"
+                  className="p-4 border-b border-[#E5E1D8] last:border-b-0 hover:bg-[#F8F6F1] transition flex flex-col sm:flex-row justify-between sm:items-center gap-4"
                 >
                   <div className="flex items-start gap-4">
-                     <div className="font-mono text-[#94A3B8] opacity-50 text-xs mt-1">
-                        {(idx + 1).toString().padStart(2, '0')}
-                     </div>
-                     <div>
-                        <div className="font-bold text-white group-hover:text-[#00E676] transition">
-                           {report.title || "UNLABELED_HAZARD"}
-                        </div>
-                        <div className="text-xs text-[#94A3B8] font-mono">
-                           COORD: {report.latitude.toFixed(4)}, {report.longitude.toFixed(4)}
-                        </div>
-                     </div>
+                    <div className="w-8 h-8 bg-[#E5E1D8] rounded-full flex items-center justify-center text-sm font-bold text-[#5A6C7D]">
+                      {idx + 1}
+                    </div>
+                    <div>
+                      <div className="font-bold text-[#1E3A5F]">
+                        {report.title || "Untitled Report"}
+                      </div>
+                      <div className="text-sm text-[#5A6C7D]">
+                        📍 {report.latitude.toFixed(4)}, {report.longitude.toFixed(4)}
+                      </div>
+                    </div>
                   </div>
-                  <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider border ${
-                     report.status === 'VERIFIED' ? 'bg-[#00E676]/10 text-[#00E676] border-[#00E676]/30' :
-                     report.status === 'PENDING' ? 'bg-[#FFC400]/10 text-[#FFC400] border-[#FFC400]/30' :
-                     'bg-[#94A3B8]/10 text-[#94A3B8] border-[#94A3B8]/30'
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    report.status === 'VERIFIED' ? 'bg-green-100 text-green-700' :
+                    report.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+                    report.status === 'RESOLVED' ? 'bg-blue-100 text-blue-700' :
+                    'bg-gray-100 text-gray-700'
                   }`}>
                     {report.status}
                   </span>
@@ -202,6 +213,11 @@ export default function CitizenDashboard() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Footer */}
+        <div className="mt-8 pt-6 border-t border-[#E5E1D8] text-center">
+          <p className="text-sm text-[#5A6C7D]">Road Infrastructure Management System • Citizen Portal</p>
         </div>
       </div>
     </div>

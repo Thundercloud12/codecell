@@ -10,8 +10,8 @@ import dynamic from 'next/dynamic'
 const SimpleWorkerNav = dynamic(() => import('@/components/SimpleWorkerNav'), {
   ssr: false,
   loading: () => (
-    <div className="h-96 bg-[#0B1220] rounded-lg flex items-center justify-center border border-[#1F2937]">
-      <div className="text-[#00E676] font-mono animate-pulse">LOADING_NAV_MODULE...</div>
+    <div className="h-96 bg-white rounded-xl flex items-center justify-center border-2 border-[#E5E1D8]">
+      <div className="text-[#1E3A5F] font-medium">Loading navigation...</div>
     </div>
   ),
 })
@@ -243,54 +243,54 @@ export default function WorkerDashboardPage() {
 
   const getPriorityColor = (level: string | null) => {
     switch (level) {
-      case 'CRITICAL': return 'bg-[#FF1744]/20 text-[#FF1744] border-[#FF1744]/50'
-      case 'HIGH': return 'bg-[#FF9100]/20 text-[#FF9100] border-[#FF9100]/50'
-      case 'MEDIUM': return 'bg-[#FFC400]/20 text-[#FFC400] border-[#FFC400]/50'
-      case 'LOW': return 'bg-[#00E676]/20 text-[#00E676] border-[#00E676]/50'
-      default: return 'bg-[#94A3B8]/20 text-[#94A3B8] border-[#94A3B8]/50'
+      case 'CRITICAL': return 'bg-red-100 text-red-700'
+      case 'HIGH': return 'bg-orange-100 text-orange-700'
+      case 'MEDIUM': return 'bg-amber-100 text-amber-700'
+      case 'LOW': return 'bg-green-100 text-green-700'
+      default: return 'bg-gray-100 text-gray-600'
     }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'ASSIGNED': return 'bg-blue-500/20 text-blue-400 border-blue-500/50'
-      case 'IN_PROGRESS': return 'bg-purple-500/20 text-purple-400 border-purple-500/50'
-      case 'AWAITING_VERIFICATION': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50'
-      default: return 'bg-[#94A3B8]/20 text-[#94A3B8] border-[#94A3B8]/50'
+      case 'ASSIGNED': return 'bg-blue-100 text-blue-700'
+      case 'IN_PROGRESS': return 'bg-purple-100 text-purple-700'
+      case 'AWAITING_VERIFICATION': return 'bg-amber-100 text-amber-700'
+      default: return 'bg-gray-100 text-gray-600'
     }
   }
 
   // Loading state
   if (!isLoaded || loading) {
     return (
-      <div className="min-h-screen bg-[#050B16] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8F6F1] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#00E676] mx-auto mb-4"></div>
-          <p className="text-[#00E676] font-mono animate-pulse">AUTHENTICATING OPERATIVE...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#1E3A5F] border-t-transparent mx-auto mb-4"></div>
+          <p className="text-[#1E3A5F] font-medium">Loading your dashboard...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#050B16] text-white">
+    <div className="min-h-screen bg-[#F8F6F1] text-[#1E3A5F]">
       {/* Header */}
-      <nav className="bg-[#050B16]/90 border-b border-[#1F2937] sticky top-0 z-50 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <nav className="bg-[#1E3A5F] shadow-md sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FFC400] to-[#FF9100] flex items-center justify-center text-black font-bold text-lg">
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#1E3A5F] font-bold text-lg">
               W
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white tracking-widest uppercase">Field Operative</h1>
-              <p className="text-xs text-[#94A3B8] font-mono">
-                UNIT: {worker?.name?.toUpperCase() || user?.firstName?.toUpperCase() || 'UNKNOWN'}
+              <h1 className="text-xl font-bold text-white">Field Worker Dashboard</h1>
+              <p className="text-xs text-[#A8C5E2]">
+                {worker?.name || user?.firstName || 'Worker'}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             {worker && (
-              <span className="text-xs font-mono text-[#94A3B8] bg-[#1F2937] px-3 py-1 rounded-full">
+              <span className="text-xs text-[#A8C5E2] bg-[#2A4A6F] px-3 py-1 rounded-full">
                 ID: {worker.employeeId}
               </span>
             )}
@@ -299,72 +299,72 @@ export default function WorkerDashboardPage() {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto p-6">
         {/* Error State */}
         {error && (
-          <div className="bg-[#FF1744]/10 border border-[#FF1744]/30 rounded-xl p-6 mb-6">
+          <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6 mb-6">
             <div className="flex items-center gap-3">
               <span className="text-2xl">⚠️</span>
               <div>
-                <div className="font-bold text-[#FF1744] uppercase">System Error</div>
-                <div className="text-sm text-[#FF1744]/70">{error}</div>
+                <div className="font-bold text-[#C62828]">Error</div>
+                <div className="text-sm text-[#C62828]/70">{error}</div>
               </div>
             </div>
             <button
               onClick={fetchWorkerData}
-              className="mt-4 px-4 py-2 bg-[#FF1744]/20 border border-[#FF1744]/50 text-[#FF1744] hover:bg-[#FF1744] hover:text-white rounded-lg transition text-sm font-bold uppercase"
+              className="mt-4 px-4 py-2 bg-[#1E3A5F] text-white rounded-lg hover:bg-[#2A4A6F] transition text-sm font-medium"
             >
-              Retry Connection
+              Retry
             </button>
           </div>
         )}
 
         {/* Location Status */}
         {workerLocation ? (
-          <div className="bg-[#00E676]/10 border border-[#00E676]/30 rounded-xl p-4 mb-6 flex items-center justify-between">
+          <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full bg-[#00E676] animate-pulse"></span>
+              <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
               <div>
-                <div className="font-bold text-[#00E676] text-sm tracking-wider uppercase">GPS Tracking Active</div>
-                <div className="text-xs text-[#00E676]/70 font-mono">
-                  LAT: {workerLocation.latitude.toFixed(6)} | LNG: {workerLocation.longitude.toFixed(6)}
+                <div className="font-bold text-green-700 text-sm">GPS Tracking Active</div>
+                <div className="text-xs text-green-600">
+                  Lat: {workerLocation.latitude.toFixed(6)} | Lng: {workerLocation.longitude.toFixed(6)}
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={requestLocation}
-                className="text-xs text-[#00E676] hover:text-white font-mono px-3 py-1 border border-[#00E676]/30 rounded hover:bg-[#00E676]/20 transition"
+                className="text-xs text-green-700 hover:text-green-900 font-medium px-3 py-1 border border-green-300 rounded-lg hover:bg-green-100 transition"
               >
-                REFRESH
+                Refresh
               </button>
               <button
                 onClick={updateLocation}
                 disabled={actionLoading}
-                className="text-xs bg-[#00E676] text-black font-bold px-3 py-1 rounded hover:bg-[#00E676]/80 transition disabled:opacity-50"
+                className="text-xs bg-green-600 text-white font-medium px-3 py-1 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
               >
-                {actionLoading ? 'SYNCING...' : 'SYNC TO SERVER'}
+                {actionLoading ? 'Syncing...' : 'Sync to Server'}
               </button>
             </div>
           </div>
         ) : locationError ? (
-          <div className="bg-[#FF1744]/10 border border-[#FF1744]/30 rounded-xl p-4 mb-6 flex items-center justify-between">
+          <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-6 flex items-center justify-between">
             <div>
-              <div className="font-bold text-[#FF1744] text-sm uppercase">⚠️ GPS Signal Lost</div>
-              <div className="text-xs text-[#FF1744]/70">{locationError}</div>
+              <div className="font-bold text-[#C62828] text-sm">⚠️ GPS Signal Lost</div>
+              <div className="text-xs text-[#C62828]/70">{locationError}</div>
             </div>
             <button
               onClick={requestLocation}
-              className="px-4 py-2 bg-[#FF1744]/20 border border-[#FF1744]/50 text-[#FF1744] hover:bg-[#FF1744] hover:text-white rounded-lg transition text-xs font-bold uppercase"
+              className="px-4 py-2 bg-[#1E3A5F] text-white rounded-lg hover:bg-[#2A4A6F] transition text-xs font-medium"
             >
               Retry
             </button>
           </div>
         ) : (
-          <div className="bg-[#1F2937]/50 border border-[#1F2937] rounded-xl p-4 mb-6">
+          <div className="bg-white border-2 border-[#E5E1D8] rounded-xl p-4 mb-6">
             <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#00E676]"></div>
-              <span className="text-[#94A3B8] text-sm font-mono">ACQUIRING GPS SIGNAL...</span>
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#1E3A5F] border-t-transparent"></div>
+              <span className="text-[#5A6C7D] text-sm">Acquiring GPS signal...</span>
             </div>
           </div>
         )}
@@ -372,89 +372,89 @@ export default function WorkerDashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           {[
-            { icon: '📋', label: 'Assigned', val: taskStats.assigned, color: 'text-blue-400', border: 'border-blue-500/30', bg: 'bg-blue-500/10' },
-            { icon: '⚙️', label: 'In Progress', val: taskStats.inProgress, color: 'text-purple-400', border: 'border-purple-500/30', bg: 'bg-purple-500/10' },
-            { icon: '⏳', label: 'Awaiting Review', val: taskStats.awaiting, color: 'text-yellow-400', border: 'border-yellow-500/30', bg: 'bg-yellow-500/10' },
+            { icon: '📋', label: 'Assigned', val: taskStats.assigned, color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200' },
+            { icon: '⚙️', label: 'In Progress', val: taskStats.inProgress, color: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-200' },
+            { icon: '⏳', label: 'Awaiting Review', val: taskStats.awaiting, color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200' },
           ].map((stat, i) => (
-            <div key={i} className={`${stat.bg} p-5 rounded-xl border ${stat.border}`}>
+            <div key={i} className={`${stat.bg} p-5 rounded-xl border-2 ${stat.border}`}>
               <div className="text-3xl mb-2">{stat.icon}</div>
-              <div className="text-xs text-[#94A3B8] uppercase tracking-wider mb-1">{stat.label}</div>
-              <div className={`text-3xl font-black ${stat.color} font-mono`}>{stat.val}</div>
+              <div className="text-xs text-[#5A6C7D] mb-1">{stat.label}</div>
+              <div className={`text-3xl font-bold ${stat.color}`}>{stat.val}</div>
             </div>
           ))}
         </div>
 
         {/* No Worker Profile */}
         {!worker && !error && (
-          <div className="bg-[#1F2937]/50 border border-yellow-500/30 rounded-xl p-8 text-center backdrop-blur-sm">
-            <p className="text-yellow-400 font-bold mb-2 text-lg">⚠️ PROFILE NOT LINKED</p>
-            <p className="text-sm text-[#94A3B8]">Your account is not linked to a worker profile.</p>
-            <p className="text-sm text-[#94A3B8]">Contact Command Center (Admin) to get assigned.</p>
+          <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-8 text-center">
+            <p className="text-amber-700 font-bold mb-2 text-lg">⚠️ Profile Not Linked</p>
+            <p className="text-sm text-[#5A6C7D]">Your account is not linked to a worker profile.</p>
+            <p className="text-sm text-[#5A6C7D]">Contact an administrator to get assigned.</p>
           </div>
         )}
 
         {/* Tasks Section */}
         {worker && tasks.length === 0 && (
-          <div className="bg-[#0B1220] rounded-xl border border-[#1F2937] p-12 text-center">
-            <div className="text-6xl mb-6 opacity-20">📡</div>
-            <h3 className="text-xl font-bold text-white mb-2">No Active Missions</h3>
-            <p className="text-[#94A3B8]">Standby for new assignments from Command Center.</p>
+          <div className="bg-white rounded-xl border-2 border-[#E5E1D8] p-12 text-center shadow-sm">
+            <div className="text-6xl mb-6 opacity-30">📡</div>
+            <h3 className="text-xl font-bold text-[#1E3A5F] mb-2">No Active Tasks</h3>
+            <p className="text-[#5A6C7D]">Standby for new assignments from admin.</p>
             <button
               onClick={fetchWorkerData}
-              className="mt-6 px-6 py-2 bg-[#1F2937] text-[#00E676] border border-[#00E676]/30 rounded-lg hover:bg-[#00E676]/10 transition font-mono text-sm"
+              className="mt-6 px-6 py-2 bg-[#1E3A5F] text-white rounded-lg hover:bg-[#2A4A6F] transition text-sm font-medium"
             >
-              CHECK FOR UPDATES
+              Check for Updates
             </button>
           </div>
         )}
 
         {worker && tasks.length > 0 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-white flex items-center gap-3">
-              <span className="w-1 h-6 bg-[#00E676] rounded-full"></span>
-              MISSION LOG
-              <span className="text-xs text-[#94A3B8] font-mono py-1 px-3 bg-[#1F2937] rounded-full">
-                {tasks.length} ACTIVE
+            <h2 className="text-xl font-bold text-[#1E3A5F] flex items-center gap-3">
+              <span className="w-1 h-6 bg-[#1E3A5F] rounded-full"></span>
+              My Tasks
+              <span className="text-xs text-[#5A6C7D] font-normal py-1 px-3 bg-white border border-[#E5E1D8] rounded-full">
+                {tasks.length} Active
               </span>
               <button
                 onClick={fetchWorkerData}
-                className="ml-auto text-xs text-[#00E676] font-mono hover:underline"
+                className="ml-auto text-xs text-[#1E3A5F] font-medium hover:underline"
               >
-                ↻ REFRESH
+                ↻ Refresh
               </button>
             </h2>
 
             {tasks.map((task) => (
               <div
                 key={task.id}
-                className="bg-[#0B1220] border border-[#1F2937] rounded-xl overflow-hidden hover:border-[#00E676]/50 transition group"
+                className="bg-white border-2 border-[#E5E1D8] rounded-xl overflow-hidden hover:border-[#1E3A5F] transition shadow-sm"
               >
                 {/* Task Header */}
                 <div className="p-5 flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="font-mono text-lg font-bold text-white">{task.ticketNumber}</span>
-                      <span className={`text-xs px-2 py-1 rounded-full border ${getStatusColor(task.status)}`}>
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
+                      <span className="text-lg font-bold text-[#1E3A5F]">{task.ticketNumber}</span>
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${getStatusColor(task.status)}`}>
                         {task.status.replace('_', ' ')}
                       </span>
-                      <span className={`text-xs px-2 py-1 rounded-full border ${getPriorityColor(task.potholes[0]?.priorityLevel)}`}>
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${getPriorityColor(task.potholes[0]?.priorityLevel)}`}>
                         {task.potholes[0]?.priorityLevel || 'UNRANKED'}
                       </span>
                     </div>
-                    <div className="text-sm text-[#94A3B8]">
+                    <div className="text-sm text-[#5A6C7D]">
                       📍 {task.potholes[0]?.roadInfo?.roadName || 'Unknown Road'}
                       {task.potholes[0]?.roadInfo?.roadType && (
-                        <span className="text-xs text-[#6B7280]"> ({task.potholes[0].roadInfo.roadType})</span>
+                        <span className="text-xs text-[#5A6C7D]/70"> ({task.potholes[0].roadInfo.roadType})</span>
                       )}
                     </div>
-                    <div className="text-xs text-[#6B7280] font-mono mt-1">
-                      COORDS: {task.potholes[0]?.latitude?.toFixed(6) || 'N/A'}, {task.potholes[0]?.longitude?.toFixed(6) || 'N/A'}
+                    <div className="text-xs text-[#5A6C7D] mt-1">
+                      Coords: {task.potholes[0]?.latitude?.toFixed(6) || 'N/A'}, {task.potholes[0]?.longitude?.toFixed(6) || 'N/A'}
                     </div>
                   </div>
 
                   <button
                     onClick={() => setExpandedTask(expandedTask === task.id ? null : task.id)}
-                    className="text-[#00E676] hover:text-white transition p-2"
+                    className="text-[#1E3A5F] hover:text-[#2A4A6F] transition p-2"
                   >
                     {expandedTask === task.id ? '▲' : '▼'}
                   </button>
@@ -462,10 +462,10 @@ export default function WorkerDashboardPage() {
 
                 {/* Expanded Content */}
                 {expandedTask === task.id && (
-                  <div className="border-t border-[#1F2937] p-5 space-y-4">
+                  <div className="border-t-2 border-[#E5E1D8] p-5 space-y-4 bg-[#F8F6F1]">
                     {/* Navigation Map */}
                     {workerLocation && task.potholes[0] && (
-                      <div className="rounded-xl overflow-hidden border border-[#1F2937]">
+                      <div className="rounded-xl overflow-hidden border-2 border-[#E5E1D8]">
                         <SimpleWorkerNav
                           workerLocation={workerLocation}
                           potholeLocation={{
@@ -482,18 +482,18 @@ export default function WorkerDashboardPage() {
                         <button
                           onClick={() => startJob(task.id)}
                           disabled={actionLoading}
-                          className="flex-1 bg-purple-600 text-white px-4 py-3 rounded-xl font-bold hover:bg-purple-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                          className="flex-1 bg-purple-600 text-white px-4 py-3 rounded-xl font-medium hover:bg-purple-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
                         >
-                          {actionLoading ? '⏳ Starting...' : '🚀 START JOB'}
+                          {actionLoading ? '⏳ Starting...' : '🚀 Start Job'}
                         </button>
                       )}
 
                       {task.status === 'IN_PROGRESS' && (
-                        <label className="flex-1 bg-[#00E676] text-black px-4 py-3 rounded-xl font-bold hover:bg-[#00E676]/80 transition cursor-pointer flex items-center justify-center gap-2">
+                        <label className="flex-1 bg-green-600 text-white px-4 py-3 rounded-xl font-medium hover:bg-green-700 transition cursor-pointer flex items-center justify-center gap-2">
                           {uploadingProof === task.id ? (
                             <>⏳ Uploading...</>
                           ) : (
-                            <>📸 UPLOAD PROOF</>
+                            <>📸 Upload Proof</>
                           )}
                           <input
                             type="file"
@@ -509,7 +509,7 @@ export default function WorkerDashboardPage() {
                       )}
 
                       {task.status === 'AWAITING_VERIFICATION' && (
-                        <div className="flex-1 bg-yellow-500/20 text-yellow-400 px-4 py-3 rounded-xl font-bold text-center border border-yellow-500/30">
+                        <div className="flex-1 bg-amber-100 text-amber-700 px-4 py-3 rounded-xl font-medium text-center border-2 border-amber-200">
                           ⏳ Awaiting Admin Review
                         </div>
                       )}
@@ -519,7 +519,7 @@ export default function WorkerDashboardPage() {
                           href={`https://www.google.com/maps/dir/?api=1&destination=${task.potholes[0].latitude},${task.potholes[0].longitude}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="bg-[#1F2937] text-white px-4 py-3 rounded-xl font-bold hover:bg-[#374151] transition flex items-center gap-2"
+                          className="bg-[#1E3A5F] text-white px-4 py-3 rounded-xl font-medium hover:bg-[#2A4A6F] transition flex items-center gap-2"
                         >
                           🗺️ Open in Maps
                         </a>
@@ -528,14 +528,14 @@ export default function WorkerDashboardPage() {
 
                     {/* Proof History */}
                     {task.workProofs.length > 0 && (
-                      <div className="bg-[#1F2937]/50 rounded-lg p-4">
-                        <div className="text-xs text-[#94A3B8] uppercase mb-2">Submitted Proofs</div>
+                      <div className="bg-white rounded-lg p-4 border border-[#E5E1D8]">
+                        <div className="text-xs text-[#5A6C7D] mb-2">Submitted Proofs</div>
                         {task.workProofs.map((proof) => (
                           <div key={proof.id} className="flex items-center gap-2 text-sm">
-                            <span className={proof.isApproved === true ? 'text-green-400' : proof.isApproved === false ? 'text-red-400' : 'text-yellow-400'}>
+                            <span className={proof.isApproved === true ? 'text-green-600' : proof.isApproved === false ? 'text-red-600' : 'text-amber-600'}>
                               {proof.isApproved === true ? '✓' : proof.isApproved === false ? '✗' : '⏳'}
                             </span>
-                            <span className="text-[#94A3B8]">
+                            <span className="text-[#5A6C7D]">
                               {new Date(proof.submittedAt).toLocaleString()}
                             </span>
                           </div>

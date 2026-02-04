@@ -112,131 +112,247 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-purple-600">Admin Portal</h1>
+    <div className="min-h-screen bg-[#F8F6F1]">
+      {/* Header */}
+      <nav className="bg-[#1E3A5F] shadow-md">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+              <span className="text-[#1E3A5F] text-xl font-bold">🏛️</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white tracking-wide">Administration Portal</h1>
+              <p className="text-[#A8C5E2] text-xs">Road Infrastructure Management System</p>
+            </div>
+          </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">Welcome, {user?.firstName}!</span>
+            <div className="text-right">
+              <p className="text-white font-medium">Welcome, {user?.firstName}!</p>
+              <p className="text-[#A8C5E2] text-xs">Administrator</p>
+            </div>
             <UserButton afterSignOutUrl="/" />
           </div>
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto p-8">
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Page Title */}
+        <div className="mb-8 pb-4 border-b-2 border-[#1E3A5F]/20">
+          <h2 className="text-2xl font-bold text-[#1E3A5F]">Dashboard Overview</h2>
+          <p className="text-[#5A6C7D] mt-1">System-wide management and oversight</p>
+        </div>
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white rounded-lg shadow-sm border border-[#E5E1D8] p-5 hover:shadow-md transition">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-[#E8F4FD] rounded-lg flex items-center justify-center">
+                <span className="text-2xl">🕳️</span>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-[#5A6C7D] font-medium">Total Potholes</p>
+                <p className="text-2xl font-bold text-[#1E3A5F]">{loading ? '...' : stats.totalPotholes}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-[#E5E1D8] p-5 hover:shadow-md transition">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-[#F3E8FD] rounded-lg flex items-center justify-center">
+                <span className="text-2xl">📋</span>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-[#5A6C7D] font-medium">Total Tickets</p>
+                <p className="text-2xl font-bold text-[#1E3A5F]">{loading ? '...' : stats.totalTickets}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-[#E5E1D8] p-5 hover:shadow-md transition">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-[#FEF3E8] rounded-lg flex items-center justify-center">
+                <span className="text-2xl">👷</span>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-[#5A6C7D] font-medium">Active Workers</p>
+                <p className="text-2xl font-bold text-[#1E3A5F]">{loading ? '...' : stats.totalWorkers}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-[#E5E1D8] p-5 hover:shadow-md transition">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-[#FDF8E8] rounded-lg flex items-center justify-center">
+                <span className="text-2xl">⏳</span>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-[#5A6C7D] font-medium">Pending Review</p>
+                <p className="text-2xl font-bold text-[#1E3A5F]">{loading ? '...' : stats.pendingVerification}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Navigation Cards */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Admin Dashboard</h2>
-          <p className="text-gray-600">System-wide management and oversight</p>
-        </div>
+          <h3 className="text-lg font-bold text-[#1E3A5F] mb-4 flex items-center gap-2">
+            <span className="w-1 h-6 bg-[#1E3A5F] rounded-full"></span>
+            Management Modules
+          </h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            <Link 
+              href="/potholes" 
+              className="bg-white border-2 border-[#E5E1D8] rounded-lg p-6 hover:border-[#1E3A5F] hover:shadow-lg transition group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 bg-[#E8F4FD] border-2 border-[#B8D4E8] rounded-lg flex items-center justify-center group-hover:scale-105 transition">
+                  <span className="text-2xl">🕳️</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-[#1E3A5F] mb-1">Pothole Management</h3>
+                  <p className="text-[#5A6C7D] text-sm leading-relaxed">View detected potholes, fetch road context, calculate severity rankings</p>
+                </div>
+                <span className="text-[#1E3A5F] text-xl group-hover:translate-x-1 transition">→</span>
+              </div>
+            </Link>
 
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg border">
-            <div className="text-4xl mb-2">🕳️</div>
-            <h3 className="text-lg font-bold mb-1">Total Potholes</h3>
-            <p className="text-3xl font-bold text-blue-600">{loading ? '...' : stats.totalPotholes}</p>
+            <Link 
+              href="/tickets" 
+              className="bg-white border-2 border-[#E5E1D8] rounded-lg p-6 hover:border-[#1E3A5F] hover:shadow-lg transition group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 bg-[#F3E8FD] border-2 border-[#D4B8E8] rounded-lg flex items-center justify-center group-hover:scale-105 transition">
+                  <span className="text-2xl">📋</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-[#1E3A5F] mb-1">Ticket Management</h3>
+                  <p className="text-[#5A6C7D] text-sm leading-relaxed">Manage repair tickets, assign workers, track status updates</p>
+                </div>
+                <span className="text-[#1E3A5F] text-xl group-hover:translate-x-1 transition">→</span>
+              </div>
+            </Link>
+
+            <Link 
+              href="/workers" 
+              className="bg-white border-2 border-[#E5E1D8] rounded-lg p-6 hover:border-[#1E3A5F] hover:shadow-lg transition group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 bg-[#FEF3E8] border-2 border-[#E8D4B8] rounded-lg flex items-center justify-center group-hover:scale-105 transition">
+                  <span className="text-2xl">👷</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-[#1E3A5F] mb-1">Worker Management</h3>
+                  <p className="text-[#5A6C7D] text-sm leading-relaxed">Field worker management, location tracking, task assignment</p>
+                </div>
+                <span className="text-[#1E3A5F] text-xl group-hover:translate-x-1 transition">→</span>
+              </div>
+            </Link>
+
+            <Link 
+              href="/admin/review" 
+              className="bg-white border-2 border-[#E5E1D8] rounded-lg p-6 hover:border-[#1E3A5F] hover:shadow-lg transition group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 bg-[#E8F5E9] border-2 border-[#B8E0BA] rounded-lg flex items-center justify-center group-hover:scale-105 transition">
+                  <span className="text-2xl">✅</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-[#1E3A5F] mb-1">Review Queue</h3>
+                  <p className="text-[#5A6C7D] text-sm leading-relaxed">Review and approve/reject completed work submissions</p>
+                </div>
+                <span className="text-[#1E3A5F] text-xl group-hover:translate-x-1 transition">→</span>
+              </div>
+            </Link>
           </div>
-
-          <div className="bg-white p-6 rounded-lg border">
-            <div className="text-4xl mb-2">🎫</div>
-            <h3 className="text-lg font-bold mb-1">Total Tickets</h3>
-            <p className="text-3xl font-bold text-purple-600">{loading ? '...' : stats.totalTickets}</p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg border">
-            <div className="text-4xl mb-2">👷</div>
-            <h3 className="text-lg font-bold mb-1">Active Workers</h3>
-            <p className="text-3xl font-bold text-orange-600">{loading ? '...' : stats.totalWorkers}</p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg border">
-            <div className="text-4xl mb-2">⏳</div>
-            <h3 className="text-lg font-bold mb-1">Pending Review</h3>
-            <p className="text-3xl font-bold text-yellow-600">{loading ? '...' : stats.pendingVerification}</p>
-          </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          <Link href="/potholes" className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-8 rounded-lg hover:shadow-xl transition">
-            <div className="text-5xl mb-3">🕳️</div>
-            <h3 className="text-2xl font-bold mb-2">Potholes</h3>
-            <p className="opacity-90">View detected potholes, fetch road context, calculate severity rankings</p>
-          </Link>
-
-          <Link href="/tickets" className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-8 rounded-lg hover:shadow-xl transition">
-            <div className="text-5xl mb-3">🎫</div>
-            <h3 className="text-2xl font-bold mb-2">Tickets</h3>
-            <p className="opacity-90">Manage repair tickets, assign workers, track status</p>
-          </Link>
-
-          <Link href="/workers" className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-8 rounded-lg hover:shadow-xl transition">
-            <div className="text-5xl mb-3">👷</div>
-            <h3 className="text-2xl font-bold mb-2">Workers</h3>
-            <p className="opacity-90">Field worker management, location tracking, task assignment</p>
-          </Link>
-
-          <Link href="/admin/review" className="bg-gradient-to-br from-green-500 to-green-600 text-white p-8 rounded-lg hover:shadow-xl transition">
-            <div className="text-5xl mb-3">✅</div>
-            <h3 className="text-2xl font-bold mb-2">Review Queue</h3>
-            <p className="opacity-90">Review and approve/reject completed work</p>
-          </Link>
         </div>
 
         {/* Pothole Management Section */}
         {potholeStats && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-            <h3 className="text-xl font-bold text-blue-900 mb-4">🕳️ Pothole Management</h3>
-            <div className="grid md:grid-cols-4 gap-4 mb-4 text-sm">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-800">{potholeStats.total_high_confidence_detections}</div>
-                <div className="text-blue-600">High Confidence Detections</div>
+          <div className="bg-white border-2 border-[#E5E1D8] rounded-lg p-6 mb-8">
+            <h3 className="text-lg font-bold text-[#1E3A5F] mb-4 flex items-center gap-2">
+              <span className="w-1 h-6 bg-[#1E3A5F] rounded-full"></span>
+              AI Detection Processing
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-[#F8F6F1] rounded-lg p-4 text-center">
+                <p className="text-3xl font-bold text-[#1E3A5F]">{potholeStats.total_high_confidence_detections}</p>
+                <p className="text-sm text-[#5A6C7D] mt-1">High Confidence</p>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-800">{potholeStats.existing_potholes}</div>
-                <div className="text-green-600">Existing Potholes</div>
+              <div className="bg-[#F8F6F1] rounded-lg p-4 text-center">
+                <p className="text-3xl font-bold text-[#2E7D32]">{potholeStats.existing_potholes}</p>
+                <p className="text-sm text-[#5A6C7D] mt-1">Existing Records</p>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-orange-800">{potholeStats.detections_without_potholes}</div>
-                <div className="text-orange-600">Unprocessed Detections</div>
+              <div className="bg-[#F8F6F1] rounded-lg p-4 text-center">
+                <p className="text-3xl font-bold text-[#C77700]">{potholeStats.detections_without_potholes}</p>
+                <p className="text-sm text-[#5A6C7D] mt-1">Unprocessed</p>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-800">{potholeStats.can_create}</div>
-                <div className="text-purple-600">Can Create</div>
+              <div className="bg-[#F8F6F1] rounded-lg p-4 text-center">
+                <p className="text-3xl font-bold text-[#1E3A5F]">{potholeStats.can_create}</p>
+                <p className="text-sm text-[#5A6C7D] mt-1">Ready to Create</p>
               </div>
             </div>
             
             {potholeStats.can_create > 0 && (
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-[#E8F4FD] rounded-lg border border-[#B8D4E8]">
                 <button
                   onClick={createPotholesFromDetections}
                   disabled={creatingPotholes}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-[#1E3A5F] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#2A4A6F] disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm"
                 >
-                  {creatingPotholes ? 'Creating...' : `🚀 Create ${potholeStats.can_create} Potholes from AI Detections`}
+                  {creatingPotholes ? 'Processing...' : `Create ${potholeStats.can_create} Records from AI Detections`}
                 </button>
-                <p className="text-sm text-blue-700">
-                  Convert high-confidence AI detections (≥70%) into trackable potholes
+                <p className="text-sm text-[#1E3A5F]">
+                  Convert high-confidence AI detections (≥70%) into trackable pothole records
                 </p>
               </div>
             )}
           </div>
         )}
 
-        <div className="bg-white rounded-lg border p-6">
-          <h3 className="text-xl font-bold mb-4">Quick Actions</h3>
-          <div className="grid md:grid-cols-3 gap-4">
-            <Link href="/potholes/create" className="border rounded p-4 hover:bg-gray-50 text-center">
-              <div className="text-2xl mb-1">➕</div>
-              <div className="font-semibold">Create Pothole</div>
+        {/* Quick Actions */}
+        <div className="bg-white border-2 border-[#E5E1D8] rounded-lg p-6">
+          <h3 className="text-lg font-bold text-[#1E3A5F] mb-4 flex items-center gap-2">
+            <span className="w-1 h-6 bg-[#1E3A5F] rounded-full"></span>
+            Quick Actions
+          </h3>
+          <div className="grid grid-cols-3 gap-4">
+            <Link 
+              href="/potholes/create" 
+              className="flex flex-col items-center justify-center p-5 border-2 border-dashed border-[#D1CDC4] rounded-lg hover:border-[#1E3A5F] hover:bg-[#F8F6F1] transition text-center group"
+            >
+              <div className="w-12 h-12 bg-[#E5E1D8] rounded-full flex items-center justify-center mb-2 group-hover:bg-[#1E3A5F] transition">
+                <span className="text-xl group-hover:text-white transition">➕</span>
+              </div>
+              <span className="font-medium text-[#1E3A5F]">Create Pothole</span>
+              <span className="text-xs text-[#5A6C7D] mt-1">Add new record</span>
             </Link>
-            <Link href="/workers" className="border rounded p-4 hover:bg-gray-50 text-center">
-              <div className="text-2xl mb-1">👤</div>
-              <div className="font-semibold">Add Worker</div>
+            <Link 
+              href="/workers" 
+              className="flex flex-col items-center justify-center p-5 border-2 border-dashed border-[#D1CDC4] rounded-lg hover:border-[#1E3A5F] hover:bg-[#F8F6F1] transition text-center group"
+            >
+              <div className="w-12 h-12 bg-[#E5E1D8] rounded-full flex items-center justify-center mb-2 group-hover:bg-[#1E3A5F] transition">
+                <span className="text-xl group-hover:text-white transition">👤</span>
+              </div>
+              <span className="font-medium text-[#1E3A5F]">Add Worker</span>
+              <span className="text-xs text-[#5A6C7D] mt-1">Register staff</span>
             </Link>
-            <Link href="/admin/review" className="border rounded p-4 hover:bg-gray-50 text-center">
-              <div className="text-2xl mb-1">✓</div>
-              <div className="font-semibold">Review Work</div>
+            <Link 
+              href="/admin/review" 
+              className="flex flex-col items-center justify-center p-5 border-2 border-dashed border-[#D1CDC4] rounded-lg hover:border-[#1E3A5F] hover:bg-[#F8F6F1] transition text-center group"
+            >
+              <div className="w-12 h-12 bg-[#E5E1D8] rounded-full flex items-center justify-center mb-2 group-hover:bg-[#1E3A5F] transition">
+                <span className="text-xl group-hover:text-white transition">✓</span>
+              </div>
+              <span className="font-medium text-[#1E3A5F]">Review Work</span>
+              <span className="text-xs text-[#5A6C7D] mt-1">Verify submissions</span>
             </Link>
           </div>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-8 pt-6 border-t border-[#E5E1D8] text-center">
+          <p className="text-sm text-[#5A6C7D]">Road Infrastructure Management System • Administration Portal</p>
         </div>
       </div>
     </div>

@@ -104,13 +104,13 @@ export default function MyReportsPage() {
   function getStatusColor(status: string) {
     switch (status.toUpperCase()) {
       case "PENDING":
-        return "bg-yellow-500/10 text-yellow-500 border-yellow-500/30";
+        return "bg-amber-100 text-amber-700";
       case "VERIFIED":
-        return "bg-purple-500/10 text-purple-500 border-purple-500/30";
+        return "bg-blue-100 text-blue-700";
       case "RESOLVED":
-        return "bg-[#00E676]/10 text-[#00E676] border-[#00E676]/30";
+        return "bg-green-100 text-green-700";
       default:
-        return "bg-gray-500/10 text-gray-500 border-gray-500/30";
+        return "bg-gray-100 text-gray-700";
     }
   }
 
@@ -127,10 +127,10 @@ export default function MyReportsPage() {
   // Show loading while checking auth
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-[#050B16] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8F6F1] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-12 h-12 animate-spin text-[#00E676]" />
-          <span className="text-[#00E676] font-mono tracking-widest animate-pulse">AUTHENTICATING...</span>
+          <Loader2 className="w-12 h-12 animate-spin text-[#1E3A5F]" />
+          <span className="text-[#1E3A5F] font-medium">Loading...</span>
         </div>
       </div>
     );
@@ -139,15 +139,15 @@ export default function MyReportsPage() {
   // Redirect to sign-in if not authenticated
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#050B16] flex items-center justify-center">
-        <div className="text-center p-8 border border-[#1F2937] rounded-xl bg-[#0B1220]">
-          <h1 className="text-xl font-bold text-red-500 mb-4 uppercase tracking-widest">ACCESS DENIED</h1>
-          <p className="text-[#94A3B8] mb-6 font-mono text-sm">Citizen credentials required for access.</p>
+      <div className="min-h-screen bg-[#F8F6F1] flex items-center justify-center">
+        <div className="text-center p-8 border-2 border-[#E5E1D8] rounded-xl bg-white shadow-sm">
+          <h1 className="text-xl font-bold text-[#C62828] mb-4">Access Denied</h1>
+          <p className="text-[#5A6C7D] mb-6">Please sign in to view your reports.</p>
           <Link
             href="/sign-in"
-            className="bg-[#00E676] text-black px-6 py-3 rounded font-bold hover:bg-[#00E676]/80 transition uppercase tracking-wider"
+            className="bg-[#1E3A5F] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#2A4A6F] transition"
           >
-            Initiate Log In
+            Sign In
           </Link>
         </div>
       </div>
@@ -155,64 +155,66 @@ export default function MyReportsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050B16] text-white">
-      <nav className="bg-[#050B16]/90 border-b border-[#1F2937] backdrop-blur sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div className="min-h-screen bg-[#F8F6F1] text-[#1E3A5F]">
+      {/* Header */}
+      <nav className="bg-[#1E3A5F] shadow-md sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <Link
               href="/citizen"
-              className="text-[#94A3B8] hover:text-[#00E676] flex items-center gap-2 transition"
+              className="text-[#A8C5E2] hover:text-white flex items-center gap-2 transition"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="font-bold uppercase text-xs tracking-wider">Return to Base</span>
+              <span className="font-medium text-sm">Back to Dashboard</span>
             </Link>
-            <h1 className="text-xl font-black italic uppercase tracking-tighter text-white">
-              Submission<span className="text-[#00B8D4]">Log</span>
+            <div className="h-6 w-px bg-[#A8C5E2]/30"></div>
+            <h1 className="text-xl font-bold text-white">
+              My Reports
             </h1>
           </div>
           <UserButton afterSignOutUrl="/" />
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto p-6 md:p-8">
+      <div className="max-w-6xl mx-auto p-6 md:p-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h2 className="text-3xl font-bold mb-2 uppercase tracking-wide">Report History</h2>
-            <p className="text-[#94A3B8] font-mono text-sm">
-              ARCHIVE OF SUBMITTED HAZARD DETECTIONS
+            <h2 className="text-2xl font-bold text-[#1E3A5F] mb-2">Report History</h2>
+            <p className="text-[#5A6C7D]">
+              View all your submitted road hazard reports
             </p>
           </div>
           <Link
             href="/citizen/report"
-            className="bg-[#00E676] text-black border border-[#00E676] px-6 py-3 rounded font-bold hover:bg-[#00E676]/80 transition uppercase tracking-wider flex items-center gap-2"
+            className="bg-[#1E3A5F] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#2A4A6F] transition flex items-center gap-2"
           >
-            + New Signal
+            + New Report
           </Link>
         </div>
 
         {error && (
-          <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded p-4 text-red-500 font-mono text-sm">
-            ERROR: {error}
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-sm">
+            <strong>Error:</strong> {error}
           </div>
         )}
 
         {loading ? (
-          <div className="bg-[#0B1220] border border-[#1F2937] rounded-xl p-12 flex items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-[#00B8D4]" />
-            <span className="ml-3 text-[#00B8D4] font-mono animate-pulse">Retrieving archived data...</span>
+          <div className="bg-white border-2 border-[#E5E1D8] rounded-xl p-12 flex items-center justify-center shadow-sm">
+            <Loader2 className="w-8 h-8 animate-spin text-[#1E3A5F]" />
+            <span className="ml-3 text-[#5A6C7D]">Loading your reports...</span>
           </div>
         ) : reports.length === 0 ? (
-          <div className="bg-[#0B1220] border border-[#1F2937] rounded-xl p-12 text-center">
-            <div className="text-6xl mb-4 opacity-20 filter grayscale">📝</div>
-            <h3 className="text-xl font-bold mb-2 text-white">No Detections Logged</h3>
-            <p className="text-[#94A3B8] mb-6 font-mono text-sm">
-              Sector looks clear. Report hazards to update map.
+          <div className="bg-white border-2 border-[#E5E1D8] rounded-xl p-12 text-center shadow-sm">
+            <div className="text-6xl mb-4 opacity-30">📝</div>
+            <h3 className="text-xl font-bold mb-2 text-[#1E3A5F]">No Reports Yet</h3>
+            <p className="text-[#5A6C7D] mb-6">
+              You haven't submitted any road hazard reports yet.
             </p>
             <Link
               href="/citizen/report"
-              className="inline-block bg-[#1F2937] text-white border border-[#374151] px-6 py-3 rounded font-bold hover:border-white transition uppercase tracking-wider text-xs"
+              className="inline-block bg-[#1E3A5F] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#2A4A6F] transition"
             >
-              Initialize First Report
+              Submit Your First Report
             </Link>
           </div>
         ) : (
@@ -220,19 +222,17 @@ export default function MyReportsPage() {
             {reports.map((report) => (
               <div
                 key={report.id}
-                className="bg-[#0B1220] border border-[#1F2937] rounded-xl hover:border-[#00B8D4]/50 transition duration-300 p-6 group relative overflow-hidden"
+                className="bg-white border-2 border-[#E5E1D8] rounded-xl hover:border-[#1E3A5F] transition duration-300 p-6 shadow-sm"
               >
-                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#00E676]/5 to-transparent rounded-bl-3xl pointer-events-none"></div>
                 <div className="flex flex-col md:flex-row gap-6">
                   {(() => {
                     const imageUrl = getReportImageUrl(report);
                     return imageUrl ? (
-                      <div className="flex-shrink-0 relative group/img">
-                        <div className="absolute inset-0 bg-[#00E676]/10 mix-blend-overlay opacity-0 group-hover/img:opacity-100 transition pointer-events-none"></div>
+                      <div className="flex-shrink-0">
                         <img
                           src={imageUrl}
                           alt={report.title}
-                          className="w-full md:w-32 h-32 object-cover rounded border border-[#1F2937]"
+                          className="w-full md:w-32 h-32 object-cover rounded-lg border border-[#E5E1D8]"
                         />
                       </div>
                     ) : null;
@@ -241,39 +241,39 @@ export default function MyReportsPage() {
                   <div className="flex-1">
                     <div className="flex flex-col md:flex-row justify-between items-start mb-3 gap-2">
                       <div>
-                        <h3 className="text-xl font-bold mb-1 text-white group-hover:text-[#00B8D4] transition uppercase tracking-wide">
-                          {report.title || "UNLABELED EVENT"}
+                        <h3 className="text-lg font-bold mb-1 text-[#1E3A5F]">
+                          {report.title || "Untitled Report"}
                         </h3>
                         {report.description && (
-                          <p className="text-[#94A3B8] text-sm mb-2 max-w-2xl">
+                          <p className="text-[#5A6C7D] text-sm mb-2 max-w-2xl">
                             {report.description}
                           </p>
                         )}
                       </div>
                       <span
-                        className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider border ${getStatusColor(report.status)}`}
+                        className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(report.status)}`}
                       >
                         {report.status}
                       </span>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-4 text-xs font-mono text-[#94A3B8] mt-4 bg-[#050B16] p-3 rounded border border-[#1F2937]">
+                    <div className="grid md:grid-cols-3 gap-4 text-sm text-[#5A6C7D] mt-4 bg-[#F8F6F1] p-3 rounded-lg border border-[#E5E1D8]">
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-[#00E676]" />
+                        <MapPin className="w-4 h-4 text-[#1E3A5F]" />
                         <span>
                           {report.latitude.toFixed(6)}, {report.longitude.toFixed(6)}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-[#00E676]" />
-                        <span>{formatDate(report.createdAt).toUpperCase()}</span>
+                        <Calendar className="w-4 h-4 text-[#1E3A5F]" />
+                        <span>{formatDate(report.createdAt)}</span>
                       </div>
 
                       {report.severity !== null && (
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-[#FFC400]">SEVERITY:</span>
-                          <span className="text-white">{report.severity}/10</span>
+                          <span className="font-medium text-[#1E3A5F]">Severity:</span>
+                          <span className="text-[#C62828] font-bold">{report.severity}/10</span>
                         </div>
                       )}
                     </div>
@@ -283,9 +283,9 @@ export default function MyReportsPage() {
                         href={`https://www.google.com/maps?q=${report.latitude},${report.longitude}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#00B8D4] hover:text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1 hover:underline"
+                        className="text-[#1565C0] hover:text-[#1E3A5F] text-sm font-medium flex items-center gap-1 hover:underline"
                       >
-                        Open Global Positioning
+                        View on Map
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
@@ -297,8 +297,8 @@ export default function MyReportsPage() {
         )}
 
         {reports.length > 0 && (
-          <div className="mt-6 text-center text-xs font-mono text-[#94A3B8]">
-            ARCHIVE COUNT: <span className="text-white font-bold">{reports.length}</span> RECORDS
+          <div className="mt-6 text-center text-sm text-[#5A6C7D]">
+            Total Reports: <span className="text-[#1E3A5F] font-bold">{reports.length}</span>
           </div>
         )}
       </div>
