@@ -3,16 +3,13 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { UserButton } from "@clerk/nextjs";
+import toast from "react-hot-toast";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
   AreaChart,
   Area,
 } from "recharts";
@@ -25,9 +22,10 @@ import {
   Zap,
   LayoutDashboard,
   Database,
-  Settings,
   Navigation,
   Map,
+  Download,
+  FileText,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -60,7 +58,7 @@ interface Report {
       id: string;
       confidence: number;
       detectedClass: string;
-      pothole?: {
+      potholes?: {
         id: string;
         priorityLevel: string;
       };
@@ -89,6 +87,16 @@ export default function AdminDashboard() {
   const [selectedReportId, setSelectedReportId] = useState<string | undefined>(
     undefined,
   );
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [exportStatus, setExportStatus] = useState("ALL");
+  const [exportStartDate, setExportStartDate] = useState("");
+  const [exportEndDate, setExportEndDate] = useState("");
+  const [reportMonth, setReportMonth] = useState(
+    new Date().toISOString().slice(0, 7),
+  );
+  const [isExporting, setIsExporting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     fetchReports();
@@ -109,6 +117,192 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleExportCSV = async () => {
+    try {
+      setIsExporting(true);
+      const params = new URLSearchParams();
+      if (exportStatus !== "ALL") params.append("status", exportStatus);
+      if (exportStartDate) params.append("startDate", exportStartDate);
+      if (exportEndDate) params.append("endDate", exportEndDate);
+
+      const response = await fetch(
+        `/api/reports/export-csv?${params.toString()}`,
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to export CSV");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `reports-export-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success("CSV exported successfully!");
+      setShowExportModal(false);
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Failed to export CSV");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    try {
+      setIsGenerating(true);
+      const params = new URLSearchParams();
+      params.append("month", reportMonth);
+
+      const response = await fetch(
+        `/api/admin/generate-report-pdf?${params.toString()}`,
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to generate report");
+      }
+
+      const data = await response.json();
+
+      // Create a new window to display the report preview
+      const reportWindow = window.open(
+        "",
+        "report_preview",
+        "width=900,height=600",
+      );
+
+      if (reportWindow) {
+        reportWindow.document.write(`
+          <html>
+            <head>
+              <title>Monthly Report - ${data.month} ${data.year}</title>
+              <style>
+                body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+                .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
+                h1 { color: #1E3A5F; border-bottom: 3px solid #1E3A5F; padding-bottom: 10px; }
+                h2 { color: #2A4A6F; margin-top: 30px; }
+                .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 20px 0; }
+                .stat-box { background: #E8F4FD; padding: 20px; border-radius: 8px; text-align: center; border-left: 4px solid #1E3A5F; }
+                .stat-number { font-size: 32px; font-weight: bold; color: #1E3A5F; }
+                .stat-label { color: #5A6C7D; font-size: 12px; text-transform: uppercase; margin-top: 5px; }
+                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                th, td { padding: 12px; text-align: left; border-bottom: 1px solid #E5E1D8; }
+                th { background: #F0EDE6; color: #1E3A5F; font-weight: bold; }
+                tr:hover { background: #F8F6F1; }
+                .chart-info { background: #F8F6F1; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 3px solid #00E676; }
+                .footer { margin-top: 30px; padding-top: 20px; border-top: 2px solid #E5E1D8; text-align: center; color: #5A6C7D; font-size: 12px; }
+                @media print {
+                  body { background: white; }
+                  .container { box-shadow: none; }
+                  .no-print { display: none; }
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <h1>📊 Monthly Infrastructure Report</h1>
+                <p><strong>Period:</strong> ${data.month} ${data.year} | <strong>Generated:</strong> ${new Date(data.generatedDate).toLocaleString()}</p>
+                
+                <h2>📈 Summary Statistics</h2>
+                <div class="stats">
+                  <div class="stat-box">
+                    <div class="stat-number">${data.stats.totalReports}</div>
+                    <div class="stat-label">Total Reports</div>
+                  </div>
+                  <div class="stat-box">
+                    <div class="stat-number">${data.stats.resolvedReports}</div>
+                    <div class="stat-label">Resolved</div>
+                  </div>
+                  <div class="stat-box">
+                    <div class="stat-number">${data.stats.pendingReports}</div>
+                    <div class="stat-label">Pending</div>
+                  </div>
+                  <div class="stat-box">
+                    <div class="stat-number">${data.stats.averageResolutionTime.toFixed(1)}</div>
+                    <div class="stat-label">Avg Resolution (days)</div>
+                  </div>
+                </div>
+
+                <h2>📍 Top 20 Pothole Locations</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Location (Lat, Lon)</th>
+                      <th>Status</th>
+                      <th>Severity</th>
+                      <th>Reported Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${data.topLocations
+                      .map(
+                        (loc, idx) => `
+                      <tr>
+                        <td>${idx + 1}</td>
+                        <td>${loc.latitude.toFixed(4)}, ${loc.longitude.toFixed(4)}</td>
+                        <td>
+                          <span style="
+                            padding: 4px 8px;
+                            border-radius: 4px;
+                            font-size: 12px;
+                            font-weight: bold;
+                            ${
+                              loc.status === "RESOLVED"
+                                ? "background: #E8F5E9; color: #2E7D32;"
+                                : loc.status === "VERIFIED"
+                                  ? "background: #FFF3E0; color: #E65100;"
+                                  : "background: #BBDEFB; color: #1565C0;"
+                            }
+                          ">
+                            ${loc.status}
+                          </span>
+                        </td>
+                        <td>${loc.severity || "-"}</td>
+                        <td>${new Date(loc.createdAt).toLocaleDateString()}</td>
+                      </tr>
+                    `,
+                      )
+                      .join("")}
+                  </tbody>
+                </table>
+
+                <h2>📊 Chart Data (JSON)</h2>
+                <div class="chart-info">
+                  <strong>Daily Reports:</strong> ${data.chartData.dailyReports.length} days tracked
+                  <br>
+                  <strong>Status Distribution:</strong> ${data.chartData.statusDistribution.map((s) => `${s.status}: ${s.count}`).join(", ")}
+                  <br>
+                  <strong>Severity Distribution:</strong> ${data.chartData.severityDistribution.map((s) => `${s.severity}: ${s.count}`).join(", ")}
+                </div>
+
+                <div class="footer">
+                  <p>This report was auto-generated by the Admin Dashboard</p>
+                  <p>For detailed analysis and visualizations, please visit the full dashboard</p>
+                  <button class="no-print" onclick="window.print()" style="margin-top: 20px; padding: 10px 20px; background: #1E3A5F; color: white; border: none; border-radius: 4px; cursor: pointer;">Print Report</button>
+                </div>
+              </div>
+            </body>
+          </html>
+        `);
+        reportWindow.document.close();
+      }
+
+      toast.success("Report generated successfully!");
+      setShowReportModal(false);
+    } catch (error) {
+      console.error("Report generation error:", error);
+      toast.error("Failed to generate report");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const stats = {
     total: reports.length,
     critical: reports.filter(
@@ -122,6 +316,134 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] text-[#1E3A5F] overflow-hidden font-sans">
+      {/* Export CSV Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6">
+            <h2 className="text-2xl font-bold text-[#1E3A5F] mb-4 flex items-center gap-2">
+              <Download size={24} />
+              Export Reports as CSV
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#1E3A5F] mb-2">
+                  Status Filter
+                </label>
+                <select
+                  value={exportStatus}
+                  onChange={(e) => setExportStatus(e.target.value)}
+                  className="w-full px-4 py-2 border-2 border-[#E5E1D8] rounded-lg text-[#1E3A5F] focus:outline-none focus:border-[#1E3A5F]"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="VERIFIED">Verified</option>
+                  <option value="RESOLVED">Resolved</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#1E3A5F] mb-2">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  value={exportStartDate}
+                  onChange={(e) => setExportStartDate(e.target.value)}
+                  className="w-full px-4 py-2 border-2 border-[#E5E1D8] rounded-lg text-[#1E3A5F] focus:outline-none focus:border-[#1E3A5F]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#1E3A5F] mb-2">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  value={exportEndDate}
+                  onChange={(e) => setExportEndDate(e.target.value)}
+                  className="w-full px-4 py-2 border-2 border-[#E5E1D8] rounded-lg text-[#1E3A5F] focus:outline-none focus:border-[#1E3A5F]"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowExportModal(false)}
+                className="flex-1 px-4 py-2 border-2 border-[#E5E1D8] text-[#1E3A5F] font-medium rounded-lg hover:bg-[#F0EDE6] transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleExportCSV}
+                disabled={isExporting}
+                className="flex-1 px-4 py-2 bg-[#1E3A5F] text-white font-medium rounded-lg hover:bg-[#2A4A6F] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isExporting ? (
+                  <>
+                    <span className="animate-spin">⏳</span> Exporting...
+                  </>
+                ) : (
+                  <>
+                    <Download size={18} /> Export CSV
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6">
+            <h2 className="text-2xl font-bold text-[#1E3A5F] mb-4 flex items-center gap-2">
+              <FileText size={24} />
+              Generate Monthly Report
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#1E3A5F] mb-2">
+                  Month & Year
+                </label>
+                <input
+                  type="month"
+                  value={reportMonth}
+                  onChange={(e) => setReportMonth(e.target.value)}
+                  className="w-full px-4 py-2 border-2 border-[#E5E1D8] rounded-lg text-[#1E3A5F] focus:outline-none focus:border-[#1E3A5F]"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowReportModal(false)}
+                className="flex-1 px-4 py-2 border-2 border-[#E5E1D8] text-[#1E3A5F] font-medium rounded-lg hover:bg-[#F0EDE6] transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleGenerateReport}
+                disabled={isGenerating}
+                className="flex-1 px-4 py-2 bg-[#1E3A5F] text-white font-medium rounded-lg hover:bg-[#2A4A6F] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isGenerating ? (
+                  <>
+                    <span className="animate-spin">⏳</span> Generating...
+                  </>
+                ) : (
+                  <>
+                    <FileText size={18} /> Generate Report
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Top Navigation */}
       <nav className="bg-[#1E3A5F] shadow-md sticky top-0 z-50">
         <div className="max-w-full px-6 py-4 flex justify-between items-center">
@@ -188,6 +510,28 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-12 gap-6 p-6 min-h-[calc(100vh-80px)]">
         {/* LEFT COLUMN - Stats & Charts (3 cols) */}
         <div className="hidden lg:flex col-span-3 flex-col gap-6 overflow-y-auto pr-2">
+          {/* Data Management Card */}
+          <div className="bg-gradient-to-br from-[#1E3A5F] to-[#2A4A6F] rounded-xl p-4 shadow-lg">
+            <h3 className="text-white font-bold mb-3 flex items-center gap-2">
+              <Database size={18} />
+              Data Management
+            </h3>
+            <button
+              onClick={() => setShowExportModal(true)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white text-[#1E3A5F] font-medium rounded-lg hover:bg-[#F0EDE6] transition-all mb-2"
+            >
+              <Download size={18} />
+              Export as CSV
+            </button>
+            <button
+              onClick={() => setShowReportModal(true)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white text-[#1E3A5F] font-medium rounded-lg hover:bg-[#F0EDE6] transition-all"
+            >
+              <FileText size={18} />
+              Monthly Report
+            </button>
+          </div>
+
           {/* Critical Alert Card */}
           <div className="bg-white border-2 border-[#E5E1D8] p-5 rounded-xl shadow-sm hover:shadow-md transition-all hover:border-[#C62828]">
             <div className="flex justify-between items-start mb-4">

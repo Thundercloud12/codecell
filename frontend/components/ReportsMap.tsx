@@ -81,7 +81,7 @@ function MapController({
   const map = useMap();
 
   useEffect(() => {
-    if (map) {
+    if (map && map._leaflet_map) {
       map.setView(center, zoom);
     }
   }, [center, zoom, map]);
