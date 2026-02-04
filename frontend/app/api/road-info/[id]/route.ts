@@ -3,9 +3,9 @@
  * Fetch and store road context for a pothole using Overpass API
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { fetchRoadInfo } from '@/lib/services/road-info.service';
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { fetchRoadInfo } from "@/lib/services/road-info.service";
 
 interface RouteParams {
   params: Promise<{
@@ -13,10 +13,7 @@ interface RouteParams {
   }>;
 }
 
-export async function POST(
-  request: NextRequest,
-  context: RouteParams
-) {
+export async function POST(request: NextRequest, context: RouteParams) {
   try {
     const { id } = await context.params; // ✅ CRITICAL: Await params in Next.js App Router
 
@@ -27,10 +24,7 @@ export async function POST(
     });
 
     if (!pothole) {
-      return NextResponse.json(
-        { error: 'Pothole not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Pothole not found" }, { status: 404 });
     }
 
     // Check if road info already exists
@@ -39,18 +33,20 @@ export async function POST(
         {
           success: true,
           roadInfo: pothole.roadInfo,
-          message: 'Road info already exists',
+          message: "Road info already exists",
         },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
     // Fetch road info from Overpass API
-    console.log(`Fetching road info for pothole ${id} at ${pothole.latitude}, ${pothole.longitude}`);
-    
+    console.log(
+      `Fetching road info for pothole ${id} at ${pothole.latitude}, ${pothole.longitude}`,
+    );
+
     const roadMetadata = await fetchRoadInfo(
       pothole.latitude,
-      pothole.longitude
+      pothole.longitude,
     );
 
     // Store in database
@@ -70,15 +66,15 @@ export async function POST(
       {
         success: true,
         roadInfo,
-        message: 'Road info fetched and stored successfully',
+        message: "Road info fetched and stored successfully",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
-    console.error('Error fetching road info:', error);
+    console.error("Error fetching road info:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
-      { status: 500 }
+      { error: "Internal server error", details: String(error) },
+      { status: 500 },
     );
   }
 }
@@ -87,10 +83,7 @@ export async function POST(
  * GET /api/road-info/[id]
  * Get existing road info for a pothole
  */
-export async function GET(
-  request: NextRequest,
-  context: RouteParams
-) {
+export async function GET(request: NextRequest, context: RouteParams) {
   try {
     const { id } = await context.params;
 
@@ -103,8 +96,8 @@ export async function GET(
 
     if (!roadInfo) {
       return NextResponse.json(
-        { error: 'Road info not found for this pothole' },
-        { status: 404 }
+        { error: "Road info not found for this pothole" },
+        { status: 404 },
       );
     }
 
@@ -113,10 +106,10 @@ export async function GET(
       roadInfo,
     });
   } catch (error) {
-    console.error('Error fetching road info:', error);
+    console.error("Error fetching road info:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
-      { status: 500 }
+      { error: "Internal server error", details: String(error) },
+      { status: 500 },
     );
   }
 }

@@ -316,15 +316,21 @@ export default function PotholeDetailPage() {
             <div className="grid md:grid-cols-2 gap-6">
               {/* Road Info */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Road Information</h3>
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                  Road Information
+                </h3>
                 <div className="space-y-3">
                   <div>
                     <label className="text-sm text-gray-500">Road Name</label>
-                    <div className="font-medium">{pothole.roadInfo.roadName || "Unknown"}</div>
+                    <div className="font-medium">
+                      {pothole.roadInfo.roadName || "Unknown"}
+                    </div>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500">Road Type</label>
-                    <div className="font-medium">{pothole.roadInfo.roadType || "Unknown"}</div>
+                    <div className="font-medium">
+                      {pothole.roadInfo.roadType || "Unknown"}
+                    </div>
                   </div>
                   <div>
                     <label className="text-sm text-gray-500">Speed Limit</label>
@@ -338,18 +344,26 @@ export default function PotholeDetailPage() {
                     <label className="text-sm text-gray-500">
                       Traffic Importance
                     </label>
-                    <div className="font-medium">{pothole.roadInfo.trafficImportance.toFixed(1)}/5</div>
+                    <div className="font-medium">
+                      {pothole.roadInfo.trafficImportance.toFixed(1)}/5
+                    </div>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-500">Priority Factor</label>
-                    <div className="font-medium">{pothole.roadInfo.priorityFactor.toFixed(2)}x</div>
+                    <label className="text-sm text-gray-500">
+                      Priority Factor
+                    </label>
+                    <div className="font-medium">
+                      {pothole.roadInfo.priorityFactor.toFixed(2)}x
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Location Map */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Location on Map</h3>
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                  Location on Map
+                </h3>
                 <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-300">
                   <iframe
                     width="100%"
@@ -362,7 +376,8 @@ export default function PotholeDetailPage() {
                   />
                 </div>
                 <div className="mt-2 text-xs text-gray-600">
-                  Coordinates: {pothole.latitude.toFixed(6)}, {pothole.longitude.toFixed(6)}
+                  Coordinates: {pothole.latitude.toFixed(6)},{" "}
+                  {pothole.longitude.toFixed(6)}
                   <br />
                   <a
                     href={`https://www.google.com/maps?q=${pothole.latitude},${pothole.longitude}`}
@@ -379,7 +394,8 @@ export default function PotholeDetailPage() {
         ) : (
           <div>
             <p className="text-gray-500 mb-4">
-              Road information not fetched yet. Click the button to fetch road context from OpenStreetMap.
+              Road information not fetched yet. Click the button to fetch road
+              context from OpenStreetMap.
             </p>
             <button
               onClick={fetchRoadInfo}
