@@ -63,7 +63,7 @@ export async function GET(
     const tasks = await prisma.ticket.findMany({
       where,
       include: {
-        pothole: {
+        potholes: {
           include: {
             detection: true,
             roadInfo: true,
@@ -74,7 +74,6 @@ export async function GET(
         },
       },
       orderBy: [
-        { pothole: { priorityScore: 'desc' } },
         { assignedAt: 'asc' },
       ],
     });

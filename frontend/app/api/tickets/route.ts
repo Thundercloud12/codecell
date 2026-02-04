@@ -1,75 +1,121 @@
 /**
  * POST /api/tickets
- * Create a ticket from a ranked pothole
- * 
+ * Create a ticket from a ranked pothole or multiple potholes on the same route
+ *
  * PATCH /api/tickets (not used - see [id]/status and [id]/assign)
  * GET /api/tickets - List all tickets with filtering
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 interface TicketCreateRequest {
-  potholeId: string;
+  potholeId?: string; // For backward compatibility - single pothole
+  potholeIds?: string[]; // For multiple potholes on same route
   notes?: string;
 }
 
 /**
- * Create new ticket from pothole
+ * Create new ticket from pothole(s)
  */
 export async function POST(request: NextRequest) {
   try {
     const body: TicketCreateRequest = await request.json();
 
-    if (!body.potholeId) {
+    // Handle both single and multiple pothole IDs
+    let potholeIds: string[] = [];
+    if (body.potholeIds && Array.isArray(body.potholeIds)) {
+      potholeIds = body.potholeIds;
+    } else if (body.potholeId) {
+      potholeIds = [body.potholeId];
+    }
+
+    if (potholeIds.length === 0) {
       return NextResponse.json(
-        { error: 'Missing required field: potholeId' },
-        { status: 400 }
+        { error: "Missing required field: potholeId or potholeIds" },
+        { status: 400 },
       );
     }
 
-    // Verify pothole exists and has been ranked
-    const pothole = await prisma.pothole.findUnique({
-      where: { id: body.potholeId },
-      include: { ticket: true },
+    // Verify all potholes exist and have been ranked
+    const potholes = await prisma.pothole.findMany({
+      where: { id: { in: potholeIds } },
+      select: {
+        id: true,
+        priorityScore: true,
+        priorityLevel: true,
+        ticketId: true,
+        ticket: {
+          select: {
+            id: true,
+            ticketNumber: true,
+            status: true,
+          },
+        },
+      },
     });
 
-    if (!pothole) {
+    if (potholes.length === 0) {
+      return NextResponse.json({ error: "No potholes found" }, { status: 404 });
+    }
+
+    if (potholes.length !== potholeIds.length) {
       return NextResponse.json(
-        { error: 'Pothole not found' },
-        { status: 404 }
+        { error: "Some potholes not found" },
+        { status: 404 },
       );
     }
 
-    if (!pothole.priorityScore || !pothole.priorityLevel) {
+    // Check if any pothole doesn't have ranking
+    const unrankedPotholes = potholes.filter(
+      (p) => !p.priorityScore || !p.priorityLevel,
+    );
+    if (unrankedPotholes.length > 0) {
       return NextResponse.json(
-        { error: 'Pothole must be ranked before creating ticket' },
-        { status: 400 }
+        {
+          error: "All potholes must be ranked before creating ticket",
+          unrankedPotholeIds: unrankedPotholes.map((p) => p.id),
+        },
+        { status: 400 },
       );
     }
 
-    if (pothole.ticket) {
+    // Check if any pothole already has a ticket (ticketId is not null)
+    const potholesWithTickets = potholes.filter((p) => p.ticketId !== null);
+    if (potholesWithTickets.length > 0) {
       return NextResponse.json(
-        { error: 'Ticket already exists for this pothole', ticket: pothole.ticket },
-        { status: 409 }
+        {
+          error: "Some potholes already have tickets",
+          conflictingTickets: potholesWithTickets.map((p) => ({
+            potholeId: p.id,
+            ticket: p.ticket,
+          })),
+        },
+        { status: 409 },
       );
     }
 
     // Generate ticket number (simple format: TICKET-YYYYMMDD-XXXXX)
-    const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
-    const random = Math.floor(Math.random() * 99999).toString().padStart(5, '0');
+    const date = new Date().toISOString().split("T")[0].replace(/-/g, "");
+    const random = Math.floor(Math.random() * 99999)
+      .toString()
+      .padStart(5, "0");
     const ticketNumber = `TICKET-${date}-${random}`;
+
+    console.log("Creating ticket with potholeIds:", potholeIds);
 
     // Create ticket with DETECTED status
     const ticket = await prisma.ticket.create({
       data: {
         ticketNumber,
-        potholeId: body.potholeId,
-        status: 'DETECTED',
+        status: "DETECTED",
         notes: body.notes,
+        potholes: {
+          connect: potholeIds.map((id) => ({ id })),
+        },
       },
       include: {
-        pothole: {
+        potholes: {
           include: {
             detection: true,
             roadInfo: true,
@@ -78,12 +124,17 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log(
+      "Ticket created successfully:",
+      JSON.stringify(ticket, null, 2),
+    );
+
     // Create status history entry
     await prisma.ticketStatusHistory.create({
       data: {
         ticketId: ticket.id,
-        toStatus: 'DETECTED',
-        reason: 'Ticket created from detected pothole',
+        toStatus: "DETECTED",
+        reason: `Ticket created from ${potholeIds.length} detected pothole(s)`,
       },
     });
 
@@ -91,15 +142,16 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         ticket,
-        message: 'Ticket created successfully',
+        potholeCount: potholeIds.length,
+        message: `Ticket created successfully with ${potholeIds.length} pothole(s)`,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
-    console.error('Error creating ticket:', error);
+    console.error("Error creating ticket:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
-      { status: 500 }
+      { error: "Internal server error", details: String(error) },
+      { status: 500 },
     );
   }
 }
@@ -111,11 +163,11 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
-    const status = searchParams.get('status');
-    const priorityLevel = searchParams.get('priorityLevel');
-    const workerId = searchParams.get('workerId');
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
+    const status = searchParams.get("status");
+    const priorityLevel = searchParams.get("priorityLevel");
+    const workerId = searchParams.get("workerId");
+    const limit = parseInt(searchParams.get("limit") || "50");
+    const offset = parseInt(searchParams.get("offset") || "0");
 
     // Build filter
     const where: any = {};
@@ -125,8 +177,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (priorityLevel) {
-      where.pothole = {
-        priorityLevel: priorityLevel,
+      where.potholes = {
+        some: {
+          priorityLevel: priorityLevel,
+        },
       };
     }
 
@@ -139,7 +193,7 @@ export async function GET(request: NextRequest) {
       prisma.ticket.findMany({
         where,
         include: {
-          pothole: {
+          potholes: {
             include: {
               detection: true,
               roadInfo: true,
@@ -154,14 +208,11 @@ export async function GET(request: NextRequest) {
             },
           },
           workProofs: {
-            orderBy: { submittedAt: 'desc' },
+            orderBy: { submittedAt: "desc" },
             take: 1, // Latest proof only
           },
         },
-        orderBy: [
-          { pothole: { priorityScore: 'desc' } },
-          { createdAt: 'desc' },
-        ],
+        orderBy: [{ createdAt: "desc" }],
         take: limit,
         skip: offset,
       }),
@@ -179,10 +230,10 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching tickets:', error);
+    console.error("Error fetching tickets:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
-      { status: 500 }
+      { error: "Internal server error", details: String(error) },
+      { status: 500 },
     );
   }
 }

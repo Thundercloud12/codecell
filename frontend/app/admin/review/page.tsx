@@ -7,13 +7,14 @@ interface ReviewTicket {
   id: string;
   ticketNumber: string;
   status: string;
-  pothole: {
+  potholes: Array<{
+    id: string;
     latitude: number;
     longitude: number;
     roadInfo: {
       roadName: string | null;
     } | null;
-  };
+  }>;
   assignedWorker: {
     name: string;
   } | null;
@@ -81,11 +82,24 @@ export default function AdminReviewPage() {
                     {ticket.ticketNumber}
                   </div>
                   <div className="text-gray-600 mb-1">
-                    {ticket.pothole.roadInfo?.roadName || "Unknown Road"}
+                    {ticket.potholes.length > 0 && (
+                      <>
+                        {ticket.potholes[0].roadInfo?.roadName || "Unknown Road"}
+                        {ticket.potholes.length > 1 && (
+                          <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                            +{ticket.potholes.length - 1} more
+                          </span>
+                        )}
+                      </>
+                    )}
                   </div>
                   <div className="text-sm text-gray-500">
-                    {ticket.pothole.latitude.toFixed(6)},{" "}
-                    {ticket.pothole.longitude.toFixed(6)}
+                    {ticket.potholes.length > 0 && (
+                      <>
+                        {ticket.potholes[0].latitude.toFixed(6)},{" "}
+                        {ticket.potholes[0].longitude.toFixed(6)}
+                      </>
+                    )}
                   </div>
                   {ticket.assignedWorker && (
                     <div className="text-sm text-gray-600 mt-2">
@@ -97,7 +111,7 @@ export default function AdminReviewPage() {
                       Submitted:{" "}
                       {new Date(
                         ticket.workProofs[0].submittedAt,
-                      ).toLocaleString()}
+                      ).toLocaleString()}}
                     </div>
                   )}
                 </div>

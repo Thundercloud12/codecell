@@ -101,20 +101,6 @@ export async function GET(request: NextRequest) {
                 in: ['ASSIGNED', 'IN_PROGRESS'],
               },
             },
-            include: {
-              pothole: {
-                select: {
-                  latitude: true,
-                  longitude: true,
-                  priorityLevel: true,
-                },
-              },
-            },
-          },
-          _count: {
-            select: {
-              assignedTickets: true,
-            },
           },
         },
         orderBy: { name: 'asc' },

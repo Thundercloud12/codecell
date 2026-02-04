@@ -14,7 +14,8 @@ interface TicketDetail {
   completedAt: string | null;
   estimatedETA: string | null;
   routeData: any;
-  pothole: {
+  potholes: Array<{
+    id: string;
     latitude: number;
     longitude: number;
     priorityLevel: string;
@@ -23,7 +24,7 @@ interface TicketDetail {
       roadName: string | null;
       roadType: string | null;
     } | null;
-  };
+  }>;
   assignedWorker: {
     id: string;
     name: string;
@@ -240,41 +241,67 @@ export default function TicketDetailPage() {
       )}
 
       <div className="bg-white border rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4">Pothole Details</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm text-gray-500">Location</label>
-            <div>
-              {ticket.pothole.latitude.toFixed(6)},{" "}
-              {ticket.pothole.longitude.toFixed(6)}
+        <h2 className="text-xl font-bold mb-4">
+          Pothole Details{" "}
+          {ticket.potholes.length > 1 &&
+            `(${ticket.potholes.length} locations)`}
+        </h2>
+        {ticket.potholes.map((pothole, index) => (
+          <div
+            key={pothole.id}
+            className={`${index > 0 ? "mt-6 pt-6 border-t" : ""}`}
+          >
+            {ticket.potholes.length > 1 && (
+              <div className="text-sm font-semibold text-gray-600 mb-3">
+                Location {index + 1} of {ticket.potholes.length}
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-gray-500">Coordinates</label>
+                <div>
+                  {pothole.latitude.toFixed(6)}, {pothole.longitude.toFixed(6)}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Road</label>
+                <div>{pothole.roadInfo?.roadName || "Unknown"}</div>
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Priority</label>
+                <div>
+                  <span
+                    className={`px-2 py-1 rounded text-sm ${
+                      pothole.priorityLevel === "CRITICAL"
+                        ? "bg-red-100 text-red-800"
+                        : pothole.priorityLevel === "HIGH"
+                          ? "bg-orange-100 text-orange-800"
+                          : pothole.priorityLevel === "MEDIUM"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-green-100 text-green-800"
+                    }`}
+                  >
+                    {pothole.priorityLevel}
+                  </span>
+                  <span className="ml-2 font-bold">
+                    {pothole.priorityScore}/100
+                  </span>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Actions</label>
+                <div>
+                  <Link
+                    href={`/potholes/${pothole.id}`}
+                    className="text-blue-600 hover:underline text-sm"
+                  >
+                    View Details →
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
-          <div>
-            <label className="text-sm text-gray-500">Road</label>
-            <div>{ticket.pothole.roadInfo?.roadName || "Unknown"}</div>
-          </div>
-          <div>
-            <label className="text-sm text-gray-500">Priority</label>
-            <div>
-              <span
-                className={`px-2 py-1 rounded text-sm ${
-                  ticket.pothole.priorityLevel === "CRITICAL"
-                    ? "bg-red-100 text-red-800"
-                    : ticket.pothole.priorityLevel === "HIGH"
-                      ? "bg-orange-100 text-orange-800"
-                      : ticket.pothole.priorityLevel === "MEDIUM"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-green-100 text-green-800"
-                }`}
-              >
-                {ticket.pothole.priorityLevel}
-              </span>
-              <span className="ml-2 font-bold">
-                {ticket.pothole.priorityScore}/100
-              </span>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
       <div className="bg-white border rounded-lg p-6 mb-6">
@@ -399,13 +426,16 @@ export default function TicketDetailPage() {
         <div className="text-sm text-gray-600 mb-4">
           Current: <span className="font-semibold">{ticket.status}</span>
         </div>
-        
+
         {/* Admin Actions for AWAITING_VERIFICATION */}
         {ticket.status === "AWAITING_VERIFICATION" && (
           <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h3 className="font-bold text-yellow-900 mb-3">🔍 Admin Review Required</h3>
+            <h3 className="font-bold text-yellow-900 mb-3">
+              🔍 Admin Review Required
+            </h3>
             <p className="text-sm text-yellow-800 mb-4">
-              The worker has submitted proof of completion. Please review and approve or reject.
+              The worker has submitted proof of completion. Please review and
+              approve or reject.
             </p>
             <div className="flex gap-3">
               <button

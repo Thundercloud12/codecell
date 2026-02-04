@@ -8,7 +8,14 @@ import dynamic from "next/dynamic";
 // Dynamically import map component (Leaflet requires browser environment)
 const WorkerNavigationMap = dynamic(
   () => import("@/components/WorkerNavigationMap"),
-  { ssr: false, loading: () => <div className="h-[400px] bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">Loading map...</div> }
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[400px] bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">
+        Loading map...
+      </div>
+    ),
+  },
 );
 
 interface WorkerDashboard {
@@ -24,7 +31,8 @@ interface WorkerDashboard {
     id: string;
     ticketNumber: string;
     status: string;
-    pothole: {
+    potholes: Array<{
+      id: string;
       latitude: number;
       longitude: number;
       priorityLevel: string;
@@ -32,7 +40,7 @@ interface WorkerDashboard {
       roadInfo: {
         roadName: string | null;
       } | null;
-    };
+    }>;
   }>;
 }
 
@@ -80,7 +88,9 @@ export default function WorkerDashboardPage() {
         setGettingLocation(false);
         switch (err.code) {
           case err.PERMISSION_DENIED:
-            setError("Location permission denied. Please allow location access.");
+            setError(
+              "Location permission denied. Please allow location access.",
+            );
             break;
           case err.POSITION_UNAVAILABLE:
             setError("Location information is unavailable.");
@@ -96,7 +106,7 @@ export default function WorkerDashboardPage() {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0,
-      }
+      },
     );
   }
 
@@ -150,7 +160,9 @@ export default function WorkerDashboardPage() {
         setGettingLocation(false);
         switch (err.code) {
           case err.PERMISSION_DENIED:
-            setError("Location permission denied. Please allow location access.");
+            setError(
+              "Location permission denied. Please allow location access.",
+            );
             break;
           case err.POSITION_UNAVAILABLE:
             setError("Location information is unavailable.");
@@ -166,7 +178,7 @@ export default function WorkerDashboardPage() {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0,
-      }
+      },
     );
   }
 
@@ -176,13 +188,22 @@ export default function WorkerDashboardPage() {
       const res = await fetch(`/api/workers/${id}/tasks`);
       const data = await res.json();
 
+      console.log("=== DASHBOARD DATA RECEIVED ===");
+      console.log("Full response:", JSON.stringify(data, null, 2));
+      console.log("Tasks:", data.tasks);
+      if (data.tasks && data.tasks.length > 0) {
+        console.log("First task:", JSON.stringify(data.tasks[0], null, 2));
+        console.log("First task potholes:", data.tasks[0].potholes);
+      }
+      console.log("===============================");
+
       if (data.success) {
-        console.log("Dashboard data fetched:", data.worker);
         setDashboard(data);
       } else {
         setError(data.error);
       }
     } catch (err) {
+      console.error("Error fetching dashboard:", err);
       setError("Failed to fetch worker dashboard");
     } finally {
       setLoading(false);
@@ -228,10 +249,48 @@ export default function WorkerDashboardPage() {
       setMessage("");
       setError("");
 
+      // Get the selected task and its first pothole
+      const task = dashboard?.tasks.find((t) => t.id === selectedTicket);
+      const pothole = task?.potholes[0];
+
+      if (
+        !pothole ||
+        !dashboard?.worker.currentLatitude ||
+        !dashboard?.worker.currentLongitude
+      ) {
+        setError("Missing location data");
+        setActionLoading(false);
+        return;
+      }
+
+      // Calculate route using Dijkstra algorithm
+      const routeRes = await fetch("/api/route/dijkstra", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          workerLat: dashboard.worker.currentLatitude,
+          workerLng: dashboard.worker.currentLongitude,
+          potholeLat: pothole.latitude,
+          potholeLng: pothole.longitude,
+        }),
+      });
+
+      const routeData = await routeRes.json();
+
+      if (!routeData.success) {
+        setError(routeData.error || "Failed to calculate route");
+        setActionLoading(false);
+        return;
+      }
+
+      // Start the job with route data
       const res = await fetch(`/api/workers/${id}/start-job`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticketId: selectedTicket }),
+        body: JSON.stringify({
+          ticketId: selectedTicket,
+          route: routeData,
+        }),
       });
 
       const data = await res.json();
@@ -309,9 +368,7 @@ export default function WorkerDashboardPage() {
                 <span className="animate-spin">⏳</span> Getting Location...
               </>
             ) : (
-              <>
-                📍 Use My Current Location (GPS)
-              </>
+              <>📍 Use My Current Location (GPS)</>
             )}
           </button>
           <p className="text-xs text-gray-500 mt-1 text-center">
@@ -324,7 +381,9 @@ export default function WorkerDashboardPage() {
             <div className="w-full border-t border-gray-300"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-white px-2 text-gray-500">OR enter manually</span>
+            <span className="bg-white px-2 text-gray-500">
+              OR enter manually
+            </span>
           </div>
         </div>
 
@@ -382,13 +441,19 @@ export default function WorkerDashboardPage() {
             className="border rounded px-3 py-2 mb-4 w-full"
           >
             <option value="">-- Select a ticket --</option>
-            {assignedTasks.map((task) => (
-              <option key={task.id} value={task.id}>
-                {task.ticketNumber} -{" "}
-                {task.pothole.roadInfo?.roadName || "Unknown Road"} (
-                {task.pothole.priorityLevel})
-              </option>
-            ))}
+            {assignedTasks.map((task) => {
+              const primaryPothole = task.potholes[0];
+              return (
+                <option key={task.id} value={task.id}>
+                  {task.ticketNumber} -{" "}
+                  {primaryPothole?.roadInfo?.roadName || "Unknown Road"} (
+                  {primaryPothole?.priorityLevel})
+                  {task.potholes.length > 1
+                    ? ` +${task.potholes.length - 1} more`
+                    : ""}
+                </option>
+              );
+            })}
           </select>
           <button
             onClick={startJob}
@@ -411,18 +476,23 @@ export default function WorkerDashboardPage() {
       <div className="bg-white border rounded-lg p-6 mb-6">
         <h2 className="text-xl font-bold mb-4">🗺️ Navigation Map</h2>
         <p className="text-sm text-gray-600 mb-4">
-          View all assigned potholes on the map. Click &quot;Navigate&quot; to get directions from your current location.
+          View all assigned potholes on the map. Click &quot;Navigate&quot; to
+          get directions from your current location.
         </p>
         <WorkerNavigationMap
           potholes={[...assignedTasks, ...inProgressTasks]}
           workerLocation={
-            dashboard.worker.currentLatitude && dashboard.worker.currentLongitude
-              ? { lat: dashboard.worker.currentLatitude, lng: dashboard.worker.currentLongitude }
+            dashboard.worker.currentLatitude &&
+            dashboard.worker.currentLongitude
+              ? {
+                  lat: dashboard.worker.currentLatitude,
+                  lng: dashboard.worker.currentLongitude,
+                }
               : null
           }
           onNavigate={(pothole, routeInfo) => {
             setMessage(
-              `Route to ${pothole.ticketNumber}: ${(routeInfo.distance / 1000).toFixed(1)} km, ~${Math.round(routeInfo.time / 60)} min`
+              `Route to ${pothole.ticketNumber}: ${(routeInfo.distance / 1000).toFixed(1)} km, ~${Math.round(routeInfo.time / 60)} min`,
             );
           }}
         />
@@ -437,31 +507,41 @@ export default function WorkerDashboardPage() {
             <div className="text-gray-500">No assigned tasks</div>
           ) : (
             <div className="space-y-3">
-              {assignedTasks.map((task) => (
-                <Link
-                  key={task.id}
-                  href={`/tickets/${task.id}`}
-                  className="block border rounded p-3 hover:bg-gray-50"
-                >
-                  <div className="font-mono text-sm">{task.ticketNumber}</div>
-                  <div className="text-sm text-gray-600">
-                    {task.pothole.roadInfo?.roadName || "Unknown Road"}
-                  </div>
-                  <div className="mt-1">
-                    <span
-                      className={`px-2 py-1 rounded text-xs ${
-                        task.pothole.priorityLevel === "CRITICAL"
-                          ? "bg-red-100 text-red-800"
-                          : task.pothole.priorityLevel === "HIGH"
-                            ? "bg-orange-100 text-orange-800"
-                            : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {task.pothole.priorityLevel}
-                    </span>
-                  </div>
-                </Link>
-              ))}
+              {assignedTasks.map((task) => {
+                const primaryPothole = task.potholes[0];
+                return (
+                  <Link
+                    key={task.id}
+                    href={`/tickets/${task.id}`}
+                    className="block border rounded p-3 hover:bg-gray-50"
+                  >
+                    <div className="font-mono text-sm">
+                      {task.ticketNumber}
+                      {task.potholes.length > 1 && (
+                        <span className="ml-2 text-xs text-gray-500">
+                          ({task.potholes.length} sites)
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {primaryPothole?.roadInfo?.roadName || "Unknown Road"}
+                    </div>
+                    <div className="mt-1">
+                      <span
+                        className={`px-2 py-1 rounded text-xs ${
+                          primaryPothole?.priorityLevel === "CRITICAL"
+                            ? "bg-red-100 text-red-800"
+                            : primaryPothole?.priorityLevel === "HIGH"
+                              ? "bg-orange-100 text-orange-800"
+                              : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {primaryPothole?.priorityLevel}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
@@ -474,21 +554,31 @@ export default function WorkerDashboardPage() {
             <div className="text-gray-500">No tasks in progress</div>
           ) : (
             <div className="space-y-3">
-              {inProgressTasks.map((task) => (
-                <Link
-                  key={task.id}
-                  href={`/proof-upload/${task.id}`}
-                  className="block border rounded p-3 hover:bg-gray-50"
-                >
-                  <div className="font-mono text-sm">{task.ticketNumber}</div>
-                  <div className="text-sm text-gray-600">
-                    {task.pothole.roadInfo?.roadName || "Unknown Road"}
-                  </div>
-                  <div className="mt-2 text-blue-600 text-sm">
-                    → Upload Proof
-                  </div>
-                </Link>
-              ))}
+              {inProgressTasks.map((task) => {
+                const primaryPothole = task.potholes[0];
+                return (
+                  <Link
+                    key={task.id}
+                    href={`/proof-upload/${task.id}`}
+                    className="block border rounded p-3 hover:bg-gray-50"
+                  >
+                    <div className="font-mono text-sm">
+                      {task.ticketNumber}
+                      {task.potholes.length > 1 && (
+                        <span className="ml-2 text-xs text-gray-500">
+                          ({task.potholes.length} sites)
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {primaryPothole?.roadInfo?.roadName || "Unknown Road"}
+                    </div>
+                    <div className="mt-2 text-blue-600 text-sm">
+                      → Upload Proof
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>

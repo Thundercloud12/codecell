@@ -1,30 +1,23 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useEffect, useState, useMemo } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Polyline,
+  useMap,
+} from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
-
-// Types for routing machine
-interface RouteSummary {
-  totalDistance: number;
-  totalTime: number;
-}
-
-interface RouteInfo {
-  summary: RouteSummary;
-}
-
-interface RoutingResultEvent {
-  routes: RouteInfo[];
-}
 
 interface Pothole {
   id: string;
   ticketNumber: string;
   status: string;
-  pothole: {
+  potholes: Array<{
+    id: string;
     latitude: number;
     longitude: number;
     priorityLevel: string;
@@ -32,13 +25,16 @@ interface Pothole {
     roadInfo: {
       roadName: string | null;
     } | null;
-  };
+  }>;
 }
 
 interface WorkerNavigationMapProps {
   potholes: Pothole[];
   workerLocation: { lat: number; lng: number } | null;
-  onNavigate?: (pothole: Pothole, routeInfo: { distance: number; time: number }) => void;
+  onNavigate?: (
+    pothole: Pothole,
+    routeInfo: { distance: number; time: number },
+  ) => void;
 }
 
 // Worker location icon (blue)
@@ -80,86 +76,14 @@ const getPotholeIcon = (priorityLevel: string) => {
   });
 };
 
-// Routing control component
-function RoutingMachine({
-  workerLocation,
-  destination,
-  onRouteFound,
-}: {
-  workerLocation: { lat: number; lng: number };
-  destination: { lat: number; lng: number } | null;
-  onRouteFound: (distance: number, time: number) => void;
-}) {
-  const map = useMap();
-  const routingControlRef = useRef<L.Routing.Control | null>(null);
-
-  useEffect(() => {
-    if (!destination || !workerLocation) {
-      // Remove existing route if no destination
-      if (routingControlRef.current) {
-        map.removeControl(routingControlRef.current);
-        routingControlRef.current = null;
-      }
-      return;
-    }
-
-    // Dynamic import for leaflet-routing-machine (client-side only)
-    import("leaflet-routing-machine").then(() => {
-      // Remove existing route control
-      if (routingControlRef.current) {
-        map.removeControl(routingControlRef.current);
-      }
-
-      // Create new routing control
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const routingControl = (L.Routing as any).control({
-        waypoints: [
-          L.latLng(workerLocation.lat, workerLocation.lng),
-          L.latLng(destination.lat, destination.lng),
-        ],
-        routeWhileDragging: false,
-        showAlternatives: false,
-        addWaypoints: false,
-        fitSelectedRoutes: true,
-        lineOptions: {
-          styles: [{ color: "#3b82f6", weight: 5, opacity: 0.8 }],
-          extendToWaypoints: true,
-          missingRouteTolerance: 0,
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        router: (L.Routing as any).osrmv1({
-          serviceUrl: "https://router.project-osrm.org/route/v1",
-        }),
-        // Hide the itinerary panel
-        show: false,
-        collapsible: true,
-      });
-
-      routingControl.on("routesfound", (e: RoutingResultEvent) => {
-        const routes = e.routes;
-        if (routes && routes.length > 0) {
-          const summary = routes[0].summary;
-          onRouteFound(summary.totalDistance, summary.totalTime);
-        }
-      });
-
-      routingControl.addTo(map);
-      routingControlRef.current = routingControl;
-    });
-
-    return () => {
-      if (routingControlRef.current) {
-        map.removeControl(routingControlRef.current);
-        routingControlRef.current = null;
-      }
-    };
-  }, [map, workerLocation, destination, onRouteFound]);
-
-  return null;
-}
-
 // Map center controller
-function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
+function MapController({
+  center,
+  zoom,
+}: {
+  center: [number, number];
+  zoom: number;
+}) {
   const map = useMap();
 
   useEffect(() => {
@@ -176,35 +100,119 @@ export default function WorkerNavigationMap({
 }: WorkerNavigationMapProps) {
   // Debug log
   console.log("WorkerNavigationMap - workerLocation:", workerLocation);
-  
+
   const [selectedPothole, setSelectedPothole] = useState<Pothole | null>(null);
-  const [destination, setDestination] = useState<{ lat: number; lng: number } | null>(null);
-  const [routeInfo, setRouteInfo] = useState<{ distance: number; time: number } | null>(null);
+  const [destination, setDestination] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [routeInfo, setRouteInfo] = useState<{
+    distance: number;
+    time: number;
+  } | null>(null);
+  const [routePath, setRoutePath] = useState<{ lat: number; lng: number }[]>(
+    [],
+  );
+  const [routeLoading, setRouteLoading] = useState(false);
   const zoom = 15;
 
   // Calculate center based on worker location or first pothole
   const center = useMemo<[number, number]>(() => {
     if (workerLocation) {
       return [workerLocation.lat, workerLocation.lng];
-    } else if (potholes.length > 0) {
-      return [potholes[0].pothole.latitude, potholes[0].pothole.longitude];
+    } else if (potholes.length > 0 && potholes[0].potholes[0]) {
+      return [
+        potholes[0].potholes[0].latitude,
+        potholes[0].potholes[0].longitude,
+      ];
     }
     return [19.076, 72.8777]; // Default: Mumbai coordinates
   }, [workerLocation, potholes]);
 
   // Handle navigate button click
-  const handleNavigate = (pothole: Pothole) => {
+  const handleNavigate = async (pothole: Pothole) => {
     if (!workerLocation) {
       alert("Please update your location first to navigate");
       return;
     }
 
+    const primaryPothole = pothole.potholes[0];
+    if (!primaryPothole) {
+      alert("No pothole location available");
+      return;
+    }
+
     setSelectedPothole(pothole);
-    setDestination({
-      lat: pothole.pothole.latitude,
-      lng: pothole.pothole.longitude,
-    });
-    setRouteInfo(null); // Reset while calculating
+    const dest = {
+      lat: primaryPothole.latitude,
+      lng: primaryPothole.longitude,
+    };
+    setDestination(dest);
+    setRouteInfo(null);
+    setRouteLoading(true);
+    setRoutePath([]);
+
+    try {
+      // Call Dijkstra API to calculate shortest route
+      const response = await fetch("/api/route/dijkstra", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          workerLat: workerLocation.lat,
+          workerLng: workerLocation.lng,
+          potholeLat: dest.lat,
+          potholeLng: dest.lng,
+          radiusMeters: 2000, // 2km radius for better performance
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("API Error:", data);
+        throw new Error(data.details || data.error || "Failed to calculate route");
+      }
+
+      if (data.path && data.path.length > 0) {
+        console.log(`Route found: ${data.pathNodes} nodes, ${data.summary.distanceKm} km`);
+        setRoutePath(data.path);
+        setRouteInfo({
+          distance: data.distance,
+          time: data.duration,
+        });
+        if (onNavigate) {
+          onNavigate(pothole, { distance: data.distance, time: data.duration });
+        }
+      } else {
+        // Fallback to straight line if no route found
+        console.warn("No path in response, using straight line");
+        setRoutePath([
+          { lat: workerLocation.lat, lng: workerLocation.lng },
+          { lat: dest.lat, lng: dest.lng },
+        ]);
+        alert("Could not find road route. Showing direct path.");
+      }
+    } catch (error) {
+      console.error("Route calculation error:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      // Fallback to straight line on error
+      setRoutePath([
+        { lat: workerLocation.lat, lng: workerLocation.lng },
+        { lat: dest.lat, lng: dest.lng },
+      ]);
+      
+      // Show more helpful error message
+      if (errorMessage.includes("504") || errorMessage.includes("timeout")) {
+        alert("Route service is busy. Showing direct path. Please try again in a moment.");
+      } else if (errorMessage.includes("No road network")) {
+        alert("No roads found in this area. Showing direct path.");
+      } else {
+        alert(`Route calculation failed: ${errorMessage}. Showing direct path.`);
+      }
+    } finally {
+      setRouteLoading(false);
+    }
   };
 
   // Clear route
@@ -212,9 +220,11 @@ export default function WorkerNavigationMap({
     setSelectedPothole(null);
     setDestination(null);
     setRouteInfo(null);
+    setRoutePath([]);
+    setRouteLoading(false);
   };
 
-  // When route is found
+  // When route is found (deprecated - now handled in handleNavigate)
   const handleRouteFound = (distance: number, time: number) => {
     const info = { distance, time };
     setRouteInfo(info);
@@ -253,13 +263,33 @@ export default function WorkerNavigationMap({
 
   return (
     <div className="space-y-4">
+      {/* Loading State */}
+      {routeLoading && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center gap-3">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-yellow-600"></div>
+          <span className="text-yellow-800 font-medium">
+            Calculating optimal route...
+          </span>
+        </div>
+      )}
+
       {/* Route Info Banner */}
-      {routeInfo && selectedPothole && (
+      {routeInfo && selectedPothole && !routeLoading && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="text-blue-600">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                />
               </svg>
             </div>
             <div>
@@ -267,7 +297,8 @@ export default function WorkerNavigationMap({
                 Route to {selectedPothole.ticketNumber}
               </div>
               <div className="text-sm text-blue-600">
-                {selectedPothole.pothole.roadInfo?.roadName || "Unknown Road"}
+                {selectedPothole.potholes[0]?.roadInfo?.roadName ||
+                  "Unknown Road"}
               </div>
             </div>
             <div className="flex gap-6 ml-6">
@@ -311,12 +342,18 @@ export default function WorkerNavigationMap({
 
           {/* Worker Location Marker */}
           {workerLocation && (
-            <Marker position={[workerLocation.lat, workerLocation.lng]} icon={workerIcon}>
+            <Marker
+              position={[workerLocation.lat, workerLocation.lng]}
+              icon={workerIcon}
+            >
               <Popup>
                 <div className="text-center min-w-[150px]">
-                  <strong className="text-blue-600">👤 Your Current Location</strong>
+                  <strong className="text-blue-600">
+                    👤 Your Current Location
+                  </strong>
                   <div className="text-sm text-gray-600 mt-1">
-                    📍 {workerLocation.lat.toFixed(6)}, {workerLocation.lng.toFixed(6)}
+                    📍 {workerLocation.lat.toFixed(6)},{" "}
+                    {workerLocation.lng.toFixed(6)}
                   </div>
                 </div>
               </Popup>
@@ -324,57 +361,70 @@ export default function WorkerNavigationMap({
           )}
 
           {/* Pothole Markers */}
-          {potholes.map((pothole) => (
-            <Marker
-              key={pothole.id}
-              position={[pothole.pothole.latitude, pothole.pothole.longitude]}
-              icon={getPotholeIcon(pothole.pothole.priorityLevel)}
-            >
-              <Popup>
-                <div className="min-w-[200px]">
-                  <div className="font-bold text-gray-800">{pothole.ticketNumber}</div>
-                  <div className="text-sm text-gray-600 mb-2">
-                    {pothole.pothole.roadInfo?.roadName || "Unknown Road"}
-                  </div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span
-                      className={`px-2 py-0.5 rounded text-xs border ${getPriorityBadgeClass(
-                        pothole.pothole.priorityLevel
-                      )}`}
+          {potholes.map((pothole) => {
+            const primaryPothole = pothole.potholes[0];
+            if (!primaryPothole) return null;
+            return (
+              <Marker
+                key={pothole.id}
+                position={[primaryPothole.latitude, primaryPothole.longitude]}
+                icon={getPotholeIcon(primaryPothole.priorityLevel)}
+              >
+                <Popup>
+                  <div className="min-w-[200px]">
+                    <div className="font-bold text-gray-800">
+                      {pothole.ticketNumber}
+                      {pothole.potholes.length > 1 && (
+                        <span className="text-xs text-gray-500">
+                          {" "}
+                          ({pothole.potholes.length} sites)
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm text-gray-600 mb-2">
+                      {primaryPothole.roadInfo?.roadName || "Unknown Road"}
+                    </div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span
+                        className={`px-2 py-0.5 rounded text-xs border ${getPriorityBadgeClass(
+                          primaryPothole.priorityLevel,
+                        )}`}
+                      >
+                        {primaryPothole.priorityLevel}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        Score: {primaryPothole.priorityScore}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleNavigate(pothole)}
+                      disabled={!workerLocation || routeLoading}
+                      className={`w-full py-2 px-3 rounded text-sm font-medium ${
+                        workerLocation && !routeLoading
+                          ? "bg-blue-600 text-white hover:bg-blue-700"
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      }`}
                     >
-                      {pothole.pothole.priorityLevel}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      Score: {pothole.pothole.priorityScore}
-                    </span>
+                      {routeLoading ? "Calculating..." : "🧭 Navigate Here"}
+                    </button>
+                    {!workerLocation && (
+                      <p className="text-xs text-gray-500 mt-1 text-center">
+                        Update your location first
+                      </p>
+                    )}
                   </div>
-                  <button
-                    onClick={() => handleNavigate(pothole)}
-                    disabled={!workerLocation}
-                    className={`w-full py-2 px-3 rounded text-sm font-medium ${
-                      workerLocation
-                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    }`}
-                  >
-                    🧭 Navigate Here
-                  </button>
-                  {!workerLocation && (
-                    <p className="text-xs text-gray-500 mt-1 text-center">
-                      Update your location first
-                    </p>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
-          ))}
+                </Popup>
+              </Marker>
+            );
+          })}
 
-          {/* Routing Machine */}
-          {workerLocation && destination && (
-            <RoutingMachine
-              workerLocation={workerLocation}
-              destination={destination}
-              onRouteFound={handleRouteFound}
+          {/* Route Polyline */}
+          {routePath.length > 0 && (
+            <Polyline
+              positions={routePath.map((p) => [p.lat, p.lng])}
+              color="#3B82F6"
+              weight={4}
+              opacity={0.7}
             />
           )}
         </MapContainer>
@@ -383,57 +433,74 @@ export default function WorkerNavigationMap({
       {/* Pothole List with Navigate Buttons */}
       <div className="bg-white border rounded-lg overflow-hidden">
         <div className="bg-gray-50 px-4 py-3 border-b">
-          <h3 className="font-semibold text-gray-700">Assigned Potholes ({potholes.length})</h3>
+          <h3 className="font-semibold text-gray-700">
+            Assigned Potholes ({potholes.length})
+          </h3>
         </div>
         <div className="divide-y max-h-[300px] overflow-y-auto">
           {potholes.length === 0 ? (
-            <div className="p-4 text-gray-500 text-center">No potholes assigned</div>
+            <div className="p-4 text-gray-500 text-center">
+              No potholes assigned
+            </div>
           ) : (
-            potholes.map((pothole) => (
-              <div
-                key={pothole.id}
-                className={`p-4 flex items-center justify-between hover:bg-gray-50 ${
-                  selectedPothole?.id === pothole.id ? "bg-blue-50" : ""
-                }`}
-              >
-                <div className="flex-1">
-                  <div className="font-mono text-sm font-medium">{pothole.ticketNumber}</div>
-                  <div className="text-sm text-gray-600">
-                    {pothole.pothole.roadInfo?.roadName || "Unknown Road"}
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span
-                      className={`px-2 py-0.5 rounded text-xs border ${getPriorityBadgeClass(
-                        pothole.pothole.priorityLevel
-                      )}`}
-                    >
-                      {pothole.pothole.priorityLevel}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      📍 {pothole.pothole.latitude.toFixed(4)}, {pothole.pothole.longitude.toFixed(4)}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleNavigate(pothole)}
-                  disabled={!workerLocation}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 ${
-                    workerLocation
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : "bg-gray-200 text-gray-500 cursor-not-allowed"
+            potholes.map((pothole) => {
+              const primaryPothole = pothole.potholes[0];
+              if (!primaryPothole) return null;
+              return (
+                <div
+                  key={pothole.id}
+                  className={`p-4 flex items-center justify-between hover:bg-gray-50 ${
+                    selectedPothole?.id === pothole.id ? "bg-blue-50" : ""
                   }`}
                 >
-                  🧭 Navigate
-                </button>
-              </div>
-            ))
+                  <div className="flex-1">
+                    <div className="font-mono text-sm font-medium">
+                      {pothole.ticketNumber}
+                      {pothole.potholes.length > 1 && (
+                        <span className="text-xs text-gray-500 ml-2">
+                          ({pothole.potholes.length} sites)
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {primaryPothole.roadInfo?.roadName || "Unknown Road"}
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span
+                        className={`px-2 py-0.5 rounded text-xs border ${getPriorityBadgeClass(
+                          primaryPothole.priorityLevel,
+                        )}`}
+                      >
+                        {primaryPothole.priorityLevel}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        📍 {primaryPothole.latitude.toFixed(4)},{" "}
+                        {primaryPothole.longitude.toFixed(4)}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleNavigate(pothole)}
+                    disabled={!workerLocation || routeLoading}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 ${
+                      workerLocation && !routeLoading
+                        ? "bg-blue-600 text-white hover:bg-blue-700"
+                        : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    }`}
+                  >
+                    {routeLoading ? "..." : "🧭 Navigate"}
+                  </button>
+                </div>
+              );
+            })
           )}
         </div>
       </div>
 
       {!workerLocation && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-800 text-sm text-center">
-          ⚠️ Update your location using the GPS button above to enable navigation
+          ⚠️ Update your location using the GPS button above to enable
+          navigation
         </div>
       )}
     </div>
