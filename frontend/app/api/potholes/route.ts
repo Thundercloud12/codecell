@@ -4,7 +4,7 @@
  * Entry point for detected potholes to enter the repair workflow
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 interface PotholeCreateRequest {
@@ -21,8 +21,8 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!body.detectionId || body.latitude == null || body.longitude == null) {
       return NextResponse.json(
-        { error: 'Missing required fields: detectionId, latitude, longitude' },
-        { status: 400 }
+        { error: "Missing required fields: detectionId, latitude, longitude" },
+        { status: 400 },
       );
     }
 
@@ -33,8 +33,8 @@ export async function POST(request: NextRequest) {
 
     if (!detection) {
       return NextResponse.json(
-        { error: 'Detection not found' },
-        { status: 404 }
+        { error: "Detection not found" },
+        { status: 404 },
       );
     }
 
@@ -45,8 +45,11 @@ export async function POST(request: NextRequest) {
 
     if (existingPothole) {
       return NextResponse.json(
-        { error: 'Pothole already exists for this detection', pothole: existingPothole },
-        { status: 409 }
+        {
+          error: "Pothole already exists for this detection",
+          pothole: existingPothole,
+        },
+        { status: 409 },
       );
     }
 
@@ -67,15 +70,15 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         pothole,
-        message: 'Pothole created successfully',
+        message: "Pothole created successfully",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
-    console.error('Error creating pothole:', error);
+    console.error("Error creating pothole:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
-      { status: 500 }
+      { error: "Internal server error", details: String(error) },
+      { status: 500 },
     );
   }
 }
@@ -87,22 +90,22 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
-    const priorityLevel = searchParams.get('priorityLevel');
-    const hasTicket = searchParams.get('hasTicket');
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
+
+    const priorityLevel = searchParams.get("priorityLevel");
+    const hasTicket = searchParams.get("hasTicket");
+    const limit = parseInt(searchParams.get("limit") || "50");
+    const offset = parseInt(searchParams.get("offset") || "0");
 
     // Build filter
     const where: any = {};
-    
+
     if (priorityLevel) {
       where.priorityLevel = priorityLevel;
     }
 
-    if (hasTicket === 'true') {
+    if (hasTicket === "true") {
       where.ticket = { isNot: null };
-    } else if (hasTicket === 'false') {
+    } else if (hasTicket === "false") {
       where.ticket = null;
     }
 
@@ -123,10 +126,7 @@ export async function GET(request: NextRequest) {
             },
           },
         },
-        orderBy: [
-          { priorityScore: 'desc' },
-          { createdAt: 'desc' },
-        ],
+        orderBy: [{ priorityScore: "desc" }, { createdAt: "desc" }],
         take: limit,
         skip: offset,
       }),
@@ -144,10 +144,10 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching potholes:', error);
+    console.error("Error fetching potholes:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
-      { status: 500 }
+      { error: "Internal server error", details: String(error) },
+      { status: 500 },
     );
   }
 }

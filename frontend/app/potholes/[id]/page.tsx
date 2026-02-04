@@ -46,7 +46,7 @@ export default function PotholeDetailPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -65,7 +65,7 @@ export default function PotholeDetailPage() {
 
     const img = imgRef.current;
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     // Set canvas size to match image
@@ -76,18 +76,23 @@ export default function PotholeDetailPage() {
     ctx.drawImage(img, 0, 0);
 
     // Draw bounding box
-    const { bboxX, bboxY, bboxWidth, bboxHeight, confidence } = pothole.detection;
-    
-    ctx.strokeStyle = '#00ff00';
+    const { bboxX, bboxY, bboxWidth, bboxHeight, confidence } =
+      pothole.detection;
+
+    ctx.strokeStyle = "#00ff00";
     ctx.lineWidth = 4;
     ctx.strokeRect(bboxX, bboxY, bboxWidth, bboxHeight);
 
     // Draw confidence label
-    ctx.fillStyle = '#00ff00';
+    ctx.fillStyle = "#00ff00";
     ctx.fillRect(bboxX, bboxY - 30, 150, 30);
-    ctx.fillStyle = '#000';
-    ctx.font = 'bold 16px Arial';
-    ctx.fillText(`${(confidence * 100).toFixed(1)}% Pothole`, bboxX + 5, bboxY - 8);
+    ctx.fillStyle = "#000";
+    ctx.font = "bold 16px Arial";
+    ctx.fillText(
+      `${(confidence * 100).toFixed(1)}% Pothole`,
+      bboxX + 5,
+      bboxY - 8,
+    );
   }
 
   async function fetchPothole() {
@@ -285,58 +290,117 @@ export default function PotholeDetailPage() {
             )}
             {pothole.detection && (
               <div className="mt-2 text-xs text-gray-600">
-                <div>BBox: X={pothole.detection.bboxX.toFixed(1)}, Y={pothole.detection.bboxY.toFixed(1)}</div>
-                <div>Size: {pothole.detection.bboxWidth.toFixed(1)} × {pothole.detection.bboxHeight.toFixed(1)}</div>
+                <div>
+                  BBox: X={pothole.detection.bboxX.toFixed(1)}, Y=
+                  {pothole.detection.bboxY.toFixed(1)}
+                </div>
+                <div>
+                  Size: {pothole.detection.bboxWidth.toFixed(1)} ×{" "}
+                  {pothole.detection.bboxHeight.toFixed(1)}
+                </div>
               </div>
             )}
           </div>
         </div>
         <div className="mt-4 text-sm text-gray-600">
           <span className="font-semibold">Note:</span> The annotated image shows
-          the AI detection bounding box. Green border indicates AI-processed image.
+          the AI detection bounding box. Green border indicates AI-processed
+          image.
         </div>
       </div>
 
       <div className="bg-white border rounded-lg p-6 mb-6">
         <h2 className="text-xl font-bold mb-4">Road Context</h2>
         {pothole.roadInfo ? (
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-gray-500">Road Name</label>
-              <div>{pothole.roadInfo.roadName || "Unknown"}</div>
-            </div>
-            <div>
-              <label className="text-sm text-gray-500">Road Type</label>
-              <div>{pothole.roadInfo.roadType || "Unknown"}</div>
-            </div>
-            <div>
-              <label className="text-sm text-gray-500">Speed Limit</label>
+          <>
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Road Info */}
               <div>
-                {pothole.roadInfo.speedLimit
-                  ? `${pothole.roadInfo.speedLimit} km/h`
-                  : "Unknown"}
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                  Road Information
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm text-gray-500">Road Name</label>
+                    <div className="font-medium">
+                      {pothole.roadInfo.roadName || "Unknown"}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-500">Road Type</label>
+                    <div className="font-medium">
+                      {pothole.roadInfo.roadType || "Unknown"}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-500">Speed Limit</label>
+                    <div className="font-medium">
+                      {pothole.roadInfo.speedLimit
+                        ? `${pothole.roadInfo.speedLimit} km/h`
+                        : "Unknown"}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-500">
+                      Traffic Importance
+                    </label>
+                    <div className="font-medium">
+                      {pothole.roadInfo.trafficImportance.toFixed(1)}/5
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-500">
+                      Priority Factor
+                    </label>
+                    <div className="font-medium">
+                      {pothole.roadInfo.priorityFactor.toFixed(2)}x
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Location Map */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                  Location on Map
+                </h3>
+                <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-300">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    style={{ border: 0 }}
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${pothole.longitude - 0.002},${pothole.latitude - 0.002},${pothole.longitude + 0.002},${pothole.latitude + 0.002}&layer=mapnik&marker=${pothole.latitude},${pothole.longitude}`}
+                    allowFullScreen
+                    title="Pothole Location"
+                  />
+                </div>
+                <div className="mt-2 text-xs text-gray-600">
+                  Coordinates: {pothole.latitude.toFixed(6)},{" "}
+                  {pothole.longitude.toFixed(6)}
+                  <br />
+                  <a
+                    href={`https://www.google.com/maps?q=${pothole.latitude},${pothole.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    Open in Google Maps →
+                  </a>
+                </div>
               </div>
             </div>
-            <div>
-              <label className="text-sm text-gray-500">
-                Traffic Importance
-              </label>
-              <div>{pothole.roadInfo.trafficImportance.toFixed(1)}</div>
-            </div>
-            <div>
-              <label className="text-sm text-gray-500">Priority Factor</label>
-              <div>{pothole.roadInfo.priorityFactor.toFixed(2)}</div>
-            </div>
-          </div>
+          </>
         ) : (
           <div>
             <p className="text-gray-500 mb-4">
-              Road information not fetched yet
+              Road information not fetched yet. Click the button to fetch road
+              context from OpenStreetMap.
             </p>
             <button
               onClick={fetchRoadInfo}
               disabled={actionLoading}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 transition"
             >
               {actionLoading ? "Fetching..." : "Fetch Road Info"}
             </button>

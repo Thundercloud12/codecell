@@ -3,6 +3,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+// Dynamically import map component (Leaflet requires browser environment)
+const WorkerNavigationMap = dynamic(
+  () => import("@/components/WorkerNavigationMap"),
+  { ssr: false, loading: () => <div className="h-[400px] bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">Loading map...</div> }
+);
 
 interface WorkerDashboard {
   worker: {
@@ -170,6 +177,7 @@ export default function WorkerDashboardPage() {
       const data = await res.json();
 
       if (data.success) {
+        console.log("Dashboard data fetched:", data.worker);
         setDashboard(data);
       } else {
         setError(data.error);
@@ -398,6 +406,27 @@ export default function WorkerDashboardPage() {
           )}
         </div>
       )}
+
+      {/* Navigation Map Section */}
+      <div className="bg-white border rounded-lg p-6 mb-6">
+        <h2 className="text-xl font-bold mb-4">🗺️ Navigation Map</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          View all assigned potholes on the map. Click &quot;Navigate&quot; to get directions from your current location.
+        </p>
+        <WorkerNavigationMap
+          potholes={[...assignedTasks, ...inProgressTasks]}
+          workerLocation={
+            dashboard.worker.currentLatitude && dashboard.worker.currentLongitude
+              ? { lat: dashboard.worker.currentLatitude, lng: dashboard.worker.currentLongitude }
+              : null
+          }
+          onNavigate={(pothole, routeInfo) => {
+            setMessage(
+              `Route to ${pothole.ticketNumber}: ${(routeInfo.distance / 1000).toFixed(1)} km, ~${Math.round(routeInfo.time / 60)} min`
+            );
+          }}
+        />
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="bg-white border rounded-lg p-6">
