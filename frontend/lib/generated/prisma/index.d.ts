@@ -3156,7 +3156,9 @@ export namespace Prisma {
     longitude: number | null
     status: $Enums.ReportStatus | null
     severity: number | null
+    imageUrl: string | null
     createdAt: Date | null
+    updatedAt: Date | null
     userId: string | null
   }
 
@@ -3168,7 +3170,9 @@ export namespace Prisma {
     longitude: number | null
     status: $Enums.ReportStatus | null
     severity: number | null
+    imageUrl: string | null
     createdAt: Date | null
+    updatedAt: Date | null
     userId: string | null
   }
 
@@ -3180,7 +3184,9 @@ export namespace Prisma {
     longitude: number
     status: number
     severity: number
+    imageUrl: number
     createdAt: number
+    updatedAt: number
     userId: number
     _all: number
   }
@@ -3206,7 +3212,9 @@ export namespace Prisma {
     longitude?: true
     status?: true
     severity?: true
+    imageUrl?: true
     createdAt?: true
+    updatedAt?: true
     userId?: true
   }
 
@@ -3218,7 +3226,9 @@ export namespace Prisma {
     longitude?: true
     status?: true
     severity?: true
+    imageUrl?: true
     createdAt?: true
+    updatedAt?: true
     userId?: true
   }
 
@@ -3230,7 +3240,9 @@ export namespace Prisma {
     longitude?: true
     status?: true
     severity?: true
+    imageUrl?: true
     createdAt?: true
+    updatedAt?: true
     userId?: true
     _all?: true
   }
@@ -3329,7 +3341,9 @@ export namespace Prisma {
     longitude: number
     status: $Enums.ReportStatus
     severity: number | null
+    imageUrl: string | null
     createdAt: Date
+    updatedAt: Date
     userId: string | null
     _count: ReportCountAggregateOutputType | null
     _avg: ReportAvgAggregateOutputType | null
@@ -3360,7 +3374,9 @@ export namespace Prisma {
     longitude?: boolean
     status?: boolean
     severity?: boolean
+    imageUrl?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     userId?: boolean
     user?: boolean | Report$userArgs<ExtArgs>
     media?: boolean | Report$mediaArgs<ExtArgs>
@@ -3375,7 +3391,9 @@ export namespace Prisma {
     longitude?: boolean
     status?: boolean
     severity?: boolean
+    imageUrl?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     userId?: boolean
     user?: boolean | Report$userArgs<ExtArgs>
   }, ExtArgs["result"]["report"]>
@@ -3388,7 +3406,9 @@ export namespace Prisma {
     longitude?: boolean
     status?: boolean
     severity?: boolean
+    imageUrl?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     userId?: boolean
     user?: boolean | Report$userArgs<ExtArgs>
   }, ExtArgs["result"]["report"]>
@@ -3401,11 +3421,13 @@ export namespace Prisma {
     longitude?: boolean
     status?: boolean
     severity?: boolean
+    imageUrl?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     userId?: boolean
   }
 
-  export type ReportOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "latitude" | "longitude" | "status" | "severity" | "createdAt" | "userId", ExtArgs["result"]["report"]>
+  export type ReportOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "latitude" | "longitude" | "status" | "severity" | "imageUrl" | "createdAt" | "updatedAt" | "userId", ExtArgs["result"]["report"]>
   export type ReportInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | Report$userArgs<ExtArgs>
     media?: boolean | Report$mediaArgs<ExtArgs>
@@ -3432,7 +3454,9 @@ export namespace Prisma {
       longitude: number
       status: $Enums.ReportStatus
       severity: number | null
+      imageUrl: string | null
       createdAt: Date
+      updatedAt: Date
       userId: string | null
     }, ExtArgs["result"]["report"]>
     composites: {}
@@ -3866,7 +3890,9 @@ export namespace Prisma {
     readonly longitude: FieldRef<"Report", 'Float'>
     readonly status: FieldRef<"Report", 'ReportStatus'>
     readonly severity: FieldRef<"Report", 'Int'>
+    readonly imageUrl: FieldRef<"Report", 'String'>
     readonly createdAt: FieldRef<"Report", 'DateTime'>
+    readonly updatedAt: FieldRef<"Report", 'DateTime'>
     readonly userId: FieldRef<"Report", 'String'>
   }
     
@@ -14906,7 +14932,9 @@ export namespace Prisma {
     longitude: 'longitude',
     status: 'status',
     severity: 'severity',
+    imageUrl: 'imageUrl',
     createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
     userId: 'userId'
   };
 
@@ -15322,7 +15350,9 @@ export namespace Prisma {
     longitude?: FloatFilter<"Report"> | number
     status?: EnumReportStatusFilter<"Report"> | $Enums.ReportStatus
     severity?: IntNullableFilter<"Report"> | number | null
+    imageUrl?: StringNullableFilter<"Report"> | string | null
     createdAt?: DateTimeFilter<"Report"> | Date | string
+    updatedAt?: DateTimeFilter<"Report"> | Date | string
     userId?: StringNullableFilter<"Report"> | string | null
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     media?: MediaListRelationFilter
@@ -15336,7 +15366,9 @@ export namespace Prisma {
     longitude?: SortOrder
     status?: SortOrder
     severity?: SortOrderInput | SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     userId?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
     media?: MediaOrderByRelationAggregateInput
@@ -15353,7 +15385,9 @@ export namespace Prisma {
     longitude?: FloatFilter<"Report"> | number
     status?: EnumReportStatusFilter<"Report"> | $Enums.ReportStatus
     severity?: IntNullableFilter<"Report"> | number | null
+    imageUrl?: StringNullableFilter<"Report"> | string | null
     createdAt?: DateTimeFilter<"Report"> | Date | string
+    updatedAt?: DateTimeFilter<"Report"> | Date | string
     userId?: StringNullableFilter<"Report"> | string | null
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     media?: MediaListRelationFilter
@@ -15367,7 +15401,9 @@ export namespace Prisma {
     longitude?: SortOrder
     status?: SortOrder
     severity?: SortOrderInput | SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     userId?: SortOrderInput | SortOrder
     _count?: ReportCountOrderByAggregateInput
     _avg?: ReportAvgOrderByAggregateInput
@@ -15387,7 +15423,9 @@ export namespace Prisma {
     longitude?: FloatWithAggregatesFilter<"Report"> | number
     status?: EnumReportStatusWithAggregatesFilter<"Report"> | $Enums.ReportStatus
     severity?: IntNullableWithAggregatesFilter<"Report"> | number | null
+    imageUrl?: StringNullableWithAggregatesFilter<"Report"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Report"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Report"> | Date | string
     userId?: StringNullableWithAggregatesFilter<"Report"> | string | null
   }
 
@@ -16204,7 +16242,9 @@ export namespace Prisma {
     longitude: number
     status?: $Enums.ReportStatus
     severity?: number | null
+    imageUrl?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
     user?: UserCreateNestedOneWithoutReportsInput
     media?: MediaCreateNestedManyWithoutReportInput
   }
@@ -16217,7 +16257,9 @@ export namespace Prisma {
     longitude: number
     status?: $Enums.ReportStatus
     severity?: number | null
+    imageUrl?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
     userId?: string | null
     media?: MediaUncheckedCreateNestedManyWithoutReportInput
   }
@@ -16230,7 +16272,9 @@ export namespace Prisma {
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumReportStatusFieldUpdateOperationsInput | $Enums.ReportStatus
     severity?: NullableIntFieldUpdateOperationsInput | number | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneWithoutReportsNestedInput
     media?: MediaUpdateManyWithoutReportNestedInput
   }
@@ -16243,7 +16287,9 @@ export namespace Prisma {
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumReportStatusFieldUpdateOperationsInput | $Enums.ReportStatus
     severity?: NullableIntFieldUpdateOperationsInput | number | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     media?: MediaUncheckedUpdateManyWithoutReportNestedInput
   }
@@ -16256,7 +16302,9 @@ export namespace Prisma {
     longitude: number
     status?: $Enums.ReportStatus
     severity?: number | null
+    imageUrl?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
     userId?: string | null
   }
 
@@ -16268,7 +16316,9 @@ export namespace Prisma {
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumReportStatusFieldUpdateOperationsInput | $Enums.ReportStatus
     severity?: NullableIntFieldUpdateOperationsInput | number | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ReportUncheckedUpdateManyInput = {
@@ -16279,7 +16329,9 @@ export namespace Prisma {
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumReportStatusFieldUpdateOperationsInput | $Enums.ReportStatus
     severity?: NullableIntFieldUpdateOperationsInput | number | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -17296,7 +17348,9 @@ export namespace Prisma {
     longitude?: SortOrder
     status?: SortOrder
     severity?: SortOrder
+    imageUrl?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     userId?: SortOrder
   }
 
@@ -17314,7 +17368,9 @@ export namespace Prisma {
     longitude?: SortOrder
     status?: SortOrder
     severity?: SortOrder
+    imageUrl?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     userId?: SortOrder
   }
 
@@ -17326,7 +17382,9 @@ export namespace Prisma {
     longitude?: SortOrder
     status?: SortOrder
     severity?: SortOrder
+    imageUrl?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     userId?: SortOrder
   }
 
@@ -19106,7 +19164,9 @@ export namespace Prisma {
     longitude: number
     status?: $Enums.ReportStatus
     severity?: number | null
+    imageUrl?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
     media?: MediaCreateNestedManyWithoutReportInput
   }
 
@@ -19118,7 +19178,9 @@ export namespace Prisma {
     longitude: number
     status?: $Enums.ReportStatus
     severity?: number | null
+    imageUrl?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
     media?: MediaUncheckedCreateNestedManyWithoutReportInput
   }
 
@@ -19196,7 +19258,9 @@ export namespace Prisma {
     longitude?: FloatFilter<"Report"> | number
     status?: EnumReportStatusFilter<"Report"> | $Enums.ReportStatus
     severity?: IntNullableFilter<"Report"> | number | null
+    imageUrl?: StringNullableFilter<"Report"> | string | null
     createdAt?: DateTimeFilter<"Report"> | Date | string
+    updatedAt?: DateTimeFilter<"Report"> | Date | string
     userId?: StringNullableFilter<"Report"> | string | null
   }
 
@@ -19360,7 +19424,9 @@ export namespace Prisma {
     longitude: number
     status?: $Enums.ReportStatus
     severity?: number | null
+    imageUrl?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
     user?: UserCreateNestedOneWithoutReportsInput
   }
 
@@ -19372,7 +19438,9 @@ export namespace Prisma {
     longitude: number
     status?: $Enums.ReportStatus
     severity?: number | null
+    imageUrl?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
     userId?: string | null
   }
 
@@ -19436,7 +19504,9 @@ export namespace Prisma {
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumReportStatusFieldUpdateOperationsInput | $Enums.ReportStatus
     severity?: NullableIntFieldUpdateOperationsInput | number | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneWithoutReportsNestedInput
   }
 
@@ -19448,7 +19518,9 @@ export namespace Prisma {
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumReportStatusFieldUpdateOperationsInput | $Enums.ReportStatus
     severity?: NullableIntFieldUpdateOperationsInput | number | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -20633,7 +20705,9 @@ export namespace Prisma {
     longitude: number
     status?: $Enums.ReportStatus
     severity?: number | null
+    imageUrl?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ReportUpdateWithoutUserInput = {
@@ -20644,7 +20718,9 @@ export namespace Prisma {
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumReportStatusFieldUpdateOperationsInput | $Enums.ReportStatus
     severity?: NullableIntFieldUpdateOperationsInput | number | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     media?: MediaUpdateManyWithoutReportNestedInput
   }
 
@@ -20656,7 +20732,9 @@ export namespace Prisma {
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumReportStatusFieldUpdateOperationsInput | $Enums.ReportStatus
     severity?: NullableIntFieldUpdateOperationsInput | number | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     media?: MediaUncheckedUpdateManyWithoutReportNestedInput
   }
 
@@ -20668,7 +20746,9 @@ export namespace Prisma {
     longitude?: FloatFieldUpdateOperationsInput | number
     status?: EnumReportStatusFieldUpdateOperationsInput | $Enums.ReportStatus
     severity?: NullableIntFieldUpdateOperationsInput | number | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MediaCreateManyReportInput = {

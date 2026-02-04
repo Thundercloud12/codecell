@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -12,9 +12,15 @@ interface PotholeDetail {
   priorityScore: number | null;
   priorityLevel: string | null;
   detection: {
+    id: string;
     confidence: number;
+    bboxX: number;
+    bboxY: number;
     bboxWidth: number;
     bboxHeight: number;
+    media: {
+      mediaUrl: string;
+    };
   };
   roadInfo: {
     roadName: string | null;
@@ -40,10 +46,49 @@ export default function PotholeDetailPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     fetchPothole();
   }, [id]);
+
+  useEffect(() => {
+    if (pothole && imgRef.current && canvasRef.current) {
+      drawBoundingBox();
+    }
+  }, [pothole]);
+
+  function drawBoundingBox() {
+    if (!pothole || !imgRef.current || !canvasRef.current) return;
+
+    const img = imgRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas size to match image
+    canvas.width = img.naturalWidth || img.width;
+    canvas.height = img.naturalHeight || img.height;
+
+    // Draw the image
+    ctx.drawImage(img, 0, 0);
+
+    // Draw bounding box
+    const { bboxX, bboxY, bboxWidth, bboxHeight, confidence } = pothole.detection;
+    
+    ctx.strokeStyle = '#00ff00';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(bboxX, bboxY, bboxWidth, bboxHeight);
+
+    // Draw confidence label
+    ctx.fillStyle = '#00ff00';
+    ctx.fillRect(bboxX, bboxY - 30, 150, 30);
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 16px Arial';
+    ctx.fillText(`${(confidence * 100).toFixed(1)}% Pothole`, bboxX + 5, bboxY - 8);
+  }
 
   async function fetchPothole() {
     try {
@@ -181,10 +226,74 @@ export default function PotholeDetailPage() {
           <div>
             <label className="text-sm text-gray-500">Bbox Size</label>
             <div>
-              {pothole.detection.bboxWidth.toFixed(3)} ×{" "}
-              {pothole.detection.bboxHeight.toFixed(3)}
+              {pothole.detection.bboxWidth.toFixed(1)} ×{" "}
+              {pothole.detection.bboxHeight.toFixed(1)}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Images Section */}
+      <div className="bg-white border rounded-lg p-6 mb-6">
+        <h2 className="text-xl font-bold mb-4">Detection Images</h2>
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Original Image */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">
+              Original Image
+            </h3>
+            {pothole.imageUrl ? (
+              <img
+                src={pothole.imageUrl}
+                alt="Original pothole"
+                className="w-full h-64 object-cover rounded-lg border-2 border-gray-300"
+              />
+            ) : (
+              <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500">
+                No image available
+              </div>
+            )}
+          </div>
+
+          {/* AI Annotated Image */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">
+              AI Detection (Annotated)
+            </h3>
+            {pothole.imageUrl ? (
+              <div className="relative w-full h-64 border-2 border-green-500 rounded-lg overflow-hidden">
+                <img
+                  ref={imgRef}
+                  src={pothole.imageUrl}
+                  alt="Original for annotation"
+                  className="hidden"
+                  onLoad={drawBoundingBox}
+                  crossOrigin="anonymous"
+                />
+                <canvas
+                  ref={canvasRef}
+                  className="w-full h-full object-contain bg-gray-900"
+                />
+                <div className="absolute bottom-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-semibold">
+                  AI Detected
+                </div>
+              </div>
+            ) : (
+              <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500">
+                No image available
+              </div>
+            )}
+            {pothole.detection && (
+              <div className="mt-2 text-xs text-gray-600">
+                <div>BBox: X={pothole.detection.bboxX.toFixed(1)}, Y={pothole.detection.bboxY.toFixed(1)}</div>
+                <div>Size: {pothole.detection.bboxWidth.toFixed(1)} × {pothole.detection.bboxHeight.toFixed(1)}</div>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="mt-4 text-sm text-gray-600">
+          <span className="font-semibold">Note:</span> The annotated image shows
+          the AI detection bounding box. Green border indicates AI-processed image.
         </div>
       </div>
 

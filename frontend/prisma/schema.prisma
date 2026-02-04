@@ -18,6 +18,9 @@ model User {
   reports       Report[]
   worker        Worker?  // Link to worker profile if role is WORKER
   createdAt     DateTime @default(now())
+  
+  @@index([clerk_user_id])
+  @@index([email])
 }
 
 model Report {
@@ -28,12 +31,18 @@ model Report {
   longitude   Float
   status      ReportStatus @default(PENDING)
   severity    Int?
+  imageUrl    String?     // Optional image uploaded by citizen
   createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   userId      String?
-  user        User?       @relation(fields: [userId], references: [id])
+  user        User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   media       Media[]
+  
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Media {

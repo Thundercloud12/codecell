@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary";
 
 // Types for AI detection response
@@ -18,7 +18,7 @@ interface AIDetectionResponse {
   detectedClass?: string;
 }
 
-// GET: Fetch all reports (For Admin Dashboard)
+// GET: Fetch all reports (For Admin Dashboard or User's own reports)
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -52,13 +52,14 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       success: true,
+      reports: reports,
       data: reports,
       count: reports.length,
     });
   } catch (error) {
     console.error("Fetch Reports Error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch reports" },
+      { success: false, error: "Failed to fetch reports" },
       { status: 500 },
     );
   }
@@ -67,7 +68,77 @@ export async function GET(req: Request) {
 // POST: Create a new report with AI detection pipeline
 export async function POST(req: Request) {
   try {
-    // Parse multipart form data
+    const contentType = req.headers.get("content-type") || "";
+
+    // Handle JSON request (from citizen form)
+    if (contentType.includes("application/json")) {
+      try {
+        const body = await req.json();
+        const { title, description, latitude, longitude, imageUrl, userId } =
+          body;
+
+        console.log('[REPORT-CREATE] Received data:', { title, latitude, longitude, hasImage: !!imageUrl });
+
+        if (!latitude || !longitude) {
+          return NextResponse.json(
+            { success: false, error: "Latitude and longitude are required" },
+            { status: 400 },
+          );
+        }
+
+        // Get user from Clerk if not provided
+        let reportUserId = userId;
+        if (!reportUserId) {
+          try {
+            const { auth } = await import("@clerk/nextjs/server");
+            const { userId: clerkUserId } = await auth();
+            console.log('[REPORT-CREATE] Clerk user ID:', clerkUserId);
+            
+            if (clerkUserId) {
+              const user = await prisma.user.findUnique({
+                where: { clerk_user_id: clerkUserId },
+              });
+              console.log('[REPORT-CREATE] Found database user:', user?.id);
+              reportUserId = user?.id;
+            }
+          } catch (authError) {
+            console.error('[REPORT-CREATE] Auth error:', authError);
+            // Continue without user ID - allow anonymous reports
+          }
+        }
+
+        console.log('[REPORT-CREATE] Creating report for userId:', reportUserId);
+
+        const report = await prisma.report.create({
+          data: {
+            title: title || "Pothole Report",
+            description: description || null,
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude),
+            imageUrl: imageUrl || null,
+            userId: reportUserId || null,
+            status: "PENDING",
+          },
+        });
+
+        console.log('[REPORT-CREATE] Report created successfully:', report.id);
+
+        return NextResponse.json({
+          success: true,
+          report: report,
+          message: "Report created successfully",
+        });
+      } catch (jsonError: any) {
+        console.error('[REPORT-CREATE] JSON request error:', jsonError);
+        return NextResponse.json({
+          success: false,
+          error: jsonError.message || "Failed to create report",
+          details: jsonError.toString(),
+        }, { status: 500 });
+      }
+    }
+
+    // Handle multipart form data (from admin/advanced forms with AI detection)
     const formData = await req.formData();
 
     const file = formData.get("file") as File;
@@ -242,12 +313,13 @@ export async function POST(req: Request) {
         ? "Report created with AI detection"
         : "Report created without detection",
     });
-  } catch (error) {
-    console.error("Report Creation Error:", error);
+  } catch (error: any) {
+    console.error("Report Creation Error (FormData):", error);
     return NextResponse.json(
       {
+        success: false,
         error: "Failed to create report",
-        details: error instanceof Error ? error.message : "Unknown error",
+        details: error.message || error.toString(),
       },
       { status: 500 },
     );

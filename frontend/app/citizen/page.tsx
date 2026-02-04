@@ -19,15 +19,28 @@ export default function CitizenDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchMyReports();
-  }, []);
+    if (user) {
+      fetchMyReports();
+    }
+  }, [user]);
 
   async function fetchMyReports() {
     try {
-      const res = await fetch("/api/reports");
-      const data = await res.json();
-      if (data.success) {
-        setReports(data.reports || []);
+      if (!user?.id) {
+        setLoading(false);
+        return;
+      }
+
+      // Get database user first
+      const dbUserRes = await fetch("/api/auth/check-user");
+      const dbUserData = await dbUserRes.json();
+
+      if (dbUserData.success && dbUserData.exists) {
+        const res = await fetch(`/api/reports?userId=${dbUserData.user.id}`);
+        const data = await res.json();
+        if (data.success) {
+          setReports(data.reports || []);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch reports");
