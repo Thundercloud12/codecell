@@ -4,9 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 interface RouteParams {
   params: Promise<{
@@ -35,10 +33,16 @@ export async function POST(
       );
     }
 
-    // Verify worker exists
-    const worker = await prisma.worker.findUnique({
+    // Verify worker exists - try by id first, then by employeeId
+    let worker = await prisma.worker.findUnique({
       where: { id },
     });
+    
+    if (!worker) {
+      worker = await prisma.worker.findUnique({
+        where: { employeeId: id },
+      });
+    }
 
     if (!worker) {
       return NextResponse.json(
@@ -49,7 +53,7 @@ export async function POST(
 
     // Update worker's current location
     const updatedWorker = await prisma.worker.update({
-      where: { id },
+      where: { id: worker.id },
       data: {
         currentLatitude: body.latitude,
         currentLongitude: body.longitude,
@@ -60,7 +64,7 @@ export async function POST(
     // Log location in history
     await prisma.workerLocation.create({
       data: {
-        workerId: id,
+        workerId: worker.id,
         latitude: body.latitude,
         longitude: body.longitude,
         accuracy: body.accuracy,
@@ -101,8 +105,8 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const historyLimit = parseInt(searchParams.get('historyLimit') || '10');
 
-    // Fetch worker with recent location history
-    const worker = await prisma.worker.findUnique({
+    // Fetch worker with recent location history - try by id first, then by employeeId
+    let worker = await prisma.worker.findUnique({
       where: { id },
       include: {
         locationLogs: {
@@ -111,6 +115,18 @@ export async function GET(
         },
       },
     });
+    
+    if (!worker) {
+      worker = await prisma.worker.findUnique({
+        where: { employeeId: id },
+        include: {
+          locationLogs: {
+            orderBy: { recordedAt: 'desc' },
+            take: historyLimit,
+          },
+        },
+      });
+    }
 
     if (!worker) {
       return NextResponse.json(

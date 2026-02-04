@@ -5,10 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 import { validateTransition } from '@/lib/services/ticket-lifecycle.service';
-
-const prisma = new PrismaClient();
 
 interface RouteParams {
   params: Promise<{

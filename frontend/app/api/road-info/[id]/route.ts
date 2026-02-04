@@ -4,10 +4,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 import { fetchRoadInfo } from '@/lib/services/road-info.service';
-
-const prisma = new PrismaClient();
 
 interface RouteParams {
   params: Promise<{

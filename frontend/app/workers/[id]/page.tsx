@@ -43,10 +43,125 @@ export default function WorkerDashboardPage() {
     longitude: "",
   });
   const [selectedTicket, setSelectedTicket] = useState("");
+  const [gettingLocation, setGettingLocation] = useState(false);
 
   useEffect(() => {
     fetchDashboard();
   }, [id]);
+
+  // Get current location using browser GPS
+  function getCurrentLocation() {
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setGettingLocation(true);
+    setError("");
+    setMessage("");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocationForm({
+          latitude: position.coords.latitude.toString(),
+          longitude: position.coords.longitude.toString(),
+        });
+        setMessage("Location fetched! Click 'Update Location' to save.");
+        setGettingLocation(false);
+      },
+      (err) => {
+        setGettingLocation(false);
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            setError("Location permission denied. Please allow location access.");
+            break;
+          case err.POSITION_UNAVAILABLE:
+            setError("Location information is unavailable.");
+            break;
+          case err.TIMEOUT:
+            setError("Location request timed out.");
+            break;
+          default:
+            setError("An error occurred while getting location.");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  }
+
+  // Auto-fetch and submit location in one click
+  async function fetchAndUpdateLocation() {
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setGettingLocation(true);
+    setError("");
+    setMessage("");
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        setLocationForm({
+          latitude: lat.toString(),
+          longitude: lng.toString(),
+        });
+
+        try {
+          const res = await fetch(`/api/workers/${id}/location`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              latitude: lat,
+              longitude: lng,
+              accuracy: position.coords.accuracy,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+            setMessage("Location updated successfully!");
+            fetchDashboard();
+          } else {
+            setError(data.error);
+          }
+        } catch (err) {
+          setError("Failed to update location");
+        } finally {
+          setGettingLocation(false);
+        }
+      },
+      (err) => {
+        setGettingLocation(false);
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            setError("Location permission denied. Please allow location access.");
+            break;
+          case err.POSITION_UNAVAILABLE:
+            setError("Location information is unavailable.");
+            break;
+          case err.TIMEOUT:
+            setError("Location request timed out.");
+            break;
+          default:
+            setError("An error occurred while getting location.");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  }
 
   async function fetchDashboard() {
     try {
@@ -173,6 +288,38 @@ export default function WorkerDashboardPage() {
           <div className="text-gray-500 mb-4">No location recorded</div>
         )}
 
+        {/* Quick GPS Update Button */}
+        <div className="mb-4">
+          <button
+            type="button"
+            onClick={fetchAndUpdateLocation}
+            disabled={gettingLocation || actionLoading}
+            className="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center justify-center gap-2 font-medium"
+          >
+            {gettingLocation ? (
+              <>
+                <span className="animate-spin">⏳</span> Getting Location...
+              </>
+            ) : (
+              <>
+                📍 Use My Current Location (GPS)
+              </>
+            )}
+          </button>
+          <p className="text-xs text-gray-500 mt-1 text-center">
+            Automatically fetches and saves your GPS location
+          </p>
+        </div>
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white px-2 text-gray-500">OR enter manually</span>
+          </div>
+        </div>
+
         <form onSubmit={updateLocation} className="flex gap-2">
           <input
             type="number"
@@ -196,6 +343,15 @@ export default function WorkerDashboardPage() {
             className="border rounded px-3 py-2 flex-1"
             required
           />
+          <button
+            type="button"
+            onClick={getCurrentLocation}
+            disabled={gettingLocation}
+            className="bg-gray-200 text-gray-700 px-3 py-2 rounded hover:bg-gray-300 disabled:bg-gray-100"
+            title="Fill with GPS coordinates"
+          >
+            {gettingLocation ? "⏳" : "🎯"}
+          </button>
           <button
             type="submit"
             disabled={actionLoading}

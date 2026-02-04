@@ -7,11 +7,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/lib/generated/prisma';
+import prisma from '@/lib/prisma';
 import { generateRoute } from '@/lib/services/routing.service';
 import { validateTransition } from '@/lib/services/ticket-lifecycle.service';
-
-const prisma = new PrismaClient();
 
 interface RouteParams {
   params: Promise<{
@@ -38,10 +36,16 @@ export async function POST(
       );
     }
 
-    // Verify worker exists and has location
-    const worker = await prisma.worker.findUnique({
+    // Verify worker exists and has location - try by id first, then by employeeId
+    let worker = await prisma.worker.findUnique({
       where: { id },
     });
+    
+    if (!worker) {
+      worker = await prisma.worker.findUnique({
+        where: { employeeId: id },
+      });
+    }
 
     if (!worker) {
       return NextResponse.json(
@@ -73,7 +77,7 @@ export async function POST(
     }
 
     // Verify ticket is assigned to this worker
-    if (ticket.assignedWorkerId !== id) {
+    if (ticket.assignedWorkerId !== worker.id) {
       return NextResponse.json(
         { error: 'Ticket is not assigned to this worker' },
         { status: 403 }

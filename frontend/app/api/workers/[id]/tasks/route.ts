@@ -24,10 +24,17 @@ export async function GET(
     const status = searchParams.get('status');
     const includeCompleted = searchParams.get('includeCompleted') === 'true';
 
-    // Verify worker exists
-    const worker = await prisma.worker.findUnique({
-      where: { employeeId:id },
+    // Verify worker exists - try by id first, then by employeeId
+    let worker = await prisma.worker.findUnique({
+      where: { id },
     });
+    
+    // If not found by id, try by employeeId
+    if (!worker) {
+      worker = await prisma.worker.findUnique({
+        where: { employeeId: id },
+      });
+    }
     console.log(worker);
     
 
@@ -38,9 +45,9 @@ export async function GET(
       );
     }
 
-    // Build filter
+    // Build filter - use worker.id for the assignedWorkerId
     const where: any = {
-      assignedWorkerId: id,
+      assignedWorkerId: worker.id,
     };
 
     if (status) {
