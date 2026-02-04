@@ -31,12 +31,10 @@ export default function CitizenDashboard() {
         return;
       }
 
-      // Get database user first
-      const dbUserRes = await fetch("/api/auth/check-user");
-      const dbUserData = await dbUserRes.json();
+      
 
-      if (dbUserData.success && dbUserData.exists) {
-        const res = await fetch(`/api/reports?userId=${dbUserData.user.id}`);
+      if (user?.id) {
+        const res = await fetch(`/api/reports?userId=${user?.id}`);
         const data = await res.json();
         if (data.success) {
           setReports(data.reports || []);
