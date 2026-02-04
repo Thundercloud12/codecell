@@ -11,7 +11,9 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
-    "db:reset": "prisma migrate reset"
+    "db:reset": "prisma migrate reset",
+    "kafka:consumer": "tsx worker.ts",
+    "kafka:topics": "bash -c 'kafka-topics --create --topic iot.telemetry.water --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1 --if-not-exists && kafka-topics --create --topic iot.telemetry.energy --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1 --if-not-exists && kafka-topics --create --topic iot.telemetry.pressure --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1 --if-not-exists && kafka-topics --create --topic iot.telemetry.vibration --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1 --if-not-exists'"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -20,15 +22,17 @@
     "@clerk/nextjs": "^6.37.2",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
+    "@prisma/client-runtime-utils": "7.3.0",
     "@types/leaflet-routing-machine": "^3.2.9",
     "cloudinary": "^2.9.0",
+    "dotenv": "^17.2.3",
     "framer-motion": "^12.31.0",
+    "kafkajs": "^2.2.4",
     "leaflet": "^1.9.4",
     "leaflet-routing-machine": "^3.2.12",
     "lucide-react": "^0.563.0",
     "next": "16.1.6",
     "pg": "^8.18.0",
-    "prisma": "^7.3.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-leaflet": "^5.0.0"
@@ -42,6 +46,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "prisma": "^7.3.0",
     "tailwindcss": "^4",
     "tsx": "^4.7.0",
     "typescript": "^5"

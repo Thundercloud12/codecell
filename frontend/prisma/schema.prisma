@@ -1,7 +1,6 @@
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
-
 }
 
 datasource db {
@@ -16,137 +15,137 @@ model User {
   email         String   @unique
   role          Role     @default(CITIZEN)
   reports       Report[]
-  worker        Worker?  // Link to worker profile if role is WORKER
+  worker        Worker? // Link to worker profile if role is WORKER
   createdAt     DateTime @default(now())
-  
+
   @@index([clerk_user_id])
   @@index([email])
 }
 
 model Report {
-  id          String      @id @default(uuid())
+  id          String       @id @default(uuid())
   title       String?
   description String?
   latitude    Float
   longitude   Float
   status      ReportStatus @default(PENDING)
   severity    Int?
-  imageUrl    String?     // Optional image uploaded by citizen
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  imageUrl    String? // Optional image uploaded by citizen
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
-  userId      String?
-  user        User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  media       Media[]
-  
+  media Media[]
+
   @@index([userId])
   @@index([status])
   @@index([createdAt])
 }
 
 model Media {
-  id        String     @id @default(uuid())
-  mediaUrl  String
-  mediaType MediaType
+  id         String    @id @default(uuid())
+  mediaUrl   String
+  mediaType  MediaType
   uploadedAt DateTime  @default(now())
 
   reportId String
-  report   Report  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
   detections Detection[]
 }
 
 model Detection {
-  id            String   @id @default(uuid())
-  detectedClass String   @default("pothole")
+  id            String @id @default(uuid())
+  detectedClass String @default("pothole")
   confidence    Float
   bboxX         Float
   bboxY         Float
   bboxWidth     Float
   bboxHeight    Float
-  frameTime     Float?  
+  frameTime     Float?
 
   createdAt DateTime @default(now())
 
-  mediaId   String
-  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  mediaId String
+  media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
-  pothole   Pothole?
+  pothole Pothole?
 }
 
 // Pothole entity with GPS and lifecycle tracking
 model Pothole {
-  id            String   @id @default(uuid())
-  latitude      Float
-  longitude     Float
-  imageUrl      String?
-  
+  id        String  @id @default(uuid())
+  latitude  Float
+  longitude Float
+  imageUrl  String?
+
   // Detection reference
-  detectionId   String   @unique
-  detection     Detection @relation(fields: [detectionId], references: [id], onDelete: Cascade)
-  
+  detectionId String    @unique
+  detection   Detection @relation(fields: [detectionId], references: [id], onDelete: Cascade)
+
   // Severity metrics
   priorityScore Float?
   priorityLevel PriorityLevel?
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  roadInfo      RoadInfo?
-  ticket        Ticket?
-  
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roadInfo RoadInfo?
+  ticket   Ticket?
+
   @@index([priorityLevel])
   @@index([createdAt])
 }
 
 // Road context from Overpass API
 model RoadInfo {
-  id              String   @id @default(uuid())
-  roadName        String?
-  roadType        String?  // primary, secondary, residential, etc.
-  speedLimit      Int?
-  trafficImportance Float  @default(1.0) // Priority weight factor
-  priorityFactor  Float    @default(1.0) // Computed factor for ranking
-  
-  osmData         Json?    // Raw OSM data for reference
-  
-  potholeId       String   @unique
-  pothole         Pothole  @relation(fields: [potholeId], references: [id], onDelete: Cascade)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String  @id @default(uuid())
+  roadName          String?
+  roadType          String? // primary, secondary, residential, etc.
+  speedLimit        Int?
+  trafficImportance Float   @default(1.0) // Priority weight factor
+  priorityFactor    Float   @default(1.0) // Computed factor for ranking
+
+  osmData Json? // Raw OSM data for reference
+
+  potholeId String  @unique
+  pothole   Pothole @relation(fields: [potholeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Ticket lifecycle management
 model Ticket {
-  id              String        @id @default(uuid())
-  ticketNumber    String        @unique // Human-readable ticket ID
-  status          TicketStatus  @default(DETECTED)
-  
-  potholeId       String        @unique
-  pothole         Pothole       @relation(fields: [potholeId], references: [id], onDelete: Cascade)
-  
+  id           String       @id @default(uuid())
+  ticketNumber String       @unique // Human-readable ticket ID
+  status       TicketStatus @default(DETECTED)
+
+  potholeId String  @unique
+  pothole   Pothole @relation(fields: [potholeId], references: [id], onDelete: Cascade)
+
   assignedWorkerId String?
-  assignedWorker   Worker?      @relation(fields: [assignedWorkerId], references: [id])
-  
-  assignedAt      DateTime?
-  startedAt       DateTime?
-  completedAt     DateTime?
-  resolvedAt      DateTime?
-  
-  routeData       Json?        // OSRM route polyline & ETA
-  estimatedETA    DateTime?
-  
-  notes           String?
-  adminNotes      String?
-  
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  
-  workProofs      WorkProof[]
-  statusHistory   TicketStatusHistory[]
-  
+  assignedWorker   Worker? @relation(fields: [assignedWorkerId], references: [id])
+
+  assignedAt  DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+  resolvedAt  DateTime?
+
+  routeData    Json? // OSRM route polyline & ETA
+  estimatedETA DateTime?
+
+  notes      String?
+  adminNotes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workProofs    WorkProof[]
+  statusHistory TicketStatusHistory[]
+
   @@index([status])
   @@index([assignedWorkerId])
   @@index([createdAt])
@@ -154,84 +153,209 @@ model Ticket {
 
 // Ticket status transition log for audit trail
 model TicketStatusHistory {
-  id          String       @id @default(uuid())
-  ticketId    String
-  ticket      Ticket       @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  
-  fromStatus  TicketStatus?
-  toStatus    TicketStatus
-  
-  changedBy   String?      // User/Worker ID
-  reason      String?
-  
-  createdAt   DateTime     @default(now())
-  
+  id       String @id @default(uuid())
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  fromStatus TicketStatus?
+  toStatus   TicketStatus
+
+  changedBy String? // User/Worker ID
+  reason    String?
+
+  createdAt DateTime @default(now())
+
   @@index([ticketId])
   @@index([createdAt])
 }
 
 // Worker entity
 model Worker {
-  id              String   @id @default(uuid())
-  userId          String?  @unique
-  user            User?    @relation(fields: [userId], references: [id])
-  
-  name            String
-  email           String   @unique
-  phone           String?
-  employeeId      String   @unique
-  isActive        Boolean  @default(true)
-  
-  currentLatitude  Float?
-  currentLongitude Float?
+  id     String  @id @default(uuid())
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id])
+
+  name       String
+  email      String  @unique
+  phone      String?
+  employeeId String  @unique
+  isActive   Boolean @default(true)
+
+  currentLatitude    Float?
+  currentLongitude   Float?
   lastLocationUpdate DateTime?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   assignedTickets Ticket[]
   locationLogs    WorkerLocation[]
-  
+
   @@index([isActive])
   @@index([userId])
 }
 
 // Worker location tracking
 model WorkerLocation {
-  id          String   @id @default(uuid())
-  workerId    String
-  worker      Worker   @relation(fields: [workerId], references: [id], onDelete: Cascade)
-  
-  latitude    Float
-  longitude   Float
-  accuracy    Float?   // GPS accuracy in meters
-  
-  recordedAt  DateTime @default(now())
-  
+  id       String @id @default(uuid())
+  workerId String
+  worker   Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  latitude  Float
+  longitude Float
+  accuracy  Float? // GPS accuracy in meters
+
+  recordedAt DateTime @default(now())
+
   @@index([workerId, recordedAt])
 }
 
 // Work completion proof
 model WorkProof {
-  id          String   @id @default(uuid())
-  ticketId    String
-  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  
-  imageUrls   String[] // Multiple proof images
-  notes       String?
-  
-  latitude    Float?   // Location where proof was taken
-  longitude   Float?
-  
+  id       String @id @default(uuid())
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  imageUrls String[] // Multiple proof images
+  notes     String?
+
+  latitude  Float? // Location where proof was taken
+  longitude Float?
+
   submittedAt DateTime @default(now())
-  
+
   // Admin review
   isApproved  Boolean?
-  reviewedBy  String?  // Admin user ID
+  reviewedBy  String? // Admin user ID
   reviewedAt  DateTime?
   reviewNotes String?
-  
+
   @@index([ticketId])
+}
+
+model Structure {
+  id            String        @id @default(uuid())
+  name          String?
+  structureType StructureType
+  zone          String?
+
+  latitude  Float?
+  longitude Float?
+
+  installedAt           DateTime?
+  expectedLifespanYears Int?
+  conditionScore        Float?
+  riskScore             Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sensors         IoTSensor[]
+  maintenanceLogs MaintenanceLog[]
+  failureEvents   FailureEvent[]
+  forecasts       PredictiveForecast[]
+}
+
+model IoTSensor {
+  id         String     @id @default(uuid())
+  sensorCode String     @unique
+  sensorType SensorType
+  topicName  String
+  zone       String?
+
+  latitude  Float?
+  longitude Float?
+
+  structureId String
+  structure   Structure @relation(fields: [structureId], references: [id])
+
+  isActive      Boolean   @default(true)
+  installedAt   DateTime  @default(now())
+  lastHeartbeat DateTime?
+  isSubscribed  Boolean @default(false)
+
+  telemetry SensorTelemetry[]
+  anomalies UtilityAnomaly[]
+}
+
+model SensorTelemetry {
+  id       String    @id @default(uuid())
+  sensorId String
+  sensor   IoTSensor @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+
+  timestamp   DateTime
+  readingType TelemetryType
+  value       Float
+  unit        String
+
+  rawPayload Json?
+  createdAt  DateTime @default(now())
+
+  @@index([sensorId, timestamp])
+}
+
+model UtilityAnomaly {
+  id       String    @id @default(uuid())
+  sensorId String
+  sensor   IoTSensor @relation(fields: [sensorId], references: [id])
+
+  anomalyType AnomalyType
+  severity    PriorityLevel
+
+  detectedValue Float
+  expectedRange String?
+
+  latitude  Float?
+  longitude Float?
+
+  detectedAt DateTime @default(now())
+  isResolved Boolean  @default(false)
+}
+
+model FailureEvent {
+  id          String    @id @default(uuid())
+  structureId String
+  structure   Structure @relation(fields: [structureId], references: [id])
+
+  failureType FailureType
+  severity    PriorityLevel
+  occurredAt  DateTime      @default(now())
+  resolvedAt  DateTime?
+
+  cause String?
+}
+
+model PredictiveForecast {
+  id          String    @id @default(uuid())
+  structureId String
+  structure   Structure @relation(fields: [structureId], references: [id])
+
+  predictedFailureDate DateTime?
+  riskProbability      Float
+  modelVersion         String?
+
+  createdAt DateTime @default(now())
+}
+
+model MaintenanceLog {
+  id String @id @default(uuid())
+
+  structureId String
+  structure   Structure @relation(fields: [structureId], references: [id], onDelete: Cascade)
+
+  logType     MaintenanceLogType
+  description String?
+  performedBy String?
+  cost        Float?
+
+  latitude  Float?
+  longitude Float?
+
+  performedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@index([structureId])
+  @@index([performedAt])
 }
 
 enum Role {
@@ -256,6 +380,60 @@ enum PriorityLevel {
   MEDIUM
   HIGH
   CRITICAL
+}
+
+enum MaintenanceLogType {
+  INSPECTION
+  PREVENTIVE
+  CORRECTIVE
+  EMERGENCY
+  PREDICTIVE
+  REPAIR
+  UPGRADE
+}
+
+enum StructureType {
+  ROAD
+  BRIDGE
+  PIPELINE
+  SUBSTATION
+  BUILDING
+}
+
+enum SensorType {
+  WATER_METER
+  PRESSURE_SENSOR
+  ENERGY_METER
+}
+
+enum TelemetryType {
+  FLOW_RATE
+  PRESSURE
+  VOLTAGE
+  CURRENT
+  POWER_USAGE
+  VIBRATION
+  TEMPERATURE
+}
+
+enum AnomalyType {
+  WATER_LEAK
+  PRESSURE_DROP
+  POWER_SURGE
+  OVERLOAD
+  SENSOR_FAILURE
+}
+
+enum MaintenanceType {
+  INSPECTION
+  REPAIR
+  REPLACEMENT
+}
+
+enum FailureType {
+  STRUCTURAL
+  MECHANICAL
+  ELECTRICAL
 }
 
 enum TicketStatus {

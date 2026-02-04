@@ -255,6 +255,92 @@ exports.Prisma.WorkProofScalarFieldEnum = {
   reviewNotes: 'reviewNotes'
 };
 
+exports.Prisma.StructureScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  structureType: 'structureType',
+  zone: 'zone',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  installedAt: 'installedAt',
+  expectedLifespanYears: 'expectedLifespanYears',
+  conditionScore: 'conditionScore',
+  riskScore: 'riskScore',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.IoTSensorScalarFieldEnum = {
+  id: 'id',
+  sensorCode: 'sensorCode',
+  sensorType: 'sensorType',
+  topicName: 'topicName',
+  zone: 'zone',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  structureId: 'structureId',
+  isActive: 'isActive',
+  installedAt: 'installedAt',
+  lastHeartbeat: 'lastHeartbeat',
+  isSubscribed: 'isSubscribed'
+};
+
+exports.Prisma.SensorTelemetryScalarFieldEnum = {
+  id: 'id',
+  sensorId: 'sensorId',
+  timestamp: 'timestamp',
+  readingType: 'readingType',
+  value: 'value',
+  unit: 'unit',
+  rawPayload: 'rawPayload',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.UtilityAnomalyScalarFieldEnum = {
+  id: 'id',
+  sensorId: 'sensorId',
+  anomalyType: 'anomalyType',
+  severity: 'severity',
+  detectedValue: 'detectedValue',
+  expectedRange: 'expectedRange',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  detectedAt: 'detectedAt',
+  isResolved: 'isResolved'
+};
+
+exports.Prisma.FailureEventScalarFieldEnum = {
+  id: 'id',
+  structureId: 'structureId',
+  failureType: 'failureType',
+  severity: 'severity',
+  occurredAt: 'occurredAt',
+  resolvedAt: 'resolvedAt',
+  cause: 'cause'
+};
+
+exports.Prisma.PredictiveForecastScalarFieldEnum = {
+  id: 'id',
+  structureId: 'structureId',
+  predictedFailureDate: 'predictedFailureDate',
+  riskProbability: 'riskProbability',
+  modelVersion: 'modelVersion',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.MaintenanceLogScalarFieldEnum = {
+  id: 'id',
+  structureId: 'structureId',
+  logType: 'logType',
+  description: 'description',
+  performedBy: 'performedBy',
+  cost: 'cost',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  performedAt: 'performedAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -314,6 +400,54 @@ exports.TicketStatus = exports.$Enums.TicketStatus = {
   REJECTED: 'REJECTED'
 };
 
+exports.StructureType = exports.$Enums.StructureType = {
+  ROAD: 'ROAD',
+  BRIDGE: 'BRIDGE',
+  PIPELINE: 'PIPELINE',
+  SUBSTATION: 'SUBSTATION',
+  BUILDING: 'BUILDING'
+};
+
+exports.SensorType = exports.$Enums.SensorType = {
+  WATER_METER: 'WATER_METER',
+  PRESSURE_SENSOR: 'PRESSURE_SENSOR',
+  ENERGY_METER: 'ENERGY_METER'
+};
+
+exports.TelemetryType = exports.$Enums.TelemetryType = {
+  FLOW_RATE: 'FLOW_RATE',
+  PRESSURE: 'PRESSURE',
+  VOLTAGE: 'VOLTAGE',
+  CURRENT: 'CURRENT',
+  POWER_USAGE: 'POWER_USAGE',
+  VIBRATION: 'VIBRATION',
+  TEMPERATURE: 'TEMPERATURE'
+};
+
+exports.AnomalyType = exports.$Enums.AnomalyType = {
+  WATER_LEAK: 'WATER_LEAK',
+  PRESSURE_DROP: 'PRESSURE_DROP',
+  POWER_SURGE: 'POWER_SURGE',
+  OVERLOAD: 'OVERLOAD',
+  SENSOR_FAILURE: 'SENSOR_FAILURE'
+};
+
+exports.FailureType = exports.$Enums.FailureType = {
+  STRUCTURAL: 'STRUCTURAL',
+  MECHANICAL: 'MECHANICAL',
+  ELECTRICAL: 'ELECTRICAL'
+};
+
+exports.MaintenanceLogType = exports.$Enums.MaintenanceLogType = {
+  INSPECTION: 'INSPECTION',
+  PREVENTIVE: 'PREVENTIVE',
+  CORRECTIVE: 'CORRECTIVE',
+  EMERGENCY: 'EMERGENCY',
+  PREDICTIVE: 'PREDICTIVE',
+  REPAIR: 'REPAIR',
+  UPGRADE: 'UPGRADE'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Report: 'Report',
@@ -325,7 +459,14 @@ exports.Prisma.ModelName = {
   TicketStatusHistory: 'TicketStatusHistory',
   Worker: 'Worker',
   WorkerLocation: 'WorkerLocation',
-  WorkProof: 'WorkProof'
+  WorkProof: 'WorkProof',
+  Structure: 'Structure',
+  IoTSensor: 'IoTSensor',
+  SensorTelemetry: 'SensorTelemetry',
+  UtilityAnomaly: 'UtilityAnomaly',
+  FailureEvent: 'FailureEvent',
+  PredictiveForecast: 'PredictiveForecast',
+  MaintenanceLog: 'MaintenanceLog'
 };
 
 /**
