@@ -14,8 +14,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pothole Repair System",
-  description: "AI-Powered Road Maintenance Management",
+  title: "Pothole Reporter - Citizen Portal",
+  description: "Report and track potholes in your area with offline support",
+  manifest: "/manifest.json",
+  themeColor: "#2563eb",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Pothole Reporter",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "default",
+    "apple-mobile-web-app-title": "Pothole Reporter",
+    "application-name": "Pothole Reporter",
+  },
 };
 
 export default function RootLayout({

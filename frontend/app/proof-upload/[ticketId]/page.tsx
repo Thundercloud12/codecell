@@ -11,27 +11,59 @@ export default function ProofUploadPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [uploadProgress, setUploadProgress] = useState<number[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
   const [formData, setFormData] = useState({
-    imageUrls: [""],
+    images: [] as File[],
     notes: "",
   });
 
-  function addImageUrl() {
-    setFormData({
-      ...formData,
-      imageUrls: [...formData.imageUrls, ""],
+  // Drag and drop handlers
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(true);
+  }
+
+  function handleDragLeave(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(false);
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    files.forEach((file) => {
+      if (file.type.startsWith('image/')) {
+        addImageFile(file);
+      }
     });
   }
 
-  function updateImageUrl(index: number, value: string) {
-    const newUrls = [...formData.imageUrls];
-    newUrls[index] = value;
-    setFormData({ ...formData, imageUrls: newUrls });
+  function addImageFile(file: File) {
+    setFormData({
+      ...formData,
+      images: [...formData.images, file],
+    });
   }
 
-  function removeImageUrl(index: number) {
-    const newUrls = formData.imageUrls.filter((_, i) => i !== index);
-    setFormData({ ...formData, imageUrls: newUrls });
+  function removeImageFile(index: number) {
+    const newImages = formData.images.filter((_, i) => i !== index);
+    setFormData({ ...formData, images: newImages });
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).forEach((file) => {
+        if (file.type.startsWith('image/')) {
+          addImageFile(file);
+        }
+      });
+    }
+    // Clear the input so the same file can be selected again if needed
+    e.target.value = '';
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -40,19 +72,59 @@ export default function ProofUploadPage() {
     setError("");
 
     try {
-      const validUrls = formData.imageUrls.filter((url) => url.trim() !== "");
-
-      if (validUrls.length === 0) {
-        setError("At least one image URL is required");
+      if (formData.images.length === 0) {
+        setError("At least one image is required");
         setLoading(false);
         return;
       }
 
+      // Upload each image file and collect URLs
+      const imageUrls: string[] = [];
+      setUploadProgress(new Array(formData.images.length).fill(0));
+
+      for (let i = 0; i < formData.images.length; i++) {
+        const file = formData.images[i];
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
+        uploadFormData.append('type', 'work-proof');
+        
+        // Set progress to indicate upload starting
+        setUploadProgress(prev => {
+          const newProgress = [...prev];
+          newProgress[i] = 10;
+          return newProgress;
+        });
+        
+        const uploadRes = await fetch('/api/upload/proof', {
+          method: 'POST',
+          body: uploadFormData,
+        });
+
+        if (!uploadRes.ok) {
+          const errorData = await uploadRes.json();
+          throw new Error(errorData.error || `Failed to upload ${file.name}`);
+        }
+
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) {
+          imageUrls.push(uploadData.cloudinaryUrl || uploadData.fileUrl);
+          setUploadProgress(prev => {
+            const newProgress = [...prev];
+            newProgress[i] = 100;
+            return newProgress;
+          });
+          console.log(`✅ Uploaded ${file.name} to Cloudinary: ${uploadData.cloudinaryUrl}`);
+        } else {
+          throw new Error(uploadData.error || `Failed to upload ${file.name}`);
+        }
+      }
+
+      // Submit proof with uploaded image URLs
       const res = await fetch(`/api/tickets/${ticketId}/proof`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          imageUrls: validUrls,
+          imageUrls,
           notes: formData.notes || undefined,
         }),
       });
@@ -65,9 +137,10 @@ export default function ProofUploadPage() {
         setError(data.error);
       }
     } catch (err) {
-      setError("Failed to upload proof");
+      setError(err instanceof Error ? err.message : "Failed to upload proof");
     } finally {
       setLoading(false);
+      setUploadProgress([]);
     }
   }
 
@@ -88,45 +161,92 @@ export default function ProofUploadPage() {
         </div>
       )}
 
-      <div className="bg-yellow-50 border border-yellow-200 p-4 rounded mb-6">
-        <p className="text-sm text-yellow-800">
-          <strong>Note:</strong> In a production system, you would upload images
-          to Cloudinary/S3 first, then paste the URLs here. For testing, provide
-          direct image URLs.
+      <div className="bg-blue-50 border border-blue-200 p-4 rounded mb-6">
+        <p className="text-sm text-blue-800">
+          <strong>📸 Upload Images:</strong> Select images from your device to provide proof of completed work. Supported formats: JPEG, PNG.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Image URLs *</label>
-          {formData.imageUrls.map((url, index) => (
-            <div key={index} className="flex gap-2 mb-2">
-              <input
-                type="url"
-                value={url}
-                onChange={(e) => updateImageUrl(index, e.target.value)}
-                className="flex-1 border rounded px-3 py-2"
-                placeholder="https://example.com/image.jpg"
-                required
-              />
-              {formData.imageUrls.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeImageUrl(index)}
-                  className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
-                >
-                  Remove
-                </button>
-              )}
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={addImageUrl}
-            className="text-blue-600 text-sm hover:underline"
+          <label className="block text-sm font-medium mb-2">Work Proof Images *</label>
+          
+          {/* File Upload Input */}
+          <div 
+            className={`border-2 border-dashed rounded-lg p-6 text-center mb-4 transition-colors ${
+              isDragging 
+                ? 'border-blue-500 bg-blue-50' 
+                : 'border-gray-300 hover:border-gray-400'
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
           >
-            + Add Another Image
-          </button>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+              id="imageUpload"
+            />
+            <label
+              htmlFor="imageUpload"
+              className="cursor-pointer inline-flex flex-col items-center space-y-2"
+            >
+              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <span className="text-sm text-gray-600">
+                {isDragging ? 'Drop images here' : 'Click to upload images or drag and drop'}
+              </span>
+              <span className="text-xs text-gray-500">PNG, JPG up to 10MB each</span>
+            </label>
+          </div>
+
+          {/* Image Preview */}
+          {formData.images.length > 0 && (
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium">Selected Images ({formData.images.length}):</h4>
+              {formData.images.map((file, index) => (
+                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded">
+                  <div className="flex items-center space-x-3">
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={`Preview ${index + 1}`}
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                    <div>
+                      <p className="text-sm font-medium">{file.name}</p>
+                      <p className="text-xs text-gray-500">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeImageFile(index)}
+                    className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Upload Progress */}
+          {uploadProgress.length > 0 && (
+            <div className="space-y-2 mt-4">
+              <h4 className="text-sm font-medium">Uploading...</h4>
+              {uploadProgress.map((progress, index) => (
+                <div key={index} className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div>
