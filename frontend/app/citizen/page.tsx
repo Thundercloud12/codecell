@@ -38,27 +38,30 @@ export default function CitizenDashboard() {
           console.log('SW registration failed: ', registrationError);
         });
     }
+  }, [user]);
 
-    // Check online status
-    setIsOnline(navigator.onLine);
+  async function fetchMyReports() {
+    try {
+      if (!user?.id) {
+        setLoading(false);
+        return;
+      }
 
-    const handleOnline = () => {
-      setIsOnline(true);
-      // Sync offline reports when coming back online
-      syncOfflineReports().then(() => {
-        fetchMyReports(); // Refresh reports after sync
-      });
-    };
-    const handleOffline = () => setIsOnline(false);
+      
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
+      if (user?.id) {
+        const res = await fetch(`/api/reports?userId=${user?.id}`);
+        const data = await res.json();
+        if (data.success) {
+          setReports(data.reports || []);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch reports");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <>

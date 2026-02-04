@@ -351,6 +351,25 @@ export default function TicketDetailPage() {
               Re-rank
             </button>
           )}
+          {ticket.status === "AWAITING_VERIFICATION" && (
+            <button
+              onClick={() => updateStatus("RESOLVED")}
+              disabled={actionLoading}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:bg-gray-400"
+            >
+              Mark as Resolved
+            </button>
+          )}
+          {(ticket.status === "IN_PROGRESS" ||
+            ticket.status === "COMPLETED") && (
+            <button
+              onClick={() => updateStatus("RESOLVED")}
+              disabled={actionLoading}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:bg-gray-400"
+            >
+              Mark as Resolved
+            </button>
+          )}
         </div>
       </div>
     </div>
