@@ -1,14 +1,13 @@
 // app/api/reports/user/[userId]/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { userId: string } },
+  req: NextRequest,
+  { params }: { params: Promise<{ userId: string }> },
 ) {
   try {
-    const { userId } = params;
-
+    const { userId } = await params;
     const userReports = await prisma.report.findMany({
       where: {
         userId: userId,

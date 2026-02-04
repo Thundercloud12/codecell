@@ -2,11 +2,13 @@
 Windows-Compatible FastAPI Backend for Pothole Detection
 Auto-downloads YOLO model if missing
 Receives image URL, performs detection, returns annotated image URL
+Includes RAG Chatbot for infrastructure questions
 """
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from contextlib import asynccontextmanager
 import requests
 from PIL import Image
 import io
@@ -15,12 +17,23 @@ from ultralytics import YOLO
 import cloudinary
 import cloudinary.uploader
 import os
+import glob
 from dotenv import load_dotenv
 import torch
 import logging
 import sys
 import traceback
 from transformers import AutoImageProcessor, SiglipForImageClassification
+
+# RAG Chatbot imports
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_groq import ChatGroq
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
 
 # Configure comprehensive logging
 logging.basicConfig(
@@ -44,8 +57,116 @@ torch.load = patched_load
 load_dotenv()
 logger.info("🔧 Environment variables loaded")
 
+# -------------------------
+# Global RAG Chatbot Variables
+# -------------------------
+rag_chain = None
+rag_vectorstore = None
+
+# -------------------------
+# RAG Chatbot Initialization
+# -------------------------
+def initialize_rag_chatbot():
+    """Initialize the RAG chatbot with vectorstore and LLM chain"""
+    global rag_chain, rag_vectorstore
+    
+    logger.info("🤖 Initializing RAG Chatbot...")
+    
+    try:
+        # Initialize embeddings
+        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        
+        # Path to ragbot data folder (relative to python-back)
+        ragbot_path = os.path.join(os.path.dirname(__file__), "..", "ragbot")
+        faiss_index_path = os.path.join(ragbot_path, "faiss_index")
+        data_path = os.path.join(ragbot_path, "data")
+        
+        # Check if vectorstore exists
+        if os.path.exists(faiss_index_path):
+            logger.info("📂 Loading existing vectorstore...")
+            rag_vectorstore = FAISS.load_local(faiss_index_path, embeddings, allow_dangerous_deserialization=True)
+        else:
+            logger.info("📄 Processing PDFs to create vectorstore...")
+            pdf_files = glob.glob(os.path.join(data_path, "*.pdf"))
+            if not pdf_files:
+                logger.warning("⚠️ No PDFs found in ragbot/data/ folder. RAG chatbot will be disabled.")
+                return False
+            
+            documents = []
+            for pdf in pdf_files:
+                logger.info(f"   Loading {os.path.basename(pdf)}...")
+                loader = PyPDFLoader(pdf)
+                documents.extend(loader.load())
+            
+            # Split texts
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+            texts = text_splitter.split_documents(documents)
+            
+            # Create vectorstore
+            rag_vectorstore = FAISS.from_documents(texts, embeddings)
+            rag_vectorstore.save_local(faiss_index_path)
+            logger.info("✅ Vectorstore created and saved.")
+        
+        # Initialize LLM
+        groq_api_key = os.getenv("GROQ_API_KEY")
+        if not groq_api_key:
+            logger.warning("⚠️ GROQ_API_KEY not found. RAG chatbot will be disabled.")
+            return False
+            
+        llm = ChatGroq(
+            model="llama-3.1-8b-instant", 
+            api_key=groq_api_key,
+            temperature=0.6
+        )
+        
+        # Create retriever
+        retriever = rag_vectorstore.as_retriever(search_kwargs={"k": 3})
+        
+        # Create prompt template
+        template = """You are a helpful assistant for a city infrastructure and road maintenance portal. 
+Answer the question based on the following context from official documents about road construction, 
+traffic management, and municipal engineering guidelines.
+
+If the question is not related to roads, infrastructure, or city maintenance, politely redirect 
+the user to ask relevant questions.
+
+If you don't find the answer in the context, say so honestly but try to provide general helpful information.
+
+Context:
+{context}
+
+Question: {question}
+
+Answer in a helpful, concise manner:"""
+        
+        prompt = ChatPromptTemplate.from_template(template)
+        
+        # Create chain
+        rag_chain = (
+            {"context": retriever, "question": RunnablePassthrough()}
+            | prompt
+            | llm
+            | StrOutputParser()
+        )
+        
+        logger.info("✅ RAG Chatbot initialized successfully!")
+        return True
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize RAG Chatbot: {e}")
+        logger.error(f"   Full traceback: {traceback.format_exc()}")
+        return False
+
 app = FastAPI(title="Pothole Detection API")
 logger.info("🚀 FastAPI app initialized")
+
+# -------------------------
+# Startup Event - Initialize RAG Chatbot
+# -------------------------
+@app.on_event("startup")
+async def startup_event():
+    """Initialize RAG chatbot on server startup"""
+    initialize_rag_chatbot()
 
 # -------------------------
 # CORS
@@ -166,6 +287,15 @@ class AIDetectionResponse(BaseModel):
     message: str
 
 
+class ChatRequest(BaseModel):
+    message: str
+
+
+class ChatResponse(BaseModel):
+    response: str
+    success: bool
+
+
 # -------------------------
 # ROUTES
 # -------------------------
@@ -176,7 +306,40 @@ def root():
         "status": "running",
         "device": DEVICE,
         "model_file": MODEL_PATH,
+        "rag_chatbot": rag_chain is not None,
     }
+
+
+@app.get("/chat/health")
+async def chat_health():
+    """Health check for RAG chatbot"""
+    return {
+        "status": "ok" if rag_chain is not None else "unavailable",
+        "service": "rag-chatbot"
+    }
+
+
+@app.post("/chat", response_model=ChatResponse)
+async def chat(request: ChatRequest):
+    """RAG Chatbot endpoint for infrastructure questions"""
+    global rag_chain
+    
+    if not rag_chain:
+        logger.warning("⚠️ Chat request received but RAG chain not initialized")
+        raise HTTPException(status_code=503, detail="Chatbot not initialized")
+    
+    if not request.message.strip():
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+    
+    try:
+        logger.info(f"💬 Chat request: {request.message[:50]}...")
+        response = rag_chain.invoke(request.message)
+        logger.info(f"✅ Chat response generated successfully")
+        return ChatResponse(response=response, success=True)
+    except Exception as e:
+        logger.error(f"❌ Chat error: {e}")
+        logger.error(f"   Full traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/detect", response_model=DetectionResponse)
@@ -417,5 +580,9 @@ async def detect_ai_image(request: AIDetectionRequest):
 # -------------------------
 if __name__ == "__main__":
     import uvicorn
+    
+    # Initialize RAG Chatbot
+    initialize_rag_chatbot()
+    
     logger.info("🚀 Starting FastAPI server...")
     uvicorn.run("api:app", host="127.0.0.1", port=8000, reload=True)

@@ -41,7 +41,16 @@ export async function GET(req: Request) {
         },
         media: {
           include: {
-            detections: true,
+            detections: {
+              include: {
+                pothole: {
+                  select: {
+                    id: true,
+                    priorityLevel: true,
+                  },
+                },
+              },
+            },
           },
         },
       },

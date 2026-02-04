@@ -31,9 +31,14 @@ export async function GET(request: Request) {
       where.sensorId = sensorId;
     }
 
+    console.log(sensorId);
+    
+
     if (onlyAnomalies) {
       where.isAnomaly = true;
     }
+    
+    
 
     // Fetch ML anomaly detections
     const anomalies = await prisma.mLAnomalyDetection.findMany({

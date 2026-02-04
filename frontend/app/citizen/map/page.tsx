@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import { MessageCircle } from 'lucide-react'
+import ChatbotModal from '@/components/ChatbotModal'
 
 // Dynamically import map component
 const SimpleWorkerNav = dynamic(() => import('@/components/SimpleWorkerNav'), {
@@ -57,6 +59,7 @@ export default function WorkerDashboardPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [worker, setWorker] = useState<WorkerData | null>(null)
+  const [chatOpen, setChatOpen] = useState(false)
   const [workerLocation, setWorkerLocation] = useState<{ latitude: number; longitude: number } | null>(null)
   const [locationError, setLocationError] = useState('')
   const [error, setError] = useState('')
@@ -289,6 +292,13 @@ export default function WorkerDashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => setChatOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 bg-[#2E7D32] hover:bg-[#256029] text-white rounded-lg font-medium transition-colors text-sm"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span className="hidden sm:inline">Chat</span>
+            </button>
             {worker && (
               <span className="text-xs text-[#A8C5E2] bg-[#2A4A6F] px-3 py-1 rounded-full">
                 ID: {worker.employeeId}
@@ -549,6 +559,9 @@ export default function WorkerDashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Chatbot Modal */}
+      <ChatbotModal isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   )
 }

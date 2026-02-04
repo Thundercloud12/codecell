@@ -20,6 +20,9 @@ export async function GET(request: NextRequest) {
       where.sensorId = sensorId;
     }
 
+    console.log(sensorId);
+    
+
     if (readingType) {
       where.readingType = readingType;
     }
@@ -63,6 +66,8 @@ export async function GET(request: NextRequest) {
         },
       },
     });
+    console.log(sensors);
+    
 
     // Get recent anomalies
     const anomalies = await prisma.utilityAnomaly.findMany({

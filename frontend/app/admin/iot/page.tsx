@@ -506,21 +506,42 @@ export default function IoTMonitoringPage() {
             </div>
           </div>
 
-          {/* Anomalies Feed */}
+          {/* Anomalies Feed - Combined Rule-Based & ML */}
           <div className="bg-[#111827] rounded-2xl border border-[#1F2937] p-6">
             <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-orange-400" />
-              Recent Anomalies
+              All Recent Anomalies
             </h2>
             <div className="space-y-3 max-h-[500px] overflow-y-auto">
-              {anomalies.length === 0 ? (
+              {anomalies.length === 0 && mlAnomalies.length === 0 ? (
                 <p className="text-gray-500 text-center py-8">
                   No anomalies detected
                 </p>
               ) : (
-                anomalies.map((anomaly) => (
-                  <AnomalyCard key={anomaly.id} anomaly={anomaly} />
-                ))
+                <>
+                  {/* ML Anomalies */}
+                  {mlAnomalies.slice(0, 5).map((anomaly) => (
+                    <div key={`ml-${anomaly.id}`} className="bg-[#0B1220] rounded-xl border border-pink-500/30 p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-mono px-2 py-1 rounded bg-purple-500/20 text-purple-400">
+                          🤖 ML: {anomaly.readingType}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(anomaly.detectedAt).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <p className="font-bold text-sm text-white">{anomaly.sensor.structure.name}</p>
+                      <p className="text-xs text-gray-400">Sensor: {anomaly.sensor.sensorCode}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Value: {anomaly.value.toFixed(2)} | Score: {anomaly.anomalyScore.toFixed(3)}
+                      </p>
+                    </div>
+                  ))}
+                  {/* Rule-Based Anomalies */}
+                  {anomalies.slice(0, 5).map((anomaly) => (
+                    <AnomalyCard key={`rule-${anomaly.id}`} anomaly={anomaly} />
+                  ))}
+                </>
               )}
             </div>
           </div>

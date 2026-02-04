@@ -8,3 +8,10 @@ ultralytics==8.1.0
 requests==2.31.0
 python-dotenv==1.0.0
 cloudinary==1.37.0
+# RAG Chatbot dependencies
+langchain
+langchain-community
+langchain-groq
+faiss-cpu
+pypdf
+sentence-transformers

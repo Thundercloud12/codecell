@@ -1,6 +1,7 @@
 """
 Kafka IoT Telemetry Producer
 Simulates realistic sensor data for smart infrastructure monitoring
+Generates ML-compatible data (6+ readings per sensor) with realistic anomalies
 """
 
 import json
@@ -40,6 +41,9 @@ class IoTTelemetryProducer:
             retry_backoff_ms=100,
             request_timeout_ms=30000
         )
+        
+        # Track reading count per sensor for ML compatibility
+        self.reading_counts = {}
         
         # Define sensor configurations for 4 structures
         self.sensor_configs = [
@@ -151,60 +155,89 @@ class IoTTelemetryProducer:
         self.running = False
         self.threads = []
         
-    def generate_realistic_value(self, config: SensorConfig, previous_value: float = None) -> float:
-        """Generate realistic sensor values with drift patterns"""
+    def generate_realistic_value(self, config: SensorConfig, previous_value: float = None, force_anomaly: bool = False) -> tuple[float, bool]:
+        """Generate realistic sensor values with drift patterns and anomalies
+        Returns (value, is_anomaly) tuple
+        """
         
         # If no previous value, start in normal range
         if previous_value is None:
             previous_value = random.uniform(*config.normal_range)
         
+        # Determine if this reading should be anomalous
+        is_anomaly = force_anomaly
+        
         # Add realistic drift/noise based on sensor type
         if config.reading_type == "FLOW_RATE":
             # Water flow has gradual changes with occasional spikes
             drift = random.uniform(-5.0, 5.0)
-            if random.random() < 0.05:  # 5% chance of anomaly
-                drift = random.uniform(-50.0, 100.0)  # Burst or blockage
+            if random.random() < 0.12 or force_anomaly:  # 12% chance of anomaly
+                is_anomaly = True
+                if random.random() < 0.5:
+                    drift = random.uniform(-80.0, -40.0)  # Blockage/leak
+                else:
+                    drift = random.uniform(100.0, 200.0)  # Burst pipe
                 
         elif config.reading_type == "PRESSURE":
             # Pressure changes gradually but can drop suddenly
             drift = random.uniform(-2.0, 2.0)
-            if random.random() < 0.08:  # 8% chance of anomaly
-                drift = random.uniform(-30.0, 10.0)  # Pressure drop more likely
+            if random.random() < 0.15 or force_anomaly:  # 15% chance of anomaly
+                is_anomaly = True
+                if random.random() < 0.6:
+                    drift = random.uniform(-40.0, -20.0)  # Pressure drop (leak)
+                else:
+                    drift = random.uniform(25.0, 50.0)  # Pressure spike (blockage)
                 
         elif config.reading_type == "VOLTAGE":
-            # Voltage should be stable with occasional spikes
+            # Voltage should be stable with occasional spikes/sags
             drift = random.uniform(-1.0, 1.0)
-            if random.random() < 0.06:  # 6% chance of anomaly
-                drift = random.uniform(-20.0, 25.0)  # Voltage spike/drop
+            if random.random() < 0.10 or force_anomaly:  # 10% chance of anomaly
+                is_anomaly = True
+                if random.random() < 0.4:
+                    drift = random.uniform(-30.0, -15.0)  # Voltage sag
+                else:
+                    drift = random.uniform(15.0, 35.0)  # Voltage spike
                 
         elif config.reading_type == "CURRENT":
             # Current varies with load
             drift = random.uniform(-3.0, 3.0)
-            if random.random() < 0.07:  # 7% chance of anomaly
-                drift = random.uniform(-10.0, 40.0)  # Overload more likely
+            if random.random() < 0.14 or force_anomaly:  # 14% chance of anomaly
+                is_anomaly = True
+                if random.random() < 0.7:
+                    drift = random.uniform(30.0, 60.0)  # Overload (more common)
+                else:
+                    drift = random.uniform(-20.0, -10.0)  # Low current
                 
         elif config.reading_type == "VIBRATION":
             # Vibration has baseline noise with occasional bursts
             drift = random.uniform(-0.2, 0.2)
-            if random.random() < 0.10:  # 10% chance of anomaly
-                drift = random.uniform(2.0, 10.0)  # Vibration burst
+            if random.random() < 0.18 or force_anomaly:  # 18% chance of anomaly
+                is_anomaly = True
+                drift = random.uniform(8.0, 20.0)  # Vibration burst (structural stress)
                 
         elif config.reading_type == "TEMPERATURE":
             # Temperature changes slowly
             drift = random.uniform(-0.5, 0.5)
-            if random.random() < 0.04:  # 4% chance of anomaly
-                drift = random.uniform(-10.0, 15.0)  # Temperature spike
+            if random.random() < 0.08 or force_anomaly:  # 8% chance of anomaly
+                is_anomaly = True
+                if random.random() < 0.5:
+                    drift = random.uniform(15.0, 30.0)  # Overheating
+                else:
+                    drift = random.uniform(-15.0, -8.0)  # Unusual cooling
         else:
             drift = random.uniform(-1.0, 1.0)
+            if random.random() < 0.10 or force_anomaly:
+                is_anomaly = True
+                drift = random.uniform(-10.0, 10.0)
             
         new_value = previous_value + drift
         
         # Clamp to physical limits
         new_value = max(config.min_value, min(config.max_value, new_value))
         
-        return round(new_value, 2)
+        return round(new_value, 2), is_anomaly
     
-    def create_telemetry_message(self, config: SensorConfig, value: float) -> dict:
+    def create_telemetry_message(self, config: SensorConfig, value: float, is_anomaly: bool) -> dict:
         """Create standardized telemetry message"""
         return {
             "sensorCode": config.sensor_code,
@@ -216,24 +249,62 @@ class IoTTelemetryProducer:
             "topicName": config.topic_name,
             "metadata": {
                 "sensorType": config.sensor_type,
-                "isAnomaly": value < config.anomaly_threshold[0] or value > config.anomaly_threshold[1]
+                "isAnomaly": is_anomaly
             }
         }
     
     def produce_sensor_data(self, config: SensorConfig):
-        """Producer loop for individual sensor"""
+        """Producer loop for individual sensor - generates ML-compatible data"""
         logger.info(f"🔄 Starting producer for {config.sensor_code} ({config.reading_type})")
         
+        # Initialize tracking
+        self.reading_counts[config.sensor_code] = 0
         previous_value = None
         
+        # PHASE 1: Generate initial ML-compatible batch (6+ readings quickly)
+        logger.info(f"🚀 {config.sensor_code}: Generating initial ML training batch...")
+        initial_batch_size = random.randint(8, 12)  # 8-12 initial readings
+        
+        for i in range(initial_batch_size):
+            try:
+                # First few readings are normal to establish baseline
+                force_anomaly = i >= 6 and random.random() < 0.3  # 30% chance after 6th reading
+                value, is_anomaly = self.generate_realistic_value(config, previous_value, force_anomaly)
+                previous_value = value
+                
+                message = self.create_telemetry_message(config, value, is_anomaly)
+                
+                # Send to Kafka
+                self.producer.send(
+                    config.topic_name,
+                    key=config.sensor_code,
+                    value=message
+                )
+                
+                self.reading_counts[config.sensor_code] += 1
+                
+                if is_anomaly:
+                    logger.warning(f"🚨 ANOMALY in batch: {config.sensor_code} = {value} {config.unit}")
+                else:
+                    logger.info(f"📊 Batch {i+1}/{initial_batch_size}: {config.sensor_code} = {value} {config.unit}")
+                
+                # Short delay between batch readings
+                time.sleep(0.5)
+                
+            except Exception as e:
+                logger.error(f"❌ Error in batch generation for {config.sensor_code}: {e}")
+        
+        logger.info(f"✅ {config.sensor_code}: ML training batch complete ({self.reading_counts[config.sensor_code]} readings)")
+        
+        # PHASE 2: Continuous real-time streaming
         while self.running:
             try:
                 # Generate realistic sensor value
-                value = self.generate_realistic_value(config, previous_value)
+                value, is_anomaly = self.generate_realistic_value(config, previous_value)
                 previous_value = value
                 
                 # Create message
-                message = self.create_telemetry_message(config, value)
+                message = self.create_telemetry_message(config, value, is_anomaly)
                 
                 # Send to Kafka
                 future = self.producer.send(
@@ -242,14 +313,16 @@ class IoTTelemetryProducer:
                     value=message
                 )
                 
-                # Log anomalies
-                if message["metadata"]["isAnomaly"]:
-                    logger.warning(f"🚨 ANOMALY detected: {config.sensor_code} = {value} {config.unit}")
-                else:
-                    logger.info(f"📊 {config.sensor_code}: {value} {config.unit}")
+                self.reading_counts[config.sensor_code] += 1
                 
-                # Wait 2-5 seconds before next reading
-                time.sleep(random.uniform(2.0, 5.0))
+                # Log anomalies
+                if is_anomaly:
+                    logger.warning(f"🚨 ANOMALY detected: {config.sensor_code} = {value} {config.unit} (reading #{self.reading_counts[config.sensor_code]})")
+                else:
+                    logger.info(f"📊 {config.sensor_code}: {value} {config.unit} (reading #{self.reading_counts[config.sensor_code]})")
+                
+                # Wait 3-6 seconds before next reading
+                time.sleep(random.uniform(3.0, 6.0))
                 
             except Exception as e:
                 logger.error(f"❌ Error producing data for {config.sensor_code}: {e}")
@@ -261,8 +334,10 @@ class IoTTelemetryProducer:
             logger.warning("⚠️ Producer already running")
             return
             
-        logger.info("🚀 Starting IoT Telemetry Producer")
+        logger.info("🚀 Starting IoT Telemetry Producer (ML-Compatible Mode)")
         logger.info(f"📡 Configured {len(self.sensor_configs)} sensors")
+        logger.info(f"📊 Each sensor will generate 8-12 initial readings for ML training")
+        logger.info(f"🤖 Anomaly rates: 10-18% (varies by sensor type)")
         
         self.running = True
         
@@ -278,6 +353,7 @@ class IoTTelemetryProducer:
             self.threads.append(thread)
         
         logger.info(f"✅ Started {len(self.threads)} sensor producers")
+        logger.info("⏳ Initial ML training batch in progress...")
     
     def stop(self):
         """Stop all producers gracefully"""

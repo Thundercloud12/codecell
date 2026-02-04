@@ -9,7 +9,9 @@ import {
   Calendar,
   Loader2,
   ExternalLink,
+  MessageCircle,
 } from "lucide-react";
+import ChatbotModal from "@/components/ChatbotModal";
 
 interface Media {
   id: string;
@@ -44,6 +46,7 @@ export default function MyReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     if (isLoaded && user) {
@@ -173,7 +176,16 @@ export default function MyReportsPage() {
             <div className="h-6 w-px bg-[#A8C5E2]/30"></div>
             <h1 className="text-xl font-bold text-white">My Reports</h1>
           </div>
-          <UserButton afterSignOutUrl="/" />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setChatOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 bg-[#2E7D32] hover:bg-[#256029] text-white rounded-lg font-medium transition-colors text-sm"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span className="hidden sm:inline">Chat</span>
+            </button>
+            <UserButton afterSignOutUrl="/" />
+          </div>
         </div>
       </nav>
 
@@ -313,6 +325,9 @@ export default function MyReportsPage() {
           </div>
         )}
       </div>
+
+      {/* Chatbot Modal */}
+      <ChatbotModal isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }

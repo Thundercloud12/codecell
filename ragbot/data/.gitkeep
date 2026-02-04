@@ -1,0 +1,6 @@
+# Add your PDF files here
+
+Place your PDF documents in this folder.
+The RAG chatbot will automatically load and index them.
+
+Supported: *.pdf files

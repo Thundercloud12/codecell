@@ -57,7 +57,7 @@ export async function POST(
     const ticket = await prisma.ticket.findUnique({
       where: { id },
       include: {
-        pothole: {
+        potholes: {
           include: {
             roadInfo: true,
           },
@@ -91,7 +91,7 @@ export async function POST(
         notes: body.notes || ticket.notes,
       },
       include: {
-        pothole: {
+        potholes: {
           include: {
             detection: true,
             roadInfo: true,
@@ -141,7 +141,7 @@ export async function GET(
       where: { id },
       include: {
         assignedWorker: true,
-        pothole: {
+        potholes: {
           include: {
             roadInfo: true,
           },
@@ -173,7 +173,7 @@ export async function GET(
           assignedAt: ticket.assignedAt,
         },
         worker: ticket.assignedWorker,
-        pothole: ticket.pothole,
+        potholes: ticket.pothole,
       },
     });
   } catch (error) {

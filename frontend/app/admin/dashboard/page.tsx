@@ -27,6 +27,7 @@ import {
   Database,
   Settings,
   Navigation,
+  Map,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -59,6 +60,10 @@ interface Report {
       id: string;
       confidence: number;
       detectedClass: string;
+      pothole?: {
+        id: string;
+        priorityLevel: string;
+      };
     }>;
   }>;
   user?: {
@@ -150,6 +155,13 @@ export default function AdminDashboard() {
           </div>
 
           <div className="flex items-center gap-6">
+            <Link
+              href="/admin/smart-map"
+              className="hidden lg:flex items-center gap-2 px-4 py-2 bg-[#00E676] hover:bg-[#00C853] text-[#050B16] font-medium rounded-lg transition-all shadow-md hover:shadow-lg"
+            >
+              <Map size={18} />
+              Smart Infra Map
+            </Link>
             <Link
               href="/admin/emergency-routing"
               className="hidden lg:flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg"
@@ -372,7 +384,7 @@ export default function AdminDashboard() {
               Recent Reports
             </h3>
             <span className="text-xs bg-[#E8F4FD] px-3 py-1 rounded-full text-[#1565C0] border border-[#B8D4E8] font-medium">
-              {reports.length} Total
+              {reports.filter((r) => r.status !== "PENDING").length} Total
             </span>
           </div>
 
@@ -384,21 +396,47 @@ export default function AdminDashboard() {
                   className="h-24 bg-[#F8F6F1] rounded-lg animate-pulse border border-[#E5E1D8]"
                 ></div>
               ))
-            ) : reports.length === 0 ? (
+            ) : reports.filter((r) => r.status !== "PENDING").length === 0 ? (
               <div className="text-center text-[#5A6C7D] py-10">
                 No reports yet.
               </div>
             ) : (
-              reports.map((report) => (
-                <div
-                  key={report.id}
-                  onClick={() => setSelectedReportId(report.id)}
-                  className={`p-4 rounded-lg border-2 transition-all cursor-pointer hover:shadow-md group relative overflow-hidden ${
-                    selectedReportId === report.id
-                      ? "bg-[#E8F4FD] border-[#1E3A5F]"
-                      : "bg-white border-[#E5E1D8] hover:border-[#1E3A5F]"
-                  }`}
-                >
+              reports
+                .filter((report) => report.status !== "PENDING")
+                .map((report) => {
+                  // Get pothole ID from detection
+                  const potholeId = report.media?.[0]?.detections?.[0]?.pothole?.id;
+                  
+                  // Determine redirect URL based on status and pothole existence
+                  const getRedirectUrl = () => {
+                    if (potholeId) {
+                      // If pothole exists, go to pothole detail page
+                      return `/potholes/${potholeId}`;
+                    } else if (report.status === "VERIFIED") {
+                      // VERIFIED but no pothole yet - go to create page
+                      return `/potholes/create?reportId=${report.id}`;
+                    }
+                    // Default: stay on dashboard
+                    return `/admin/dashboard`;
+                  };
+
+                  return (
+                    <Link
+                      key={report.id}
+                      href={getRedirectUrl()}
+                      onClick={(e) => {
+                        // If no pothole, just highlight on map instead of navigating
+                        if (!potholeId && report.status !== "VERIFIED") {
+                          e.preventDefault();
+                          setSelectedReportId(report.id);
+                        }
+                      }}
+                      className={`block p-4 rounded-lg border-2 transition-all cursor-pointer hover:shadow-md group relative overflow-hidden ${
+                        selectedReportId === report.id
+                          ? "bg-[#E8F4FD] border-[#1E3A5F]"
+                          : "bg-white border-[#E5E1D8] hover:border-[#1E3A5F]"
+                      }`}
+                    >
                   {/* Status Indicator Bar */}
                   <div
                     className={`absolute left-0 top-0 bottom-0 w-1 ${
@@ -473,8 +511,9 @@ export default function AdminDashboard() {
                       </div>
                     )}
                   </div>
-                </div>
-              ))
+                </Link>
+              );
+            })
             )}
           </div>
         </div>

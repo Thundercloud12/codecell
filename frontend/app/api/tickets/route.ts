@@ -10,47 +10,55 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from "@/lib/prisma";
 
 interface TicketCreateRequest {
-  potholeId: string;
+  potholeId?: string; // Single pothole (legacy)
+  potholeIds?: string[]; // Multiple potholes (new)
   notes?: string;
 }
 
 /**
- * Create new ticket from pothole
+ * Create new ticket from pothole(s)
  */
 export async function POST(request: NextRequest) {
   try {
     const body: TicketCreateRequest = await request.json();
 
-    if (!body.potholeId) {
+    // Support both single and multiple potholes
+    const potholeIds = body.potholeIds || (body.potholeId ? [body.potholeId] : []);
+
+    if (!potholeIds || potholeIds.length === 0) {
       return NextResponse.json(
-        { error: 'Missing required field: potholeId' },
+        { error: 'Missing required field: potholeId or potholeIds' },
         { status: 400 }
       );
     }
 
-    // Verify pothole exists and has been ranked
-    const pothole = await prisma.pothole.findUnique({
-      where: { id: body.potholeId },
+    // Verify all potholes exist and have been ranked
+    const potholes = await prisma.pothole.findMany({
+      where: { id: { in: potholeIds } },
       include: { ticket: true },
     });
 
-    if (!pothole) {
+    if (potholes.length !== potholeIds.length) {
       return NextResponse.json(
-        { error: 'Pothole not found' },
+        { error: 'One or more potholes not found' },
         { status: 404 }
       );
     }
 
-    if (!pothole.priorityScore || !pothole.priorityLevel) {
+    // Check if all potholes are ranked
+    const unrankedPotholes = potholes.filter(p => !p.priorityScore || !p.priorityLevel);
+    if (unrankedPotholes.length > 0) {
       return NextResponse.json(
-        { error: 'Pothole must be ranked before creating ticket' },
+        { error: 'All potholes must be ranked before creating ticket' },
         { status: 400 }
       );
     }
 
-    if (pothole.ticket) {
+    // Check if any pothole already has a ticket
+    const existingTickets = potholes.filter(p => p.ticket);
+    if (existingTickets.length > 0) {
       return NextResponse.json(
-        { error: 'Ticket already exists for this pothole', ticket: pothole.ticket },
+        { error: 'One or more potholes already have tickets', tickets: existingTickets.map(p => p.ticket) },
         { status: 409 }
       );
     }
@@ -60,13 +68,15 @@ export async function POST(request: NextRequest) {
     const random = Math.floor(Math.random() * 99999).toString().padStart(5, '0');
     const ticketNumber = `TICKET-${date}-${random}`;
 
-    // Create ticket with DETECTED status
+    // Create ticket with DETECTED status and link all potholes
     const ticket = await prisma.ticket.create({
       data: {
         ticketNumber,
-        potholeId: body.potholeId,
         status: 'DETECTED',
         notes: body.notes,
+        potholes: {
+          connect: potholeIds.map(id => ({ id })),
+        },
       },
       include: {
         potholes: {
@@ -83,7 +93,7 @@ export async function POST(request: NextRequest) {
       data: {
         ticketId: ticket.id,
         toStatus: 'DETECTED',
-        reason: 'Ticket created from detected pothole',
+        reason: `Ticket created from ${potholeIds.length} pothole${potholeIds.length > 1 ? 's' : ''}`,
       },
     });
 
@@ -91,7 +101,8 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         ticket,
-        message: 'Ticket created successfully',
+        potholeCount: potholeIds.length,
+        message: `Ticket created successfully with ${potholeIds.length} pothole${potholeIds.length > 1 ? 's' : ''}`,
       },
       { status: 201 }
     );

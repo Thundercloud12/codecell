@@ -1,5 +1,5 @@
 // ML Service - Interface to FastAPI ML models
-const ML_API_BASE = process.env.ML_API_URL || 'http://localhost:8000';
+const ML_API_BASE = process.env.ML_API_URL || 'http://localhost:8002';
 
 // Request format matching FastAPI endpoints
 export interface SensorReading {

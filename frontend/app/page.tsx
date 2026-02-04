@@ -2,13 +2,16 @@
 
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { MessageCircle } from "lucide-react";
+import ChatbotModal from "@/components/ChatbotModal";
 
 export default function HomePage() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     if (isLoaded && user) {
@@ -26,8 +29,48 @@ export default function HomePage() {
     );
   }
 
+  // If user is logged in, they will be redirected
+  if (user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#F8F6F1] text-[#1E3A5F]">
+        <div className="animate-pulse font-medium text-xl">Redirecting...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#F8F6F1] text-[#1E3A5F] overflow-hidden relative selection:bg-[#1E3A5F] selection:text-white font-sans">
+    <div className="min-h-screen bg-[#F8F6F1] text-[#1E3A5F] relative selection:bg-[#1E3A5F] selection:text-white font-sans">
+      {/* Navigation Bar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🏛️</span>
+            <span className="font-bold text-xl text-[#1E3A5F]">CityRoads</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setChatOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-[#2E7D32] hover:bg-[#256029] text-white rounded-lg font-medium transition-colors"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Chat with Us
+            </button>
+            <Link
+              href="/sign-in"
+              className="px-4 py-2 text-[#1E3A5F] hover:text-[#2E7D32] font-medium transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/sign-up"
+              className="px-4 py-2 bg-[#1E3A5F] hover:bg-[#2A4A6F] text-white rounded-lg font-medium transition-colors"
+            >
+              Get Started
+            </Link>
+          </div>
+        </div>
+      </nav>
+
       {/* Background Effects */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(248,246,241,0.85),rgba(248,246,241,0.92)),url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-60"></div>
@@ -143,6 +186,9 @@ export default function HomePage() {
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#F8F6F1] to-transparent z-20 pointer-events-none"></div>
+
+      {/* Chatbot Modal */}
+      <ChatbotModal isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }

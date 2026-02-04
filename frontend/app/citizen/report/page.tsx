@@ -3,10 +3,11 @@
 import { UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { useState } from "react";
-import { MapPin, Upload, Loader2, ArrowLeft, CheckCircle } from "lucide-react";
+import { MapPin, Upload, Loader2, ArrowLeft, CheckCircle, MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
+import ChatbotModal from "@/components/ChatbotModal";
 
 // Dynamically import map to avoid SSR issues
 const LocationPickerMap = dynamic(
@@ -30,6 +31,7 @@ export default function ReportPotholePage() {
   const [error, setError] = useState("");
   const [gettingLocation, setGettingLocation] = useState(false);
   const [showMap, setShowMap] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -198,7 +200,16 @@ export default function ReportPotholePage() {
             <div className="h-6 w-px bg-[#A8C5E2]/30"></div>
             <h1 className="text-xl font-bold text-white">New Report</h1>
           </div>
-          <UserButton afterSignOutUrl="/" />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setChatOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 bg-[#2E7D32] hover:bg-[#256029] text-white rounded-lg font-medium transition-colors text-sm"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span className="hidden sm:inline">Chat</span>
+            </button>
+            <UserButton afterSignOutUrl="/" />
+          </div>
         </div>
       </nav>
 
@@ -428,6 +439,9 @@ export default function ReportPotholePage() {
           </form>
         </div>
       </div>
+
+      {/* Chatbot Modal */}
+      <ChatbotModal isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }
