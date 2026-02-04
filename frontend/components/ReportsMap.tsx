@@ -81,7 +81,9 @@ function MapController({
   const map = useMap();
 
   useEffect(() => {
-    map.setView(center, zoom);
+    if (map) {
+      map.setView(center, zoom);
+    }
   }, [center, zoom, map]);
 
   return null;
@@ -111,26 +113,26 @@ export default function ReportsMap({
 
   const getStatusBadge = (status: string) => {
     const colors: Record<string, string> = {
-      PENDING: "bg-blue-900/50 text-blue-200 border border-blue-500/50",
-      VERIFIED: "bg-amber-900/50 text-amber-200 border border-amber-500/50",
-      RESOLVED: "bg-green-900/50 text-green-200 border border-green-500/50",
+      PENDING: "bg-blue-100 text-blue-700 border border-blue-300",
+      VERIFIED: "bg-amber-100 text-amber-700 border border-amber-300",
+      RESOLVED: "bg-green-100 text-green-700 border border-green-300",
     };
     return colors[status] || colors.PENDING;
   };
 
   return (
-    <div className="h-[600px] w-full rounded-2xl overflow-hidden border border-[#1F2937] shadow-[0_0_15px_rgba(0,0,0,0.5)] bg-[#050B16]">
+    <div className="h-full w-full min-h-[400px] rounded-xl overflow-hidden bg-[#F0EDE6]">
       <MapContainer
         center={center}
         zoom={zoom}
-        style={{ height: "100%", width: "100%", background: '#050B16' }}
+        style={{ height: "100%", width: "100%", background: "#F0EDE6" }}
         className="z-0"
       >
         <MapController center={center} zoom={zoom} />
 
         <TileLayer
-          attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
 
         {reports.map((report) => {
@@ -155,8 +157,8 @@ export default function ReportsMap({
               }}
             >
               <Popup className="custom-popup">
-                <div className="p-2 min-w-[250px]">
-                  <h3 className="font-semibold text-lg mb-2">
+                <div className="p-3 min-w-[250px] bg-white rounded-lg">
+                  <h3 className="font-bold text-[#1E3A5F] text-base mb-2">
                     {report.title || "Pothole Report"}
                   </h3>
 
@@ -164,13 +166,15 @@ export default function ReportsMap({
                     <img
                       src={originalMedia.mediaUrl}
                       alt="Report"
-                      className="w-full h-32 object-cover rounded mb-2"
+                      className="w-full h-32 object-cover rounded-lg mb-3 border border-[#E5E1D8]"
                     />
                   )}
 
-                  <div className="space-y-1 text-sm">
+                  <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">Status:</span>
+                      <span className="font-medium text-[#5A6C7D]">
+                        Status:
+                      </span>
                       <span
                         className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(report.status)}`}
                       >
@@ -180,29 +184,33 @@ export default function ReportsMap({
 
                     {hasDetection && (
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">AI Detected:</span>
-                        <span className="text-green-600 font-medium">
-                          ✓ {(highestConfidence * 100).toFixed(1)}% confidence
+                        <span className="font-medium text-[#5A6C7D]">
+                          AI Detected:
+                        </span>
+                        <span className="text-[#2E7D32] font-bold">
+                          ✓ {(highestConfidence * 100).toFixed(1)}%
                         </span>
                       </div>
                     )}
 
                     {report.severity && (
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">Severity:</span>
-                        <span className="text-red-600 font-medium">
+                        <span className="font-medium text-[#5A6C7D]">
+                          Severity:
+                        </span>
+                        <span className="text-[#C62828] font-bold">
                           {report.severity}/5
                         </span>
                       </div>
                     )}
 
                     {report.description && (
-                      <p className="text-gray-600 text-xs mt-2 line-clamp-2">
+                      <p className="text-[#5A6C7D] text-xs mt-2 line-clamp-2">
                         {report.description}
                       </p>
                     )}
 
-                    <div className="text-xs text-gray-400 mt-2">
+                    <div className="text-xs text-[#94A3B8] mt-2 pt-2 border-t border-[#E5E1D8]">
                       {new Date(report.createdAt).toLocaleDateString()}
                     </div>
                   </div>

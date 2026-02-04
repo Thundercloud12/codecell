@@ -6,10 +6,10 @@
  * - Stores route data and ETA
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { generateRoute } from '@/lib/services/routing.service';
-import { validateTransition } from '@/lib/services/ticket-lifecycle.service';
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { generateRoute } from "@/lib/services/routing.service";
+import { validateTransition } from "@/lib/services/ticket-lifecycle.service";
 
 interface RouteParams {
   params: Promise<{
@@ -21,26 +21,23 @@ interface StartJobRequest {
   ticketId: string;
 }
 
-export async function POST(
-  request: NextRequest,
-  context: RouteParams
-) {
+export async function POST(request: NextRequest, context: RouteParams) {
   try {
-    const { id } = await context.params; // ✅ CRITICAL: Await params
+    const { id } = await context.params;
     const body: StartJobRequest = await request.json();
 
     if (!body.ticketId) {
       return NextResponse.json(
-        { error: 'Missing required field: ticketId' },
-        { status: 400 }
+        { error: "Missing required field: ticketId" },
+        { status: 400 },
       );
     }
 
-    // Verify worker exists and has location - try by id first, then by employeeId
+    // Verify worker exists and has location
     let worker = await prisma.worker.findUnique({
       where: { id },
     });
-    
+
     if (!worker) {
       worker = await prisma.worker.findUnique({
         where: { employeeId: id },
@@ -48,72 +45,80 @@ export async function POST(
     }
 
     if (!worker) {
-      return NextResponse.json(
-        { error: 'Worker not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Worker not found" }, { status: 404 });
     }
 
     if (!worker.currentLatitude || !worker.currentLongitude) {
       return NextResponse.json(
-        { error: 'Worker location not available. Update location first.' },
-        { status: 400 }
+        { error: "Worker location not available. Update location first." },
+        { status: 400 },
       );
     }
 
-    // Fetch ticket
+    // Fetch ticket with potholes array
     const ticket = await prisma.ticket.findUnique({
       where: { id: body.ticketId },
       include: {
-        pothole: true,
+        potholes: {
+          include: {
+            detection: true,
+            roadInfo: true,
+          },
+        },
       },
     });
 
     if (!ticket) {
+      return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
+    }
+
+    if (!ticket.potholes || ticket.potholes.length === 0) {
       return NextResponse.json(
-        { error: 'Ticket not found' },
-        { status: 404 }
+        { error: "No potholes associated with this ticket" },
+        { status: 400 },
       );
     }
 
     // Verify ticket is assigned to this worker
     if (ticket.assignedWorkerId !== worker.id) {
       return NextResponse.json(
-        { error: 'Ticket is not assigned to this worker' },
-        { status: 403 }
+        { error: "Ticket is not assigned to this worker" },
+        { status: 403 },
       );
     }
 
     // Validate status transition
-    const validation = validateTransition(ticket.status as any, 'IN_PROGRESS');
+    const validation = validateTransition(ticket.status as any, "IN_PROGRESS");
     if (!validation.isValid) {
-      return NextResponse.json(
-        { error: validation.reason },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: validation.reason }, { status: 400 });
     }
 
+    // Use first pothole as primary destination
+    const primaryPothole = ticket.potholes[0];
+
     // Generate route using OSRM
-    console.log(`Generating route from worker location (${worker.currentLatitude}, ${worker.currentLongitude}) to pothole (${ticket.pothole.latitude}, ${ticket.pothole.longitude})`);
-    
+    console.log(
+      `Generating route from worker location (${worker.currentLatitude}, ${worker.currentLongitude}) to pothole (${primaryPothole.latitude}, ${primaryPothole.longitude})`,
+    );
+
     const routeData = await generateRoute(
       worker.currentLatitude,
       worker.currentLongitude,
-      ticket.pothole.latitude,
-      ticket.pothole.longitude
+      primaryPothole.latitude,
+      primaryPothole.longitude,
     );
 
     // Update ticket with route data and status
     const updatedTicket = await prisma.ticket.update({
       where: { id: body.ticketId },
       data: {
-        status: 'IN_PROGRESS',
+        status: "IN_PROGRESS",
         startedAt: new Date(),
-        routeData: routeData as any, // Store full route object as JSON
+        routeData: routeData as any,
         estimatedETA: routeData.estimatedArrival,
       },
       include: {
-        pothole: {
+        potholes: {
           include: {
             detection: true,
             roadInfo: true,
@@ -128,9 +133,9 @@ export async function POST(
       data: {
         ticketId: ticket.id,
         fromStatus: ticket.status as any,
-        toStatus: 'IN_PROGRESS',
+        toStatus: "IN_PROGRESS",
         changedBy: id,
-        reason: 'Worker started repair job',
+        reason: "Worker started repair job",
       },
     });
 
@@ -143,13 +148,14 @@ export async function POST(
         polyline: routeData.polyline,
         estimatedArrival: routeData.estimatedArrival,
       },
-      message: 'Job started successfully',
+      potholeCount: ticket.potholes.length,
+      message: "Job started successfully",
     });
   } catch (error) {
-    console.error('Error starting job:', error);
+    console.error("Error starting job:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
-      { status: 500 }
+      { error: "Internal server error", details: String(error) },
+      { status: 500 },
     );
   }
 }

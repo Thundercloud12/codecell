@@ -111,7 +111,7 @@ export default function AdminReviewPage() {
                       Submitted:{" "}
                       {new Date(
                         ticket.workProofs[0].submittedAt,
-                      ).toLocaleString()}}
+                      ).toLocaleString()}
                     </div>
                   )}
                 </div>

@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+
+// Dynamically import map to avoid SSR issues
+const LocationPickerMap = dynamic(
+  () => import("@/components/LocationPickerMap"),
+  { ssr: false },
+);
 
 interface LocationCoords {
   latitude: number;
@@ -22,6 +29,7 @@ export default function ReportSubmissionForm() {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -200,8 +208,10 @@ export default function ReportSubmissionForm() {
                     />
                   </svg>
                   <p className="mb-2 text-sm text-[#9CA3AF]">
-                    <span className="font-semibold text-[#22C55E]">Click to upload</span> or
-                    drag and drop
+                    <span className="font-semibold text-[#22C55E]">
+                      Click to upload
+                    </span>{" "}
+                    or drag and drop
                   </p>
                   <p className="text-xs text-[#9CA3AF]">
                     PNG, JPG, WEBP (MAX. 10MB)
@@ -257,6 +267,57 @@ export default function ReportSubmissionForm() {
             Location *
           </label>
           <div className="space-y-3">
+            {/* Toggle Map Button */}
+            <button
+              type="button"
+              onClick={() => setShowMap(!showMap)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/30 rounded-md hover:bg-[#3b82f6]/20 transition"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                />
+              </svg>
+              {showMap ? "Hide Map" : "Pick Location on Map"}
+            </button>
+
+            {/* Interactive Map */}
+            {showMap && (
+              <div className="animate-fadeIn">
+                <LocationPickerMap
+                  latitude={formData.latitude}
+                  longitude={formData.longitude}
+                  onLocationSelect={(lat, lng) => {
+                    setFormData({
+                      ...formData,
+                      latitude: lat.toFixed(6),
+                      longitude: lng.toFixed(6),
+                    });
+                  }}
+                  height="400px"
+                />
+              </div>
+            )}
+
+            {/* OR Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-[#1F2937]"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-[#141B2A] px-2 text-[#9CA3AF]">Or</span>
+              </div>
+            </div>
+
+            {/* Use Current Location Button */}
             <button
               type="button"
               onClick={getCurrentLocation}
@@ -282,9 +343,12 @@ export default function ReportSubmissionForm() {
                   d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
-              {gettingLocation ? "Getting Location..." : "Use Current Location"}
+              {gettingLocation
+                ? "Getting Location..."
+                : "Use Current GPS Location"}
             </button>
 
+            {/* Manual Coordinate Inputs */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <input

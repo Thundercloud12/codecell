@@ -87,7 +87,9 @@ function MapController({
   const map = useMap();
 
   useEffect(() => {
-    map.setView(center, zoom);
+    if (map) {
+      map.setView(center, zoom);
+    }
   }, [center, zoom, map]);
 
   return null;
@@ -170,11 +172,15 @@ export default function WorkerNavigationMap({
 
       if (!response.ok) {
         console.error("API Error:", data);
-        throw new Error(data.details || data.error || "Failed to calculate route");
+        throw new Error(
+          data.details || data.error || "Failed to calculate route",
+        );
       }
 
       if (data.path && data.path.length > 0) {
-        console.log(`Route found: ${data.pathNodes} nodes, ${data.summary.distanceKm} km`);
+        console.log(
+          `Route found: ${data.pathNodes} nodes, ${data.summary.distanceKm} km`,
+        );
         setRoutePath(data.path);
         setRouteInfo({
           distance: data.distance,
@@ -194,21 +200,26 @@ export default function WorkerNavigationMap({
       }
     } catch (error) {
       console.error("Route calculation error:", error);
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
       // Fallback to straight line on error
       setRoutePath([
         { lat: workerLocation.lat, lng: workerLocation.lng },
         { lat: dest.lat, lng: dest.lng },
       ]);
-      
+
       // Show more helpful error message
       if (errorMessage.includes("504") || errorMessage.includes("timeout")) {
-        alert("Route service is busy. Showing direct path. Please try again in a moment.");
+        alert(
+          "Route service is busy. Showing direct path. Please try again in a moment.",
+        );
       } else if (errorMessage.includes("No road network")) {
         alert("No roads found in this area. Showing direct path.");
       } else {
-        alert(`Route calculation failed: ${errorMessage}. Showing direct path.`);
+        alert(
+          `Route calculation failed: ${errorMessage}. Showing direct path.`,
+        );
       }
     } finally {
       setRouteLoading(false);
