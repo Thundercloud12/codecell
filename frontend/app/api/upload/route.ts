@@ -155,24 +155,32 @@ export async function POST(req: Request) {
     if (pothole) {
       try {
         console.log("[OSM] Fetching road info for pothole:", pothole.id);
-        
+
         roadInfo = await fetchRoadInfo(report.latitude, report.longitude);
 
         if (roadInfo) {
           // Calculate traffic importance and priority factor
           const trafficImportance =
-            roadInfo.roadType === "motorway" ? 5 :
-            roadInfo.roadType === "trunk" ? 4 :
-            roadInfo.roadType === "primary" ? 3 :
-            roadInfo.roadType === "secondary" ? 2 :
-            1;
+            roadInfo.roadType === "motorway"
+              ? 5
+              : roadInfo.roadType === "trunk"
+                ? 4
+                : roadInfo.roadType === "primary"
+                  ? 3
+                  : roadInfo.roadType === "secondary"
+                    ? 2
+                    : 1;
 
           const priorityFactor =
-            roadInfo.roadType === "motorway" ? 2.5 :
-            roadInfo.roadType === "trunk" ? 2.0 :
-            roadInfo.roadType === "primary" ? 1.5 :
-            roadInfo.roadType === "secondary" ? 1.2 :
-            1.0;
+            roadInfo.roadType === "motorway"
+              ? 2.5
+              : roadInfo.roadType === "trunk"
+                ? 2.0
+                : roadInfo.roadType === "primary"
+                  ? 1.5
+                  : roadInfo.roadType === "secondary"
+                    ? 1.2
+                    : 1.0;
 
           await prisma.roadInfo.create({
             data: {
@@ -186,7 +194,10 @@ export async function POST(req: Request) {
             },
           });
 
-          console.log("[OSM] Road info saved:", roadInfo.roadName || roadInfo.roadType);
+          console.log(
+            "[OSM] Road info saved:",
+            roadInfo.roadName || roadInfo.roadType,
+          );
         } else {
           console.log("[OSM] No road data found nearby");
         }
