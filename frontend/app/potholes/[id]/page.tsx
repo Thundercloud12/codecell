@@ -3,6 +3,18 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+import CreateTicketModal from "@/components/CreateTicketModal";
+
+// Dynamically import map component to avoid SSR issues with Leaflet
+const PotholeMap = dynamic(() => import("@/components/PotholeMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+      <p className="text-gray-500">Loading map...</p>
+    </div>
+  ),
+});
 
 interface PotholeDetail {
   id: string;
@@ -46,6 +58,7 @@ export default function PotholeDetailPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [showTicketModal, setShowTicketModal] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -161,30 +174,14 @@ export default function PotholeDetailPage() {
     }
   }
 
-  async function createTicket() {
-    try {
-      setActionLoading(true);
-      setMessage("");
-      setError("");
+  function createTicket() {
+    setShowTicketModal(true);
+  }
 
-      const res = await fetch("/api/tickets", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ potholeId: id }),
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        setMessage(`Ticket created: ${data.ticket.ticketNumber}`);
-        fetchPothole();
-      } else {
-        setError(data.error);
-      }
-    } catch (err) {
-      setError("Failed to create ticket");
-    } finally {
-      setActionLoading(false);
-    }
+  function handleTicketSuccess() {
+    setMessage("Ticket(s) created successfully!");
+    fetchPothole();
+    setShowTicketModal(false);
   }
 
   if (loading) return <div className="p-8">Loading...</div>;
@@ -365,14 +362,11 @@ export default function PotholeDetailPage() {
                   Location on Map
                 </h3>
                 <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-300">
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                    style={{ border: 0 }}
-                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${pothole.longitude - 0.002},${pothole.latitude - 0.002},${pothole.longitude + 0.002},${pothole.latitude + 0.002}&layer=mapnik&marker=${pothole.latitude},${pothole.longitude}`}
-                    allowFullScreen
-                    title="Pothole Location"
+                  <PotholeMap
+                    lat={pothole.latitude}
+                    lng={pothole.longitude}
+                    roadName={pothole.roadInfo.roadName}
+                    roadType={pothole.roadInfo.roadType}
                   />
                 </div>
                 <div className="mt-2 text-xs text-gray-600">
@@ -495,6 +489,14 @@ export default function PotholeDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Create Ticket Modal */}
+      <CreateTicketModal
+        isOpen={showTicketModal}
+        onClose={() => setShowTicketModal(false)}
+        potholeId={id}
+        onSuccess={handleTicketSuccess}
+      />
     </div>
   );
 }
