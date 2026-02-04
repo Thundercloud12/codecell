@@ -122,11 +122,11 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
-  clerk_user_id: 'clerk_user_id',
   name: 'name',
   email: 'email',
   role: 'role',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  clerk_user_id: 'clerk_user_id'
 };
 
 exports.Prisma.ReportScalarFieldEnum = {
@@ -137,10 +137,10 @@ exports.Prisma.ReportScalarFieldEnum = {
   longitude: 'longitude',
   status: 'status',
   severity: 'severity',
-  imageUrl: 'imageUrl',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  userId: 'userId'
+  userId: 'userId',
+  imageUrl: 'imageUrl',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.MediaScalarFieldEnum = {
@@ -173,7 +173,8 @@ exports.Prisma.PotholeScalarFieldEnum = {
   priorityScore: 'priorityScore',
   priorityLevel: 'priorityLevel',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  ticketId: 'ticketId'
 };
 
 exports.Prisma.RoadInfoScalarFieldEnum = {
@@ -193,7 +194,6 @@ exports.Prisma.TicketScalarFieldEnum = {
   id: 'id',
   ticketNumber: 'ticketNumber',
   status: 'status',
-  potholeId: 'potholeId',
   assignedWorkerId: 'assignedWorkerId',
   assignedAt: 'assignedAt',
   startedAt: 'startedAt',
@@ -219,7 +219,6 @@ exports.Prisma.TicketStatusHistoryScalarFieldEnum = {
 
 exports.Prisma.WorkerScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
   name: 'name',
   email: 'email',
   phone: 'phone',
@@ -229,7 +228,8 @@ exports.Prisma.WorkerScalarFieldEnum = {
   currentLongitude: 'currentLongitude',
   lastLocationUpdate: 'lastLocationUpdate',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  userId: 'userId'
 };
 
 exports.Prisma.WorkerLocationScalarFieldEnum = {
@@ -253,6 +253,92 @@ exports.Prisma.WorkProofScalarFieldEnum = {
   reviewedBy: 'reviewedBy',
   reviewedAt: 'reviewedAt',
   reviewNotes: 'reviewNotes'
+};
+
+exports.Prisma.FailureEventScalarFieldEnum = {
+  id: 'id',
+  structureId: 'structureId',
+  failureType: 'failureType',
+  severity: 'severity',
+  occurredAt: 'occurredAt',
+  resolvedAt: 'resolvedAt',
+  cause: 'cause'
+};
+
+exports.Prisma.IoTSensorScalarFieldEnum = {
+  id: 'id',
+  sensorCode: 'sensorCode',
+  sensorType: 'sensorType',
+  topicName: 'topicName',
+  zone: 'zone',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  structureId: 'structureId',
+  isActive: 'isActive',
+  installedAt: 'installedAt',
+  lastHeartbeat: 'lastHeartbeat',
+  isSubscribed: 'isSubscribed'
+};
+
+exports.Prisma.MaintenanceLogScalarFieldEnum = {
+  id: 'id',
+  structureId: 'structureId',
+  logType: 'logType',
+  description: 'description',
+  performedBy: 'performedBy',
+  cost: 'cost',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  performedAt: 'performedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PredictiveForecastScalarFieldEnum = {
+  id: 'id',
+  structureId: 'structureId',
+  predictedFailureDate: 'predictedFailureDate',
+  riskProbability: 'riskProbability',
+  modelVersion: 'modelVersion',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SensorTelemetryScalarFieldEnum = {
+  id: 'id',
+  sensorId: 'sensorId',
+  timestamp: 'timestamp',
+  readingType: 'readingType',
+  value: 'value',
+  unit: 'unit',
+  rawPayload: 'rawPayload',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.StructureScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  structureType: 'structureType',
+  zone: 'zone',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  installedAt: 'installedAt',
+  expectedLifespanYears: 'expectedLifespanYears',
+  conditionScore: 'conditionScore',
+  riskScore: 'riskScore',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UtilityAnomalyScalarFieldEnum = {
+  id: 'id',
+  sensorId: 'sensorId',
+  anomalyType: 'anomalyType',
+  severity: 'severity',
+  detectedValue: 'detectedValue',
+  expectedRange: 'expectedRange',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  detectedAt: 'detectedAt',
+  isResolved: 'isResolved'
 };
 
 exports.Prisma.SortOrder = {
@@ -314,6 +400,54 @@ exports.TicketStatus = exports.$Enums.TicketStatus = {
   REJECTED: 'REJECTED'
 };
 
+exports.FailureType = exports.$Enums.FailureType = {
+  STRUCTURAL: 'STRUCTURAL',
+  MECHANICAL: 'MECHANICAL',
+  ELECTRICAL: 'ELECTRICAL'
+};
+
+exports.SensorType = exports.$Enums.SensorType = {
+  WATER_METER: 'WATER_METER',
+  PRESSURE_SENSOR: 'PRESSURE_SENSOR',
+  ENERGY_METER: 'ENERGY_METER'
+};
+
+exports.MaintenanceLogType = exports.$Enums.MaintenanceLogType = {
+  INSPECTION: 'INSPECTION',
+  PREVENTIVE: 'PREVENTIVE',
+  CORRECTIVE: 'CORRECTIVE',
+  EMERGENCY: 'EMERGENCY',
+  PREDICTIVE: 'PREDICTIVE',
+  REPAIR: 'REPAIR',
+  UPGRADE: 'UPGRADE'
+};
+
+exports.TelemetryType = exports.$Enums.TelemetryType = {
+  FLOW_RATE: 'FLOW_RATE',
+  PRESSURE: 'PRESSURE',
+  VOLTAGE: 'VOLTAGE',
+  CURRENT: 'CURRENT',
+  POWER_USAGE: 'POWER_USAGE',
+  VIBRATION: 'VIBRATION',
+  TEMPERATURE: 'TEMPERATURE'
+};
+
+exports.StructureType = exports.$Enums.StructureType = {
+  ROAD: 'ROAD',
+  BRIDGE: 'BRIDGE',
+  PIPELINE: 'PIPELINE',
+  SUBSTATION: 'SUBSTATION',
+  BUILDING: 'BUILDING'
+};
+
+exports.AnomalyType = exports.$Enums.AnomalyType = {
+  WATER_LEAK: 'WATER_LEAK',
+  PRESSURE_DROP: 'PRESSURE_DROP',
+  POWER_SURGE: 'POWER_SURGE',
+  OVERLOAD: 'OVERLOAD',
+  SENSOR_FAILURE: 'SENSOR_FAILURE'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Report: 'Report',
@@ -325,7 +459,14 @@ exports.Prisma.ModelName = {
   TicketStatusHistory: 'TicketStatusHistory',
   Worker: 'Worker',
   WorkerLocation: 'WorkerLocation',
-  WorkProof: 'WorkProof'
+  WorkProof: 'WorkProof',
+  FailureEvent: 'FailureEvent',
+  IoTSensor: 'IoTSensor',
+  MaintenanceLog: 'MaintenanceLog',
+  PredictiveForecast: 'PredictiveForecast',
+  SensorTelemetry: 'SensorTelemetry',
+  Structure: 'Structure',
+  UtilityAnomaly: 'UtilityAnomaly'
 };
 
 /**

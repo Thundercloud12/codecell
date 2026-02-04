@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
               },
             },
             include: {
-              pothole: {
+              potholes: {
                 select: {
                   latitude: true,
                   longitude: true,
