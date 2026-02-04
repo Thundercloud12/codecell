@@ -86,6 +86,8 @@ export async function GET(
         name: worker.name,
         email: worker.email,
         employeeId: worker.employeeId,
+        currentLatitude: worker.currentLatitude,
+        currentLongitude: worker.currentLongitude,
       },
       tasks,
       summary: {
