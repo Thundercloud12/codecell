@@ -137,7 +137,9 @@ exports.Prisma.ReportScalarFieldEnum = {
   longitude: 'longitude',
   status: 'status',
   severity: 'severity',
+  imageUrl: 'imageUrl',
   createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
   userId: 'userId'
 };
 

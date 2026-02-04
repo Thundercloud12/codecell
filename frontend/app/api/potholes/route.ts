@@ -111,7 +111,11 @@ export async function GET(request: NextRequest) {
       prisma.pothole.findMany({
         where,
         include: {
-          detection: true,
+          detection: {
+            include: {
+              media: true, // Include the annotated image
+            },
+          },
           roadInfo: true,
           ticket: {
             include: {
