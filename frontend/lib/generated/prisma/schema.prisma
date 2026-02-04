@@ -9,12 +9,14 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String?
-  email     String   @unique
-  role      Role     @default(CITIZEN)
-  reports   Report[]
-  createdAt DateTime @default(now())
+  id            String   @id @default(uuid())
+  clerk_user_id String?  @unique
+  name          String?
+  email         String   @unique
+  role          Role     @default(CITIZEN)
+  reports       Report[]
+  worker        Worker? // Link to worker profile if role is WORKER
+  createdAt     DateTime @default(now())
 }
 
 model Report {
@@ -59,11 +61,173 @@ model Detection {
 
   mediaId String
   media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  pothole Pothole?
+}
+
+// Pothole entity with GPS and lifecycle tracking
+model Pothole {
+  id        String  @id @default(uuid())
+  latitude  Float
+  longitude Float
+  imageUrl  String?
+
+  // Detection reference
+  detectionId String    @unique
+  detection   Detection @relation(fields: [detectionId], references: [id], onDelete: Cascade)
+
+  // Severity metrics
+  priorityScore Float?
+  priorityLevel PriorityLevel?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roadInfo RoadInfo?
+  ticket   Ticket?
+
+  @@index([priorityLevel])
+  @@index([createdAt])
+}
+
+// Road context from Overpass API
+model RoadInfo {
+  id                String  @id @default(uuid())
+  roadName          String?
+  roadType          String? // primary, secondary, residential, etc.
+  speedLimit        Int?
+  trafficImportance Float   @default(1.0) // Priority weight factor
+  priorityFactor    Float   @default(1.0) // Computed factor for ranking
+
+  osmData Json? // Raw OSM data for reference
+
+  potholeId String  @unique
+  pothole   Pothole @relation(fields: [potholeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Ticket lifecycle management
+model Ticket {
+  id           String       @id @default(uuid())
+  ticketNumber String       @unique // Human-readable ticket ID
+  status       TicketStatus @default(DETECTED)
+
+  potholeId String  @unique
+  pothole   Pothole @relation(fields: [potholeId], references: [id], onDelete: Cascade)
+
+  assignedWorkerId String?
+  assignedWorker   Worker? @relation(fields: [assignedWorkerId], references: [id])
+
+  assignedAt  DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+  resolvedAt  DateTime?
+
+  routeData    Json? // OSRM route polyline & ETA
+  estimatedETA DateTime?
+
+  notes      String?
+  adminNotes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workProofs    WorkProof[]
+  statusHistory TicketStatusHistory[]
+
+  @@index([status])
+  @@index([assignedWorkerId])
+  @@index([createdAt])
+}
+
+// Ticket status transition log for audit trail
+model TicketStatusHistory {
+  id       String @id @default(uuid())
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  fromStatus TicketStatus?
+  toStatus   TicketStatus
+
+  changedBy String? // User/Worker ID
+  reason    String?
+
+  createdAt DateTime @default(now())
+
+  @@index([ticketId])
+  @@index([createdAt])
+}
+
+// Worker entity
+model Worker {
+  id     String  @id @default(uuid())
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id])
+
+  name       String
+  email      String  @unique
+  phone      String?
+  employeeId String  @unique
+  isActive   Boolean @default(true)
+
+  currentLatitude    Float?
+  currentLongitude   Float?
+  lastLocationUpdate DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignedTickets Ticket[]
+  locationLogs    WorkerLocation[]
+
+  @@index([isActive])
+  @@index([userId])
+}
+
+// Worker location tracking
+model WorkerLocation {
+  id       String @id @default(uuid())
+  workerId String
+  worker   Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  latitude  Float
+  longitude Float
+  accuracy  Float? // GPS accuracy in meters
+
+  recordedAt DateTime @default(now())
+
+  @@index([workerId, recordedAt])
+}
+
+// Work completion proof
+model WorkProof {
+  id       String @id @default(uuid())
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  imageUrls String[] // Multiple proof images
+  notes     String?
+
+  latitude  Float? // Location where proof was taken
+  longitude Float?
+
+  submittedAt DateTime @default(now())
+
+  // Admin review
+  isApproved  Boolean?
+  reviewedBy  String? // Admin user ID
+  reviewedAt  DateTime?
+  reviewNotes String?
+
+  @@index([ticketId])
 }
 
 enum Role {
   ADMIN
   CITIZEN
+  WORKER
 }
 
 enum ReportStatus {
@@ -75,4 +239,21 @@ enum ReportStatus {
 enum MediaType {
   IMAGE
   VIDEO
+}
+
+enum PriorityLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TicketStatus {
+  DETECTED
+  RANKED
+  ASSIGNED
+  IN_PROGRESS
+  AWAITING_VERIFICATION
+  RESOLVED
+  REJECTED
 }

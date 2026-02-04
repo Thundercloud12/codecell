@@ -95,6 +95,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
+  clerk_user_id: 'clerk_user_id',
   name: 'name',
   email: 'email',
   role: 'role',
@@ -134,9 +135,105 @@ exports.Prisma.DetectionScalarFieldEnum = {
   mediaId: 'mediaId'
 };
 
+exports.Prisma.PotholeScalarFieldEnum = {
+  id: 'id',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  imageUrl: 'imageUrl',
+  detectionId: 'detectionId',
+  priorityScore: 'priorityScore',
+  priorityLevel: 'priorityLevel',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RoadInfoScalarFieldEnum = {
+  id: 'id',
+  roadName: 'roadName',
+  roadType: 'roadType',
+  speedLimit: 'speedLimit',
+  trafficImportance: 'trafficImportance',
+  priorityFactor: 'priorityFactor',
+  osmData: 'osmData',
+  potholeId: 'potholeId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TicketScalarFieldEnum = {
+  id: 'id',
+  ticketNumber: 'ticketNumber',
+  status: 'status',
+  potholeId: 'potholeId',
+  assignedWorkerId: 'assignedWorkerId',
+  assignedAt: 'assignedAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  resolvedAt: 'resolvedAt',
+  routeData: 'routeData',
+  estimatedETA: 'estimatedETA',
+  notes: 'notes',
+  adminNotes: 'adminNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TicketStatusHistoryScalarFieldEnum = {
+  id: 'id',
+  ticketId: 'ticketId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  changedBy: 'changedBy',
+  reason: 'reason',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.WorkerScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  employeeId: 'employeeId',
+  isActive: 'isActive',
+  currentLatitude: 'currentLatitude',
+  currentLongitude: 'currentLongitude',
+  lastLocationUpdate: 'lastLocationUpdate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WorkerLocationScalarFieldEnum = {
+  id: 'id',
+  workerId: 'workerId',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  accuracy: 'accuracy',
+  recordedAt: 'recordedAt'
+};
+
+exports.Prisma.WorkProofScalarFieldEnum = {
+  id: 'id',
+  ticketId: 'ticketId',
+  imageUrls: 'imageUrls',
+  notes: 'notes',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  submittedAt: 'submittedAt',
+  isApproved: 'isApproved',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  reviewNotes: 'reviewNotes'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -148,9 +245,16 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
 exports.Role = exports.$Enums.Role = {
   ADMIN: 'ADMIN',
-  CITIZEN: 'CITIZEN'
+  CITIZEN: 'CITIZEN',
+  WORKER: 'WORKER'
 };
 
 exports.ReportStatus = exports.$Enums.ReportStatus = {
@@ -164,11 +268,35 @@ exports.MediaType = exports.$Enums.MediaType = {
   VIDEO: 'VIDEO'
 };
 
+exports.PriorityLevel = exports.$Enums.PriorityLevel = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL'
+};
+
+exports.TicketStatus = exports.$Enums.TicketStatus = {
+  DETECTED: 'DETECTED',
+  RANKED: 'RANKED',
+  ASSIGNED: 'ASSIGNED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  AWAITING_VERIFICATION: 'AWAITING_VERIFICATION',
+  RESOLVED: 'RESOLVED',
+  REJECTED: 'REJECTED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Report: 'Report',
   Media: 'Media',
-  Detection: 'Detection'
+  Detection: 'Detection',
+  Pothole: 'Pothole',
+  RoadInfo: 'RoadInfo',
+  Ticket: 'Ticket',
+  TicketStatusHistory: 'TicketStatusHistory',
+  Worker: 'Worker',
+  WorkerLocation: 'WorkerLocation',
+  WorkProof: 'WorkProof'
 };
 /**
  * Create the Client
@@ -178,10 +306,10 @@ const config = {
   "clientVersion": "7.3.0",
   "engineVersion": "9d6ad21cbbceab97458517b147a6a09ff43aa735",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../lib/generated/prisma\"\n}\n\ndatasource db {\n  provider     = \"postgresql\"\n  relationMode = \"foreignKeys\"\n}\n\nmodel User {\n  id        String   @id @default(uuid())\n  name      String?\n  email     String   @unique\n  role      Role     @default(CITIZEN)\n  reports   Report[]\n  createdAt DateTime @default(now())\n}\n\nmodel Report {\n  id          String       @id @default(uuid())\n  title       String?\n  description String?\n  latitude    Float\n  longitude   Float\n  status      ReportStatus @default(PENDING)\n  severity    Int?\n  createdAt   DateTime     @default(now())\n\n  userId String?\n  user   User?   @relation(fields: [userId], references: [id])\n\n  media Media[]\n}\n\nmodel Media {\n  id         String    @id @default(uuid())\n  mediaUrl   String\n  mediaType  MediaType\n  uploadedAt DateTime  @default(now())\n\n  reportId String\n  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)\n\n  detections Detection[]\n}\n\nmodel Detection {\n  id            String @id @default(uuid())\n  detectedClass String @default(\"pothole\")\n  confidence    Float\n  bboxX         Float\n  bboxY         Float\n  bboxWidth     Float\n  bboxHeight    Float\n  frameTime     Float?\n\n  createdAt DateTime @default(now())\n\n  mediaId String\n  media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)\n}\n\nenum Role {\n  ADMIN\n  CITIZEN\n}\n\nenum ReportStatus {\n  PENDING\n  VERIFIED\n  RESOLVED\n}\n\nenum MediaType {\n  IMAGE\n  VIDEO\n}\n"
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../lib/generated/prisma\"\n}\n\ndatasource db {\n  provider     = \"postgresql\"\n  relationMode = \"foreignKeys\"\n}\n\nmodel User {\n  id            String   @id @default(uuid())\n  clerk_user_id String?  @unique\n  name          String?\n  email         String   @unique\n  role          Role     @default(CITIZEN)\n  reports       Report[]\n  worker        Worker? // Link to worker profile if role is WORKER\n  createdAt     DateTime @default(now())\n}\n\nmodel Report {\n  id          String       @id @default(uuid())\n  title       String?\n  description String?\n  latitude    Float\n  longitude   Float\n  status      ReportStatus @default(PENDING)\n  severity    Int?\n  createdAt   DateTime     @default(now())\n\n  userId String?\n  user   User?   @relation(fields: [userId], references: [id])\n\n  media Media[]\n}\n\nmodel Media {\n  id         String    @id @default(uuid())\n  mediaUrl   String\n  mediaType  MediaType\n  uploadedAt DateTime  @default(now())\n\n  reportId String\n  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)\n\n  detections Detection[]\n}\n\nmodel Detection {\n  id            String @id @default(uuid())\n  detectedClass String @default(\"pothole\")\n  confidence    Float\n  bboxX         Float\n  bboxY         Float\n  bboxWidth     Float\n  bboxHeight    Float\n  frameTime     Float?\n\n  createdAt DateTime @default(now())\n\n  mediaId String\n  media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)\n\n  pothole Pothole?\n}\n\n// Pothole entity with GPS and lifecycle tracking\nmodel Pothole {\n  id        String  @id @default(uuid())\n  latitude  Float\n  longitude Float\n  imageUrl  String?\n\n  // Detection reference\n  detectionId String    @unique\n  detection   Detection @relation(fields: [detectionId], references: [id], onDelete: Cascade)\n\n  // Severity metrics\n  priorityScore Float?\n  priorityLevel PriorityLevel?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  roadInfo RoadInfo?\n  ticket   Ticket?\n\n  @@index([priorityLevel])\n  @@index([createdAt])\n}\n\n// Road context from Overpass API\nmodel RoadInfo {\n  id                String  @id @default(uuid())\n  roadName          String?\n  roadType          String? // primary, secondary, residential, etc.\n  speedLimit        Int?\n  trafficImportance Float   @default(1.0) // Priority weight factor\n  priorityFactor    Float   @default(1.0) // Computed factor for ranking\n\n  osmData Json? // Raw OSM data for reference\n\n  potholeId String  @unique\n  pothole   Pothole @relation(fields: [potholeId], references: [id], onDelete: Cascade)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\n// Ticket lifecycle management\nmodel Ticket {\n  id           String       @id @default(uuid())\n  ticketNumber String       @unique // Human-readable ticket ID\n  status       TicketStatus @default(DETECTED)\n\n  potholeId String  @unique\n  pothole   Pothole @relation(fields: [potholeId], references: [id], onDelete: Cascade)\n\n  assignedWorkerId String?\n  assignedWorker   Worker? @relation(fields: [assignedWorkerId], references: [id])\n\n  assignedAt  DateTime?\n  startedAt   DateTime?\n  completedAt DateTime?\n  resolvedAt  DateTime?\n\n  routeData    Json? // OSRM route polyline & ETA\n  estimatedETA DateTime?\n\n  notes      String?\n  adminNotes String?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  workProofs    WorkProof[]\n  statusHistory TicketStatusHistory[]\n\n  @@index([status])\n  @@index([assignedWorkerId])\n  @@index([createdAt])\n}\n\n// Ticket status transition log for audit trail\nmodel TicketStatusHistory {\n  id       String @id @default(uuid())\n  ticketId String\n  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)\n\n  fromStatus TicketStatus?\n  toStatus   TicketStatus\n\n  changedBy String? // User/Worker ID\n  reason    String?\n\n  createdAt DateTime @default(now())\n\n  @@index([ticketId])\n  @@index([createdAt])\n}\n\n// Worker entity\nmodel Worker {\n  id     String  @id @default(uuid())\n  userId String? @unique\n  user   User?   @relation(fields: [userId], references: [id])\n\n  name       String\n  email      String  @unique\n  phone      String?\n  employeeId String  @unique\n  isActive   Boolean @default(true)\n\n  currentLatitude    Float?\n  currentLongitude   Float?\n  lastLocationUpdate DateTime?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  assignedTickets Ticket[]\n  locationLogs    WorkerLocation[]\n\n  @@index([isActive])\n  @@index([userId])\n}\n\n// Worker location tracking\nmodel WorkerLocation {\n  id       String @id @default(uuid())\n  workerId String\n  worker   Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)\n\n  latitude  Float\n  longitude Float\n  accuracy  Float? // GPS accuracy in meters\n\n  recordedAt DateTime @default(now())\n\n  @@index([workerId, recordedAt])\n}\n\n// Work completion proof\nmodel WorkProof {\n  id       String @id @default(uuid())\n  ticketId String\n  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)\n\n  imageUrls String[] // Multiple proof images\n  notes     String?\n\n  latitude  Float? // Location where proof was taken\n  longitude Float?\n\n  submittedAt DateTime @default(now())\n\n  // Admin review\n  isApproved  Boolean?\n  reviewedBy  String? // Admin user ID\n  reviewedAt  DateTime?\n  reviewNotes String?\n\n  @@index([ticketId])\n}\n\nenum Role {\n  ADMIN\n  CITIZEN\n  WORKER\n}\n\nenum ReportStatus {\n  PENDING\n  VERIFIED\n  RESOLVED\n}\n\nenum MediaType {\n  IMAGE\n  VIDEO\n}\n\nenum PriorityLevel {\n  LOW\n  MEDIUM\n  HIGH\n  CRITICAL\n}\n\nenum TicketStatus {\n  DETECTED\n  RANKED\n  ASSIGNED\n  IN_PROGRESS\n  AWAITING_VERIFICATION\n  RESOLVED\n  REJECTED\n}\n"
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"Role\"},{\"name\":\"reports\",\"kind\":\"object\",\"type\":\"Report\",\"relationName\":\"ReportToUser\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Report\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"latitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"longitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"ReportStatus\"},{\"name\":\"severity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ReportToUser\"},{\"name\":\"media\",\"kind\":\"object\",\"type\":\"Media\",\"relationName\":\"MediaToReport\"}],\"dbName\":null},\"Media\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"mediaUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"mediaType\",\"kind\":\"enum\",\"type\":\"MediaType\"},{\"name\":\"uploadedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"reportId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"report\",\"kind\":\"object\",\"type\":\"Report\",\"relationName\":\"MediaToReport\"},{\"name\":\"detections\",\"kind\":\"object\",\"type\":\"Detection\",\"relationName\":\"DetectionToMedia\"}],\"dbName\":null},\"Detection\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"detectedClass\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"confidence\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"bboxX\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"bboxY\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"bboxWidth\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"bboxHeight\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"frameTime\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"mediaId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"media\",\"kind\":\"object\",\"type\":\"Media\",\"relationName\":\"DetectionToMedia\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"clerk_user_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"Role\"},{\"name\":\"reports\",\"kind\":\"object\",\"type\":\"Report\",\"relationName\":\"ReportToUser\"},{\"name\":\"worker\",\"kind\":\"object\",\"type\":\"Worker\",\"relationName\":\"UserToWorker\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Report\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"latitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"longitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"ReportStatus\"},{\"name\":\"severity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ReportToUser\"},{\"name\":\"media\",\"kind\":\"object\",\"type\":\"Media\",\"relationName\":\"MediaToReport\"}],\"dbName\":null},\"Media\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"mediaUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"mediaType\",\"kind\":\"enum\",\"type\":\"MediaType\"},{\"name\":\"uploadedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"reportId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"report\",\"kind\":\"object\",\"type\":\"Report\",\"relationName\":\"MediaToReport\"},{\"name\":\"detections\",\"kind\":\"object\",\"type\":\"Detection\",\"relationName\":\"DetectionToMedia\"}],\"dbName\":null},\"Detection\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"detectedClass\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"confidence\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"bboxX\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"bboxY\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"bboxWidth\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"bboxHeight\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"frameTime\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"mediaId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"media\",\"kind\":\"object\",\"type\":\"Media\",\"relationName\":\"DetectionToMedia\"},{\"name\":\"pothole\",\"kind\":\"object\",\"type\":\"Pothole\",\"relationName\":\"DetectionToPothole\"}],\"dbName\":null},\"Pothole\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"latitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"longitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"imageUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"detectionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"detection\",\"kind\":\"object\",\"type\":\"Detection\",\"relationName\":\"DetectionToPothole\"},{\"name\":\"priorityScore\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"priorityLevel\",\"kind\":\"enum\",\"type\":\"PriorityLevel\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"roadInfo\",\"kind\":\"object\",\"type\":\"RoadInfo\",\"relationName\":\"PotholeToRoadInfo\"},{\"name\":\"ticket\",\"kind\":\"object\",\"type\":\"Ticket\",\"relationName\":\"PotholeToTicket\"}],\"dbName\":null},\"RoadInfo\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"roadName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"roadType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"speedLimit\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"trafficImportance\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"priorityFactor\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"osmData\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"potholeId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"pothole\",\"kind\":\"object\",\"type\":\"Pothole\",\"relationName\":\"PotholeToRoadInfo\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Ticket\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ticketNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"TicketStatus\"},{\"name\":\"potholeId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"pothole\",\"kind\":\"object\",\"type\":\"Pothole\",\"relationName\":\"PotholeToTicket\"},{\"name\":\"assignedWorkerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"assignedWorker\",\"kind\":\"object\",\"type\":\"Worker\",\"relationName\":\"TicketToWorker\"},{\"name\":\"assignedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"startedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"completedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"resolvedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"routeData\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"estimatedETA\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"adminNotes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"workProofs\",\"kind\":\"object\",\"type\":\"WorkProof\",\"relationName\":\"TicketToWorkProof\"},{\"name\":\"statusHistory\",\"kind\":\"object\",\"type\":\"TicketStatusHistory\",\"relationName\":\"TicketToTicketStatusHistory\"}],\"dbName\":null},\"TicketStatusHistory\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ticketId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ticket\",\"kind\":\"object\",\"type\":\"Ticket\",\"relationName\":\"TicketToTicketStatusHistory\"},{\"name\":\"fromStatus\",\"kind\":\"enum\",\"type\":\"TicketStatus\"},{\"name\":\"toStatus\",\"kind\":\"enum\",\"type\":\"TicketStatus\"},{\"name\":\"changedBy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"reason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Worker\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToWorker\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"employeeId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"currentLatitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"currentLongitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"lastLocationUpdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"assignedTickets\",\"kind\":\"object\",\"type\":\"Ticket\",\"relationName\":\"TicketToWorker\"},{\"name\":\"locationLogs\",\"kind\":\"object\",\"type\":\"WorkerLocation\",\"relationName\":\"WorkerToWorkerLocation\"}],\"dbName\":null},\"WorkerLocation\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"workerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"worker\",\"kind\":\"object\",\"type\":\"Worker\",\"relationName\":\"WorkerToWorkerLocation\"},{\"name\":\"latitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"longitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"accuracy\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"recordedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"WorkProof\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ticketId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ticket\",\"kind\":\"object\",\"type\":\"Ticket\",\"relationName\":\"TicketToWorkProof\"},{\"name\":\"imageUrls\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"latitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"longitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"submittedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"isApproved\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"reviewedBy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"reviewedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"reviewNotes\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.compilerWasm = {
       getRuntime: async () => require('./query_compiler_fast_bg.js'),
