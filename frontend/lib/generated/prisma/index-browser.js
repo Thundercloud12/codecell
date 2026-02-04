@@ -122,6 +122,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
+  clerk_user_id: 'clerk_user_id',
   name: 'name',
   email: 'email',
   role: 'role',
@@ -161,9 +162,105 @@ exports.Prisma.DetectionScalarFieldEnum = {
   mediaId: 'mediaId'
 };
 
+exports.Prisma.PotholeScalarFieldEnum = {
+  id: 'id',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  imageUrl: 'imageUrl',
+  detectionId: 'detectionId',
+  priorityScore: 'priorityScore',
+  priorityLevel: 'priorityLevel',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RoadInfoScalarFieldEnum = {
+  id: 'id',
+  roadName: 'roadName',
+  roadType: 'roadType',
+  speedLimit: 'speedLimit',
+  trafficImportance: 'trafficImportance',
+  priorityFactor: 'priorityFactor',
+  osmData: 'osmData',
+  potholeId: 'potholeId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TicketScalarFieldEnum = {
+  id: 'id',
+  ticketNumber: 'ticketNumber',
+  status: 'status',
+  potholeId: 'potholeId',
+  assignedWorkerId: 'assignedWorkerId',
+  assignedAt: 'assignedAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  resolvedAt: 'resolvedAt',
+  routeData: 'routeData',
+  estimatedETA: 'estimatedETA',
+  notes: 'notes',
+  adminNotes: 'adminNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TicketStatusHistoryScalarFieldEnum = {
+  id: 'id',
+  ticketId: 'ticketId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  changedBy: 'changedBy',
+  reason: 'reason',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.WorkerScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  employeeId: 'employeeId',
+  isActive: 'isActive',
+  currentLatitude: 'currentLatitude',
+  currentLongitude: 'currentLongitude',
+  lastLocationUpdate: 'lastLocationUpdate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WorkerLocationScalarFieldEnum = {
+  id: 'id',
+  workerId: 'workerId',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  accuracy: 'accuracy',
+  recordedAt: 'recordedAt'
+};
+
+exports.Prisma.WorkProofScalarFieldEnum = {
+  id: 'id',
+  ticketId: 'ticketId',
+  imageUrls: 'imageUrls',
+  notes: 'notes',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  submittedAt: 'submittedAt',
+  isApproved: 'isApproved',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  reviewNotes: 'reviewNotes'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -175,9 +272,16 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
 exports.Role = exports.$Enums.Role = {
   ADMIN: 'ADMIN',
-  CITIZEN: 'CITIZEN'
+  CITIZEN: 'CITIZEN',
+  WORKER: 'WORKER'
 };
 
 exports.ReportStatus = exports.$Enums.ReportStatus = {
@@ -191,11 +295,35 @@ exports.MediaType = exports.$Enums.MediaType = {
   VIDEO: 'VIDEO'
 };
 
+exports.PriorityLevel = exports.$Enums.PriorityLevel = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL'
+};
+
+exports.TicketStatus = exports.$Enums.TicketStatus = {
+  DETECTED: 'DETECTED',
+  RANKED: 'RANKED',
+  ASSIGNED: 'ASSIGNED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  AWAITING_VERIFICATION: 'AWAITING_VERIFICATION',
+  RESOLVED: 'RESOLVED',
+  REJECTED: 'REJECTED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Report: 'Report',
   Media: 'Media',
-  Detection: 'Detection'
+  Detection: 'Detection',
+  Pothole: 'Pothole',
+  RoadInfo: 'RoadInfo',
+  Ticket: 'Ticket',
+  TicketStatusHistory: 'TicketStatusHistory',
+  Worker: 'Worker',
+  WorkerLocation: 'WorkerLocation',
+  WorkProof: 'WorkProof'
 };
 
 /**
