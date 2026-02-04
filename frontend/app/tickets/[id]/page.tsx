@@ -3,6 +3,17 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+// Dynamically import map component to avoid SSR issues
+const TicketRouteMap = dynamic(() => import("@/components/TicketRouteMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[400px] bg-[#0B1220] rounded-xl border border-[#1F2937] flex items-center justify-center">
+      <div className="text-[#00E676] font-mono animate-pulse">INITIALIZING_NAV_SYSTEM...</div>
+    </div>
+  ),
+});
 
 interface TicketDetail {
   id: string;
@@ -13,7 +24,15 @@ interface TicketDetail {
   startedAt: string | null;
   completedAt: string | null;
   estimatedETA: string | null;
-  routeData: any;
+  routeData: {
+    distance: number;
+    duration: number;
+    polyline?: string;
+    startLocation?: {
+      latitude: number;
+      longitude: number;
+    };
+  } | null;
   pothole: {
     latitude: number;
     longitude: number;
@@ -51,24 +70,62 @@ export default function TicketDetailPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [selectedWorker, setSelectedWorker] = useState("");
+  const [workerLocation, setWorkerLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [journeyStarted, setJourneyStarted] = useState(false);
 
   useEffect(() => {
     fetchTicket();
     fetchWorkers();
   }, [id]);
 
+  // Get worker's current location when journey starts
+  useEffect(() => {
+    if (journeyStarted && ticket?.status === "IN_PROGRESS") {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setWorkerLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+          },
+          (error) => {
+            console.error("Error getting location:", error);
+            // Default to stored route start location if available
+            if (ticket.routeData?.startLocation) {
+              setWorkerLocation({
+                lat: ticket.routeData.startLocation.latitude,
+                lng: ticket.routeData.startLocation.longitude,
+              });
+            }
+          }
+        );
+      }
+    }
+  }, [journeyStarted, ticket?.status]);
+
+  // Check if ticket already has route data (journey already started)
+  useEffect(() => {
+    if (ticket?.routeData && ticket.status === "IN_PROGRESS") {
+      setJourneyStarted(true);
+      if (ticket.routeData.startLocation) {
+        setWorkerLocation({
+          lat: ticket.routeData.startLocation.latitude,
+          lng: ticket.routeData.startLocation.longitude,
+        });
+      }
+    }
+  }, [ticket]);
+
   async function fetchTicket() {
     try {
-      const res = await fetch(`/api/tickets?limit=100`);
+      const res = await fetch(`/api/tickets/${id}`);
       const data = await res.json();
 
       if (data.success) {
-        const found = data.tickets.find((t: any) => t.id === id);
-        if (found) {
-          setTicket(found);
-        } else {
-          setError("Ticket not found");
-        }
+        setTicket(data.ticket);
+      } else {
+        setError(data.error || "Ticket not found");
       }
     } catch (err) {
       setError("Failed to fetch ticket");
@@ -212,6 +269,79 @@ export default function TicketDetailPage() {
     }
   }
 
+  async function startJourney() {
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser");
+      return;
+    }
+
+    if (!ticket) return;
+
+    setActionLoading(true);
+    setMessage("");
+    setError("");
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const startLat = position.coords.latitude;
+          const startLng = position.coords.longitude;
+          
+          setWorkerLocation({ lat: startLat, lng: startLng });
+
+          // Generate route using the routing API
+          const routeRes = await fetch(`/api/routes/generate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              startLat: startLat,
+              startLon: startLng,
+              endLat: ticket.pothole.latitude,
+              endLon: ticket.pothole.longitude,
+            }),
+          });
+
+          const routeData = await routeRes.json();
+
+          if (!routeData.success) {
+            setError(routeData.error || "Failed to generate route");
+            setActionLoading(false);
+            return;
+          }
+
+          // Update ticket status to IN_PROGRESS and store route data
+          const statusRes = await fetch(`/api/tickets/${id}/status`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              status: "IN_PROGRESS",
+              routeData: routeData.route,
+            }),
+          });
+
+          const statusData = await statusRes.json();
+
+          if (statusData.success) {
+            setJourneyStarted(true);
+            setMessage("Journey started! Route calculated.");
+            fetchTicket();
+          } else {
+            setError(statusData.error || "Failed to update status");
+          }
+        } catch (err) {
+          setError("Failed to start journey");
+        } finally {
+          setActionLoading(false);
+        }
+      },
+      (error) => {
+        setActionLoading(false);
+        setError(`Location error: ${error.message}`);
+      },
+      { enableHighAccuracy: true }
+    );
+  }
+
   if (loading) return <div className="p-8">Loading...</div>;
   if (!ticket) return <div className="p-8 text-red-600">Ticket not found</div>;
 
@@ -330,7 +460,79 @@ export default function TicketDetailPage() {
         )}
       </div>
 
-      {ticket.routeData && (
+      {/* Route Map Section - Shows when journey is started or route data exists */}
+      {(journeyStarted || ticket.routeData) && (
+        <div className="bg-white border rounded-lg p-6 mb-6">
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            🗺️ Navigation Route
+            {ticket.status === "IN_PROGRESS" && (
+              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded animate-pulse">
+                LIVE
+              </span>
+            )}
+          </h2>
+          
+          {/* Map */}
+          <div className="h-[400px] rounded-lg overflow-hidden border mb-4">
+            <TicketRouteMap
+              workerLocation={workerLocation}
+              potholeLocation={{
+                lat: ticket.pothole.latitude,
+                lng: ticket.pothole.longitude,
+              }}
+              priorityLevel={ticket.pothole.priorityLevel}
+              routePolyline={ticket.routeData?.polyline}
+              roadName={ticket.pothole.roadInfo?.roadName || undefined}
+              ticketNumber={ticket.ticketNumber}
+            />
+          </div>
+
+          {/* Route Stats */}
+          {ticket.routeData && (
+            <div className="grid grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg">
+              <div className="text-center">
+                <label className="text-sm text-gray-500 block">Distance</label>
+                <div className="text-xl font-bold text-blue-600">
+                  {(ticket.routeData.distance / 1000).toFixed(2)} km
+                </div>
+              </div>
+              <div className="text-center border-x">
+                <label className="text-sm text-gray-500 block">Est. Duration</label>
+                <div className="text-xl font-bold text-blue-600">
+                  {Math.round(ticket.routeData.duration / 60)} min
+                </div>
+              </div>
+              <div className="text-center">
+                <label className="text-sm text-gray-500 block">ETA</label>
+                <div className="text-xl font-bold text-green-600">
+                  {ticket.estimatedETA 
+                    ? new Date(ticket.estimatedETA).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    : "Calculating..."}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Start Journey Button - Shows when assigned but journey not started */}
+      {ticket.assignedWorker && ticket.status === "ASSIGNED" && !journeyStarted && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+          <h2 className="text-xl font-bold mb-2 text-blue-900">🚀 Ready to Start</h2>
+          <p className="text-blue-700 mb-4">
+            Worker {ticket.assignedWorker.name} is assigned. Click below to start the journey and get navigation directions.
+          </p>
+          <button
+            onClick={startJourney}
+            disabled={actionLoading}
+            className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-bold text-lg shadow-lg transition transform hover:scale-[1.02]"
+          >
+            {actionLoading ? "Getting Location..." : "🧭 Start Journey & Get Route"}
+          </button>
+        </div>
+      )}
+
+      {ticket.routeData && !journeyStarted && ticket.status !== "ASSIGNED" && (
         <div className="bg-white border rounded-lg p-6 mb-6">
           <h2 className="text-xl font-bold mb-4">Route Information</h2>
           <div className="grid grid-cols-2 gap-4">

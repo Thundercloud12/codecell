@@ -20,6 +20,20 @@ interface StatusUpdateRequest {
   status: TicketStatus;
   reason?: string;
   changedBy?: string; // User/Worker ID who made the change
+  routeData?: {
+    distance: number;
+    duration: number;
+    polyline?: string;
+    startLocation?: {
+      latitude: number;
+      longitude: number;
+    };
+    endLocation?: {
+      latitude: number;
+      longitude: number;
+    };
+    estimatedArrival?: string;
+  };
 }
 
 export async function PATCH(
@@ -84,6 +98,13 @@ export async function PATCH(
         }),
         ...(body.status === 'RESOLVED' && !ticket.resolvedAt && {
           resolvedAt: new Date(),
+        }),
+        // Store route data if provided
+        ...(body.routeData && {
+          routeData: body.routeData,
+          estimatedETA: body.routeData.estimatedArrival 
+            ? new Date(body.routeData.estimatedArrival) 
+            : undefined,
         }),
       },
       include: {

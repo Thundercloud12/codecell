@@ -7,42 +7,61 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, 
   BarChart, Bar, AreaChart, Area 
 } from 'recharts';
-import { Activity, AlertTriangle, CheckCircle, MapPin, Users, Zap, LayoutDashboard, Database, Settings } from "lucide-react";
+import { Activity, AlertTriangle, CheckCircle, MapPin, Users, Zap, LayoutDashboard, Database, Settings, Ticket } from "lucide-react";
 import Link from "next/link";
 
 // Dynamically import map component
-const ReportsMap = dynamic(() => import("@/components/ReportsMap"), {
+const PotholeMap = dynamic(() => import("@/components/PotholeMap"), {
   ssr: false,
   loading: () => (
-    <div className="h-[600px] w-full bg-[#0B1220] rounded-2xl flex items-center justify-center border border-[#1F2937]">
+    <div className="h-full w-full bg-[#0B1220] rounded-2xl flex items-center justify-center border border-[#1F2937]">
       <div className="text-[#00E676] animate-pulse font-mono">INITIALIZING SATELLITE LINK...</div>
     </div>
   ),
 });
 
-interface Report {
+interface Pothole {
   id: string;
-  title?: string;
-  description?: string;
   latitude: number;
   longitude: number;
-  status: string;
-  severity?: number;
+  imageUrl: string | null;
+  priorityScore: number | null;
+  priorityLevel: string | null;
   createdAt: string;
-  media: Array<{
+  detection: {
     id: string;
-    mediaUrl: string;
-    mediaType: string;
-    detections: Array<{
-      id: string;
-      confidence: number;
-      detectedClass: string;
-    }>;
-  }>;
-  user?: {
-    name?: string;
-    email: string;
+    confidence: number;
   };
+  roadInfo?: {
+    roadName: string | null;
+    roadType: string | null;
+  } | null;
+  ticket?: {
+    id: string;
+    ticketNumber: string;
+    status: string;
+  } | null;
+}
+
+interface TicketData {
+  id: string;
+  ticketNumber: string;
+  status: string;
+  createdAt: string;
+  pothole: {
+    id: string;
+    latitude: number;
+    longitude: number;
+    priorityLevel: string | null;
+    priorityScore: number | null;
+    roadInfo?: {
+      roadName: string | null;
+    } | null;
+  };
+  assignedWorker?: {
+    id: string;
+    name: string | null;
+  } | null;
 }
 
 // Dummy data for charts
@@ -57,34 +76,44 @@ const activityData = [
 ];
 
 export default function AdminDashboard() {
-  const [reports, setReports] = useState<Report[]>([]);
+  const [potholes, setPotholes] = useState<Pothole[]>([]);
+  const [tickets, setTickets] = useState<TicketData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedReportId, setSelectedReportId] = useState<string | undefined>(undefined);
+  const [selectedPotholeId, setSelectedPotholeId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    fetchReports();
+    fetchData();
   }, []);
 
-  async function fetchReports() {
+  async function fetchData() {
     try {
       setLoading(true);
-      const res = await fetch("/api/reports");
-      const data = await res.json();
-      if (res.ok) {
-        setReports(data.data || data.reports || []);
+      const [potholesRes, ticketsRes] = await Promise.all([
+        fetch("/api/potholes"),
+        fetch("/api/tickets")
+      ]);
+      
+      const potholesData = await potholesRes.json();
+      const ticketsData = await ticketsRes.json();
+      
+      if (potholesRes.ok && potholesData.success) {
+        setPotholes(potholesData.potholes || []);
+      }
+      if (ticketsRes.ok && ticketsData.success) {
+        setTickets(ticketsData.tickets || []);
       }
     } catch (err) {
-      console.error("Failed to fetch reports:", err);
+      console.error("Failed to fetch data:", err);
     } finally {
       setLoading(false);
     }
   }
 
   const stats = {
-    total: reports.length,
-    critical: reports.filter(r => (r.severity || 0) >= 4 || r.priorityLevel === 'CRITICAL').length,
-    active: reports.filter(r => r.status !== 'RESOLVED').length,
-    aiDetected: reports.filter(r => r.media.some(m => m.detections.length > 0)).length
+    total: potholes.length,
+    critical: potholes.filter(p => p.priorityLevel === 'CRITICAL').length,
+    active: tickets.filter(t => t.status !== 'COMPLETED' && t.status !== 'VERIFIED').length,
+    aiDetected: potholes.filter(p => p.detection.confidence > 0.8).length
   };
 
   return (
@@ -228,23 +257,26 @@ export default function AdminDashboard() {
              
              <div className="bg-[#050B16]/90 backdrop-blur border border-[#1F2937] px-4 py-2 rounded-lg pointer-events-auto flex gap-4">
                 <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
-                   <span className="w-2 h-2 rounded-full bg-blue-500"></span> Pending
+                   <span className="w-2 h-2 rounded-full bg-[#FF1744]"></span> Critical
                 </div>
                 <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
-                   <span className="w-2 h-2 rounded-full bg-amber-500"></span> Verified
+                   <span className="w-2 h-2 rounded-full bg-[#FF9100]"></span> High
                 </div>
                 <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
-                   <span className="w-2 h-2 rounded-full bg-green-500"></span> Resolved
+                   <span className="w-2 h-2 rounded-full bg-[#FFC400]"></span> Medium
+                </div>
+                <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
+                   <span className="w-2 h-2 rounded-full bg-[#00E676]"></span> Low
                 </div>
              </div>
            </div>
 
            {/* The Map */}
            <div className="flex-1 relative bg-[#050B16]">
-             <ReportsMap 
-               reports={reports} 
-               onMarkerClick={(r) => setSelectedReportId(r.id)}
-               selectedReportId={selectedReportId}
+             <PotholeMap 
+               potholes={potholes} 
+               onMarkerClick={(p) => setSelectedPotholeId(p.id)}
+               selectedPotholeId={selectedPotholeId}
              />
              
              {/* Cyber UI Overlays (Cornes) */}
@@ -264,14 +296,14 @@ export default function AdminDashboard() {
            </div>
         </div>
 
-        {/* RIGHT COLUMN - Recent Feed (3 cols) */}
+        {/* RIGHT COLUMN - Tickets Feed (3 cols) */}
         <div className="col-span-12 lg:col-span-3 flex flex-col gap-4 bg-[#0B1220]/50 border border-[#1F2937] rounded-3xl p-5 overflow-hidden">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-              <Zap size={14} className="text-[#FFC400]" /> Incoming Data Stream
+              <Ticket size={14} className="text-[#FFC400]" /> Active Tickets
             </h3>
-            <span className="text-[10px] bg-[#1F2937] px-2 py-1 rounded text-[#00E676] border border-[#00E676]/20 font-mono animate-pulse">
-              RECEIVING...
+            <span className="text-[10px] bg-[#1F2937] px-2 py-1 rounded text-[#00E676] border border-[#00E676]/20 font-mono">
+              {tickets.length} TOTAL
             </span>
           </div>
           
@@ -280,72 +312,82 @@ export default function AdminDashboard() {
                [1,2,3,4,5].map(i => (
                  <div key={i} className="h-24 bg-[#1F2937]/30 rounded-xl animate-pulse border border-[#1F2937]"></div>
                ))
-            ) : reports.length === 0 ? (
-               <div className="text-center text-[#94A3B8] py-10">No signals detected.</div>
+            ) : tickets.length === 0 ? (
+               <div className="text-center text-[#94A3B8] py-10">No active tickets.</div>
             ) : (
-              reports.map(report => (
-                <div 
-                  key={report.id}
-                  onClick={() => setSelectedReportId(report.id)}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer hover:translate-x-1 hover:shadow-lg group relative overflow-hidden ${
-                    selectedReportId === report.id
+              tickets.map(ticket => (
+                <Link 
+                  key={ticket.id}
+                  href={`/tickets/${ticket.id}`}
+                  onClick={() => setSelectedPotholeId(ticket.pothole.id)}
+                  className={`block p-4 rounded-xl border transition-all cursor-pointer hover:translate-x-1 hover:shadow-lg group relative overflow-hidden ${
+                    selectedPotholeId === ticket.pothole.id
                       ? 'bg-[#00E676]/10 border-[#00E676]' 
                       : 'bg-[#050B16] border-[#1F2937] hover:border-[#94A3B8]'
                   }`}
                 >
                   {/* Status Indicator Bar */}
                   <div className={`absolute left-0 top-0 bottom-0 w-1 ${
-                                          report.status === 'PENDING' ? 'bg-blue-500' :
-                                          report.status === 'VERIFIED' ? 'bg-amber-500' :
-                                          'bg-green-500'
-                                        }`}
-                  ></div>
+                    ticket.status === 'DETECTED' ? 'bg-blue-500' :
+                    ticket.status === 'ASSIGNED' ? 'bg-amber-500' :
+                    ticket.status === 'IN_PROGRESS' ? 'bg-purple-500' :
+                    ticket.status === 'COMPLETED' ? 'bg-green-500' :
+                    'bg-gray-500'
+                  }`}></div>
 
                   <div className="pl-3">
                     <div className="flex justify-between items-start mb-2">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                        report.status === 'PENDING' ? 'text-blue-400 border-blue-900 bg-blue-900/20' :
-                        report.status === 'VERIFIED' ? 'text-amber-400 border-amber-900 bg-amber-900/20' :
-                        'text-green-400 border-green-900 bg-green-900/20'
+                        ticket.status === 'DETECTED' ? 'text-blue-400 border-blue-900 bg-blue-900/20' :
+                        ticket.status === 'ASSIGNED' ? 'text-amber-400 border-amber-900 bg-amber-900/20' :
+                        ticket.status === 'IN_PROGRESS' ? 'text-purple-400 border-purple-900 bg-purple-900/20' :
+                        ticket.status === 'COMPLETED' ? 'text-green-400 border-green-900 bg-green-900/20' :
+                        'text-gray-400 border-gray-900 bg-gray-900/20'
                       }`}>
-                        {report.status}
+                        {ticket.status.replace('_', ' ')}
                       </span>
                       <span className="text-[10px] text-[#94A3B8] font-mono opacity-70">
-                        {new Date(report.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        {new Date(ticket.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                       </span>
                     </div>
                     
-                    <h4 className="text-sm font-bold text-white mb-1 truncate group-hover:text-[#00B8D4] transition-colors">
-                      {report.title || "Anomaly Detected"}
+                    <h4 className="text-sm font-bold text-white mb-1 truncate group-hover:text-[#00B8D4] transition-colors font-mono">
+                      {ticket.ticketNumber}
                     </h4>
+                    
+                    {ticket.pothole.roadInfo?.roadName && (
+                      <div className="text-[10px] text-[#94A3B8] mb-2 truncate">
+                        📍 {ticket.pothole.roadInfo.roadName}
+                      </div>
+                    )}
                     
                     <div className="flex items-center gap-1 text-[10px] text-[#94A3B8] font-mono mb-2">
                       <MapPin size={10} />
-                      <span>{report.latitude.toFixed(4)}, {report.longitude.toFixed(4)}</span>
+                      <span>{ticket.pothole.latitude.toFixed(4)}, {ticket.pothole.longitude.toFixed(4)}</span>
                     </div>
                     
-                    {/* Media Detection Badge */}
-                    {report.media?.[0]?.detections?.[0] && (
-                       <div className="flex items-center gap-2 mt-2 bg-black/30 p-1.5 rounded-lg border border-[#1F2937]">
-                         <div className="h-5 w-5 bg-[#00E676]/20 rounded flex items-center justify-center">
-                            <span className="text-[10px]">👁️</span>
-                         </div>
-                         <div className="flex-1">
-                           <div className="flex justify-between text-[10px] mb-0.5">
-                             <span className="text-[#94A3B8]">Confidence</span>
-                             <span className="text-[#00E676] font-mono">{Math.round(report.media[0].detections[0].confidence * 100)}%</span>
-                           </div>
-                           <div className="h-1 bg-[#1F2937] rounded-full overflow-hidden">
-                             <div 
-                               className="h-full bg-[#00E676]" 
-                               style={{ width: `${report.media[0].detections[0].confidence * 100}%` }}
-                             ></div>
-                           </div>
-                         </div>
-                       </div>
-                    )}
+                    {/* Priority & Worker Info */}
+                    <div className="flex items-center justify-between mt-2 bg-black/30 p-1.5 rounded-lg border border-[#1F2937]">
+                      {ticket.pothole.priorityLevel && (
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                          ticket.pothole.priorityLevel === 'CRITICAL' ? 'bg-[#FF1744]/20 text-[#FF1744]' :
+                          ticket.pothole.priorityLevel === 'HIGH' ? 'bg-[#FF9100]/20 text-[#FF9100]' :
+                          ticket.pothole.priorityLevel === 'MEDIUM' ? 'bg-[#FFC400]/20 text-[#FFC400]' :
+                          'bg-[#00E676]/20 text-[#00E676]'
+                        }`}>
+                          {ticket.pothole.priorityLevel}
+                        </span>
+                      )}
+                      {ticket.assignedWorker ? (
+                        <span className="text-[10px] text-[#00B8D4]">
+                          👷 {ticket.assignedWorker.name || 'Worker'}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-[#94A3B8] italic">Unassigned</span>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </Link>
               ))
             )}
           </div>
