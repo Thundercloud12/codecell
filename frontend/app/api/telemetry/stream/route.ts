@@ -8,8 +8,12 @@ export async function GET(request: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       let lastTimestamp = new Date();
+      let isClosed = false;
 
       const sendData = async () => {
+        // Check if controller is closed before attempting to send
+        if (isClosed) return;
+
         try {
           // Fetch new telemetry since last check
           const newTelemetry = await prisma.sensorTelemetry.findMany({
@@ -51,22 +55,72 @@ export async function GET(request: NextRequest) {
             },
           });
 
-          if (newTelemetry.length > 0 || newAnomalies.length > 0) {
+          // Fetch new ML anomalies
+          const newMLAnomalies = await prisma.mLAnomalyDetection.findMany({
+            where: {
+              detectedAt: { gt: lastTimestamp },
+              isAnomaly: true,
+            },
+            orderBy: { detectedAt: "desc" },
+            take: 20,
+            include: {
+              sensor: {
+                select: {
+                  sensorCode: true,
+                  structure: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          });
+
+          // Fetch new ML predictions
+          const newMLPredictions = await prisma.mLFailurePrediction.findMany({
+            where: {
+              predictedAt: { gt: lastTimestamp },
+              validUntil: { gt: new Date() },
+            },
+            orderBy: { predictedAt: "desc" },
+            take: 10,
+            include: {
+              structure: {
+                select: {
+                  id: true,
+                  name: true,
+                  structureType: true,
+                },
+              },
+            },
+          });
+
+          if (newTelemetry.length > 0 || newAnomalies.length > 0 || newMLAnomalies.length > 0 || newMLPredictions.length > 0) {
             lastTimestamp = new Date();
 
             const data = JSON.stringify({
               telemetry: newTelemetry,
               anomalies: newAnomalies,
+              mlAnomalies: newMLAnomalies,
+              mlPredictions: newMLPredictions,
               timestamp: lastTimestamp.toISOString(),
             });
 
-            controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+            if (!isClosed) {
+              controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+            }
           } else {
             // Send heartbeat
-            controller.enqueue(encoder.encode(`: heartbeat\n\n`));
+            if (!isClosed) {
+              controller.enqueue(encoder.encode(`: heartbeat\n\n`));
+            }
           }
         } catch (error) {
-          console.error("SSE Error:", error);
+          if (!isClosed) {
+            console.error("SSE Error:", error);
+          }
         }
       };
 
@@ -78,8 +132,13 @@ export async function GET(request: NextRequest) {
 
       // Cleanup on close
       request.signal.addEventListener("abort", () => {
+        isClosed = true;
         clearInterval(interval);
-        controller.close();
+        try {
+          controller.close();
+        } catch (e) {
+          // Controller already closed
+        }
       });
     },
   });

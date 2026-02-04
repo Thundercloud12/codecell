@@ -3,17 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-
-// Dynamically import map component to avoid SSR issues
-const TicketRouteMap = dynamic(() => import("@/components/TicketRouteMap"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-[400px] bg-[#0B1220] rounded-xl border border-[#1F2937] flex items-center justify-center">
-      <div className="text-[#00E676] font-mono animate-pulse">INITIALIZING_NAV_SYSTEM...</div>
-    </div>
-  ),
-});
 
 interface TicketDetail {
   id: string;
@@ -24,16 +13,9 @@ interface TicketDetail {
   startedAt: string | null;
   completedAt: string | null;
   estimatedETA: string | null;
-  routeData: {
-    distance: number;
-    duration: number;
-    polyline?: string;
-    startLocation?: {
-      latitude: number;
-      longitude: number;
-    };
-  } | null;
-  pothole: {
+  routeData: any;
+  potholes: Array<{
+    id: string;
     latitude: number;
     longitude: number;
     priorityLevel: string;
@@ -42,7 +24,7 @@ interface TicketDetail {
       roadName: string | null;
       roadType: string | null;
     } | null;
-  };
+  }>;
   assignedWorker: {
     id: string;
     name: string;
@@ -70,62 +52,24 @@ export default function TicketDetailPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [selectedWorker, setSelectedWorker] = useState("");
-  const [workerLocation, setWorkerLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [journeyStarted, setJourneyStarted] = useState(false);
 
   useEffect(() => {
     fetchTicket();
     fetchWorkers();
   }, [id]);
 
-  // Get worker's current location when journey starts
-  useEffect(() => {
-    if (journeyStarted && ticket?.status === "IN_PROGRESS") {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setWorkerLocation({
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            });
-          },
-          (error) => {
-            console.error("Error getting location:", error);
-            // Default to stored route start location if available
-            if (ticket.routeData?.startLocation) {
-              setWorkerLocation({
-                lat: ticket.routeData.startLocation.latitude,
-                lng: ticket.routeData.startLocation.longitude,
-              });
-            }
-          }
-        );
-      }
-    }
-  }, [journeyStarted, ticket?.status]);
-
-  // Check if ticket already has route data (journey already started)
-  useEffect(() => {
-    if (ticket?.routeData && ticket.status === "IN_PROGRESS") {
-      setJourneyStarted(true);
-      if (ticket.routeData.startLocation) {
-        setWorkerLocation({
-          lat: ticket.routeData.startLocation.latitude,
-          lng: ticket.routeData.startLocation.longitude,
-        });
-      }
-    }
-  }, [ticket]);
-
   async function fetchTicket() {
     try {
-      const res = await fetch(`/api/tickets/${id}`);
+      const res = await fetch(`/api/tickets?limit=100`);
       const data = await res.json();
 
       if (data.success) {
-        setTicket(data.ticket);
-      } else {
-        setError(data.error || "Ticket not found");
+        const found = data.tickets.find((t: any) => t.id === id);
+        if (found) {
+          setTicket(found);
+        } else {
+          setError("Ticket not found");
+        }
       }
     } catch (err) {
       setError("Failed to fetch ticket");
@@ -269,398 +213,355 @@ export default function TicketDetailPage() {
     }
   }
 
-  async function startJourney() {
-    if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser");
-      return;
-    }
-
-    if (!ticket) return;
-
-    setActionLoading(true);
-    setMessage("");
-    setError("");
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const startLat = position.coords.latitude;
-          const startLng = position.coords.longitude;
-          
-          setWorkerLocation({ lat: startLat, lng: startLng });
-
-          // Generate route using the routing API
-          const routeRes = await fetch(`/api/routes/generate`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              startLat: startLat,
-              startLon: startLng,
-              endLat: ticket.pothole.latitude,
-              endLon: ticket.pothole.longitude,
-            }),
-          });
-
-          const routeData = await routeRes.json();
-
-          if (!routeData.success) {
-            setError(routeData.error || "Failed to generate route");
-            setActionLoading(false);
-            return;
-          }
-
-          // Update ticket status to IN_PROGRESS and store route data
-          const statusRes = await fetch(`/api/tickets/${id}/status`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-              status: "IN_PROGRESS",
-              routeData: routeData.route,
-            }),
-          });
-
-          const statusData = await statusRes.json();
-
-          if (statusData.success) {
-            setJourneyStarted(true);
-            setMessage("Journey started! Route calculated.");
-            fetchTicket();
-          } else {
-            setError(statusData.error || "Failed to update status");
-          }
-        } catch (err) {
-          setError("Failed to start journey");
-        } finally {
-          setActionLoading(false);
-        }
-      },
-      (error) => {
-        setActionLoading(false);
-        setError(`Location error: ${error.message}`);
-      },
-      { enableHighAccuracy: true }
+  if (loading)
+    return (
+      <div className="min-h-screen bg-[#F8F6F1] flex items-center justify-center text-[#2E7D32] font-mono animate-pulse">
+        LOADING_OPERATION...
+      </div>
     );
-  }
-
-  if (loading) return <div className="p-8">Loading...</div>;
-  if (!ticket) return <div className="p-8 text-red-600">Ticket not found</div>;
+  if (!ticket)
+    return (
+      <div className="min-h-screen bg-[#F8F6F1] flex items-center justify-center text-[#D32F2F] font-mono">
+        OPERATION_NOT_FOUND
+      </div>
+    );
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <Link href="/tickets" className="text-blue-600 mb-4 inline-block">
-        ← Back to Tickets
-      </Link>
+    <div className="min-h-screen bg-[#F8F6F1] text-[#1E3A5F] p-8 font-sans">
+      <div className="max-w-6xl mx-auto">
+        <Link
+          href="/tickets"
+          className="text-[#1565C0] mb-8 inline-flex items-center gap-2 hover:text-[#2E7D32] transition font-mono text-sm uppercase tracking-wider"
+        >
+          ← Back to Tickets
+        </Link>
 
-      <h1 className="text-3xl font-bold mb-2">{ticket.ticketNumber}</h1>
-      <div className="mb-6">
-        <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded font-semibold">
-          {ticket.status}
-        </span>
-      </div>
-
-      {message && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          {message}
-        </div>
-      )}
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      <div className="bg-white border rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4">Pothole Details</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="mb-8 pb-6 border-b border-[#D4D1C8]">
+          <h1 className="text-4xl font-black italic uppercase tracking-tighter mb-3">
+            <span className="bg-gradient-to-r from-[#2E7D32] to-[#1565C0] text-transparent bg-clip-text">
+              Operation
+            </span>{" "}
+            {ticket.ticketNumber}
+          </h1>
           <div>
-            <label className="text-sm text-gray-500">Location</label>
-            <div>
-              {ticket.pothole.latitude.toFixed(6)},{" "}
-              {ticket.pothole.longitude.toFixed(6)}
-            </div>
-          </div>
-          <div>
-            <label className="text-sm text-gray-500">Road</label>
-            <div>{ticket.pothole.roadInfo?.roadName || "Unknown"}</div>
-          </div>
-          <div>
-            <label className="text-sm text-gray-500">Priority</label>
-            <div>
-              <span
-                className={`px-2 py-1 rounded text-sm ${
-                  ticket.pothole.priorityLevel === "CRITICAL"
-                    ? "bg-red-100 text-red-800"
-                    : ticket.pothole.priorityLevel === "HIGH"
-                      ? "bg-orange-100 text-orange-800"
-                      : ticket.pothole.priorityLevel === "MEDIUM"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-green-100 text-green-800"
-                }`}
-              >
-                {ticket.pothole.priorityLevel}
-              </span>
-              <span className="ml-2 font-bold">
-                {ticket.pothole.priorityScore}/100
-              </span>
-            </div>
+            <span
+              className={`px-4 py-2 rounded text-sm font-bold uppercase border tracking-wider ${
+                ticket.status === "RESOLVED"
+                  ? "bg-[#2E7D32]/10 text-[#2E7D32] border-[#2E7D32]"
+                  : ticket.status === "IN_PROGRESS"
+                    ? "bg-[#1565C0]/10 text-[#1565C0] border-[#1565C0]"
+                    : ticket.status === "AWAITING_VERIFICATION"
+                      ? "bg-[#F57C00]/10 text-[#F57C00] border-[#F57C00]"
+                      : "bg-[#5A6C7D]/10 text-[#5A6C7D] border-[#5A6C7D]"
+              }`}
+            >
+              {ticket.status.replace("_", " ")}
+            </span>
           </div>
         </div>
-      </div>
 
-      <div className="bg-white border rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4">Worker Assignment</h2>
-        {ticket.assignedWorker ? (
-          <div>
-            <div className="mb-2">
-              <label className="text-sm text-gray-500">Assigned Worker</label>
-              <div className="text-lg font-semibold">
-                {ticket.assignedWorker.name}
-              </div>
-              <div className="text-sm text-gray-600">
-                {ticket.assignedWorker.email}
-              </div>
-            </div>
-            {ticket.assignedAt && (
-              <div className="text-sm text-gray-500">
-                Assigned: {new Date(ticket.assignedAt).toLocaleString()}
-              </div>
-            )}
-            <Link
-              href={`/workers/${ticket.assignedWorker.id}`}
-              className="text-blue-600 hover:underline mt-2 inline-block"
-            >
-              View Worker Dashboard →
-            </Link>
-          </div>
-        ) : (
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Select Worker
-            </label>
-            <select
-              value={selectedWorker}
-              onChange={(e) => setSelectedWorker(e.target.value)}
-              className="border rounded px-3 py-2 mb-4 w-full"
-            >
-              <option value="">-- Select a worker --</option>
-              {workers.map((worker) => (
-                <option key={worker.id} value={worker.id}>
-                  {worker.name}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={assignWorker}
-              disabled={!selectedWorker || actionLoading}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
-            >
-              {actionLoading ? "Assigning..." : "Assign Worker"}
-            </button>
+        {message && (
+          <div className="bg-[#2E7D32]/10 border border-[#2E7D32] text-[#2E7D32] px-4 py-3 rounded-lg mb-6 font-mono text-sm shadow-lg">
+            {message}
           </div>
         )}
-      </div>
+        {error && (
+          <div className="bg-[#D32F2F]/10 border border-[#D32F2F] text-[#D32F2F] px-4 py-3 rounded-lg mb-6 font-mono text-sm shadow-lg">
+            {error}
+          </div>
+        )}
 
-      {/* Route Map Section - Shows when journey is started or route data exists */}
-      {(journeyStarted || ticket.routeData) && (
-        <div className="bg-white border rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            🗺️ Navigation Route
-            {ticket.status === "IN_PROGRESS" && (
-              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded animate-pulse">
-                LIVE
-              </span>
-            )}
+        <div className="bg-white border border-[#D4D1C8] rounded-xl p-6 mb-6 shadow-sm">
+          <h2 className="text-xl font-bold text-[#1E3A5F] mb-4 uppercase tracking-wide">
+            Pothole Details{" "}
+            {ticket.potholes.length > 1 &&
+              `(${ticket.potholes.length} locations)`}
           </h2>
-          
-          {/* Map */}
-          <div className="h-[400px] rounded-lg overflow-hidden border mb-4">
-            <TicketRouteMap
-              workerLocation={workerLocation}
-              potholeLocation={{
-                lat: ticket.pothole.latitude,
-                lng: ticket.pothole.longitude,
-              }}
-              priorityLevel={ticket.pothole.priorityLevel}
-              routePolyline={ticket.routeData?.polyline}
-              roadName={ticket.pothole.roadInfo?.roadName || undefined}
-              ticketNumber={ticket.ticketNumber}
-            />
-          </div>
-
-          {/* Route Stats */}
-          {ticket.routeData && (
-            <div className="grid grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg">
-              <div className="text-center">
-                <label className="text-sm text-gray-500 block">Distance</label>
-                <div className="text-xl font-bold text-blue-600">
-                  {(ticket.routeData.distance / 1000).toFixed(2)} km
-                </div>
-              </div>
-              <div className="text-center border-x">
-                <label className="text-sm text-gray-500 block">Est. Duration</label>
-                <div className="text-xl font-bold text-blue-600">
-                  {Math.round(ticket.routeData.duration / 60)} min
-                </div>
-              </div>
-              <div className="text-center">
-                <label className="text-sm text-gray-500 block">ETA</label>
-                <div className="text-xl font-bold text-green-600">
-                  {ticket.estimatedETA 
-                    ? new Date(ticket.estimatedETA).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                    : "Calculating..."}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Start Journey Button - Shows when assigned but journey not started */}
-      {ticket.assignedWorker && ticket.status === "ASSIGNED" && !journeyStarted && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-bold mb-2 text-blue-900">🚀 Ready to Start</h2>
-          <p className="text-blue-700 mb-4">
-            Worker {ticket.assignedWorker.name} is assigned. Click below to start the journey and get navigation directions.
-          </p>
-          <button
-            onClick={startJourney}
-            disabled={actionLoading}
-            className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-bold text-lg shadow-lg transition transform hover:scale-[1.02]"
-          >
-            {actionLoading ? "Getting Location..." : "🧭 Start Journey & Get Route"}
-          </button>
-        </div>
-      )}
-
-      {ticket.routeData && !journeyStarted && ticket.status !== "ASSIGNED" && (
-        <div className="bg-white border rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-bold mb-4">Route Information</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-gray-500">Distance</label>
-              <div>{(ticket.routeData.distance / 1000).toFixed(2)} km</div>
-            </div>
-            <div>
-              <label className="text-sm text-gray-500">Duration</label>
-              <div>{Math.round(ticket.routeData.duration / 60)} minutes</div>
-            </div>
-            {ticket.estimatedETA && (
-              <div>
-                <label className="text-sm text-gray-500">ETA</label>
-                <div>{new Date(ticket.estimatedETA).toLocaleString()}</div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {ticket.workProofs.length > 0 && (
-        <div className="bg-white border rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-bold mb-4">Work Proof</h2>
-          {ticket.workProofs.map((proof) => (
-            <div key={proof.id} className="mb-4 pb-4 border-b last:border-b-0">
-              <div className="grid grid-cols-2 gap-4 mb-2">
-                {proof.imageUrls.map((url, idx) => (
-                  <img
-                    key={idx}
-                    src={url}
-                    alt="Proof"
-                    className="rounded border"
-                  />
-                ))}
-              </div>
-              {proof.notes && (
-                <div className="mb-2">
-                  <label className="text-sm text-gray-500">Notes</label>
-                  <div>{proof.notes}</div>
+          {ticket.potholes.map((pothole, index) => (
+            <div
+              key={pothole.id}
+              className={`${index > 0 ? "mt-6 pt-6 border-t border-[#D4D1C8]" : ""}`}
+            >
+              {ticket.potholes.length > 1 && (
+                <div className="text-sm font-semibold text-[#5A6C7D] mb-3">
+                  Location {index + 1} of {ticket.potholes.length}
                 </div>
               )}
-              <div className="text-sm text-gray-500">
-                Submitted: {new Date(proof.submittedAt).toLocaleString()}
-              </div>
-              {proof.isApproved !== null && (
-                <div className="mt-2">
-                  <span
-                    className={`px-3 py-1 rounded text-sm ${
-                      proof.isApproved
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {proof.isApproved ? "Approved" : "Rejected"}
-                  </span>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-[#5A6C7D] uppercase font-bold">
+                    Coordinates
+                  </label>
+                  <div className="font-mono text-[#1E3A5F]">
+                    {pothole.latitude.toFixed(6)},{" "}
+                    {pothole.longitude.toFixed(6)}
+                  </div>
                 </div>
-              )}
+                <div>
+                  <label className="text-xs text-[#5A6C7D] uppercase font-bold">
+                    Road
+                  </label>
+                  <div className="font-semibold text-[#1E3A5F]">
+                    {pothole.roadInfo?.roadName || "Unknown"}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-[#5A6C7D] uppercase font-bold">
+                    Priority
+                  </label>
+                  <div>
+                    <span
+                      className={`px-3 py-1 rounded text-xs font-bold uppercase border ${
+                        pothole.priorityLevel === "CRITICAL"
+                          ? "bg-[#D32F2F]/10 text-[#D32F2F] border-[#D32F2F]/30"
+                          : pothole.priorityLevel === "HIGH"
+                            ? "bg-[#F57C00]/10 text-[#F57C00] border-[#F57C00]/30"
+                            : pothole.priorityLevel === "MEDIUM"
+                              ? "bg-[#FBC02D]/10 text-[#F57C00] border-[#FBC02D]/30"
+                              : "bg-[#2E7D32]/10 text-[#2E7D32] border-[#2E7D32]/30"
+                      }`}
+                    >
+                      {pothole.priorityLevel}
+                    </span>
+                    <span className="ml-2 font-bold text-[#1E3A5F]">
+                      {pothole.priorityScore}/100
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-[#5A6C7D] uppercase font-bold">
+                    Actions
+                  </label>
+                  <div>
+                    <Link
+                      href={`/potholes/${pothole.id}`}
+                      className="text-[#1565C0] hover:text-[#2E7D32] text-sm font-semibold transition"
+                    >
+                      View Details →
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
-      )}
 
-      <div className="bg-white border rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-4">Status Management</h2>
-        <div className="text-sm text-gray-600 mb-4">
-          Current: <span className="font-semibold">{ticket.status}</span>
+        <div className="bg-white border border-[#D4D1C8] rounded-xl p-6 mb-6 shadow-sm">
+          <h2 className="text-xl font-bold text-[#1E3A5F] mb-4 uppercase tracking-wide">
+            Worker Assignment
+          </h2>
+          {ticket.assignedWorker ? (
+            <div>
+              <div className="mb-2">
+                <label className="text-xs text-[#5A6C7D] uppercase font-bold">
+                  Assigned Worker
+                </label>
+                <div className="text-lg font-bold text-[#1E3A5F]">
+                  {ticket.assignedWorker.name}
+                </div>
+                <div className="text-sm text-[#5A6C7D]">
+                  {ticket.assignedWorker.email}
+                </div>
+              </div>
+              {ticket.assignedAt && (
+                <div className="text-sm text-[#5A6C7D] font-mono">
+                  Assigned: {new Date(ticket.assignedAt).toLocaleString()}
+                </div>
+              )}
+              <Link
+                href={`/workers/${ticket.assignedWorker.id}`}
+                className="text-[#1565C0] hover:text-[#2E7D32] font-semibold mt-2 inline-block transition"
+              >
+                View Worker Dashboard →
+              </Link>
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-bold text-[#5A6C7D] uppercase mb-2">
+                Select Worker
+              </label>
+              <select
+                value={selectedWorker}
+                onChange={(e) => setSelectedWorker(e.target.value)}
+                className="border border-[#D4D1C8] rounded-lg px-4 py-3 mb-4 w-full focus:outline-none focus:border-[#1565C0] focus:ring-2 focus:ring-[#1565C0]/20 transition"
+              >
+                <option value="">-- Select a worker --</option>
+                {workers.map((worker) => (
+                  <option key={worker.id} value={worker.id}>
+                    {worker.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={assignWorker}
+                disabled={!selectedWorker || actionLoading}
+                className="bg-[#1565C0] text-white px-6 py-3 rounded-lg hover:bg-[#1565C0]/90 disabled:bg-[#D4D1C8] disabled:text-[#5A6C7D] font-bold uppercase tracking-wider transition"
+              >
+                {actionLoading ? "Assigning..." : "Assign Worker"}
+              </button>
+            </div>
+          )}
         </div>
-        
-        {/* Admin Actions for AWAITING_VERIFICATION */}
-        {ticket.status === "AWAITING_VERIFICATION" && (
-          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h3 className="font-bold text-yellow-900 mb-3">🔍 Admin Review Required</h3>
-            <p className="text-sm text-yellow-800 mb-4">
-              The worker has submitted proof of completion. Please review and approve or reject.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={markAsResolved}
-                disabled={actionLoading}
-                className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-bold text-lg shadow-lg transition transform hover:scale-105"
-              >
-                {actionLoading ? "Processing..." : "✅ Mark as Resolved"}
-              </button>
-              <button
-                onClick={rejectProof}
-                disabled={actionLoading}
-                className="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 disabled:bg-gray-400 font-bold text-lg shadow-lg transition transform hover:scale-105"
-              >
-                {actionLoading ? "Processing..." : "❌ Reject Proof"}
-              </button>
+
+        {ticket.routeData && (
+          <div className="bg-white border border-[#D4D1C8] rounded-xl p-6 mb-6 shadow-sm">
+            <h2 className="text-xl font-bold text-[#1E3A5F] mb-4 uppercase tracking-wide">
+              Route Information
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs text-[#5A6C7D] uppercase font-bold">
+                  Distance
+                </label>
+                <div className="text-[#1E3A5F] font-semibold">
+                  {(ticket.routeData.distance / 1000).toFixed(2)} km
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-[#5A6C7D] uppercase font-bold">
+                  Duration
+                </label>
+                <div className="text-[#1E3A5F] font-semibold">
+                  {Math.round(ticket.routeData.duration / 60)} minutes
+                </div>
+              </div>
+              {ticket.estimatedETA && (
+                <div>
+                  <label className="text-xs text-[#5A6C7D] uppercase font-bold">
+                    ETA
+                  </label>
+                  <div className="text-[#1E3A5F] font-semibold">
+                    {new Date(ticket.estimatedETA).toLocaleString()}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* Status indicator for RESOLVED */}
-        {ticket.status === "RESOLVED" && (
-          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-center gap-2 text-green-800">
-              <span className="text-2xl">✅</span>
-              <span className="font-bold">Ticket Resolved</span>
-            </div>
-            <p className="text-sm text-green-700 mt-2">
-              This ticket has been completed and approved.
-            </p>
+        {ticket.workProofs.length > 0 && (
+          <div className="bg-white border border-[#D4D1C8] rounded-xl p-6 mb-6 shadow-sm">
+            <h2 className="text-xl font-bold text-[#1E3A5F] mb-4 uppercase tracking-wide">
+              Work Proof
+            </h2>
+            {ticket.workProofs.map((proof) => (
+              <div
+                key={proof.id}
+                className="mb-4 pb-4 border-b border-[#D4D1C8] last:border-b-0"
+              >
+                <div className="grid grid-cols-2 gap-4 mb-2">
+                  {proof.imageUrls.map((url, idx) => (
+                    <img
+                      key={idx}
+                      src={url}
+                      alt="Proof"
+                      className="rounded border border-[#D4D1C8]"
+                    />
+                  ))}
+                </div>
+                {proof.notes && (
+                  <div className="mb-2">
+                    <label className="text-xs text-[#5A6C7D] uppercase font-bold">
+                      Notes
+                    </label>
+                    <div className="text-[#1E3A5F]">{proof.notes}</div>
+                  </div>
+                )}
+                <div className="text-sm text-[#5A6C7D] font-mono">
+                  Submitted: {new Date(proof.submittedAt).toLocaleString()}
+                </div>
+                {proof.isApproved !== null && (
+                  <div className="mt-2">
+                    <span
+                      className={`px-3 py-1 rounded text-sm font-bold uppercase border ${
+                        proof.isApproved
+                          ? "bg-[#2E7D32]/10 text-[#2E7D32] border-[#2E7D32]"
+                          : "bg-[#D32F2F]/10 text-[#D32F2F] border-[#D32F2F]"
+                      }`}
+                    >
+                      {proof.isApproved ? "Approved" : "Rejected"}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
 
-        {/* Other status transitions */}
-        <div className="flex flex-wrap gap-2">
-          {ticket.status === "DETECTED" && (
-            <button
-              onClick={() => updateStatus("RANKED")}
-              disabled={actionLoading}
-              className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 disabled:bg-gray-400"
-            >
-              Mark as Ranked
-            </button>
+        <div className="bg-white border border-[#D4D1C8] rounded-xl p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-[#1E3A5F] mb-4 uppercase tracking-wide">
+            Status Management
+          </h2>
+          <div className="text-sm text-[#5A6C7D] mb-4">
+            Current:{" "}
+            <span className="font-bold text-[#1E3A5F]">{ticket.status}</span>
+          </div>
+
+          {/* Admin Actions for AWAITING_VERIFICATION */}
+          {ticket.status === "AWAITING_VERIFICATION" && (
+            <div className="mb-4 p-6 bg-[#FBC02D]/10 border-2 border-[#F57C00] rounded-xl">
+              <h3 className="font-black text-[#F57C00] mb-3 text-lg uppercase tracking-wide">
+                🔍 Admin Review Required
+              </h3>
+              <p className="text-sm text-[#F57C00] mb-4">
+                The worker has submitted proof of completion. Please review and
+                approve or reject.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={markAsResolved}
+                  disabled={actionLoading}
+                  className="flex-1 bg-[#2E7D32] text-white px-6 py-3 rounded-lg hover:bg-[#2E7D32]/90 disabled:bg-[#D4D1C8] disabled:text-[#5A6C7D] font-bold text-lg shadow-lg transition transform hover:scale-105 uppercase tracking-wider"
+                >
+                  {actionLoading ? "Processing..." : "✅ Mark as Resolved"}
+                </button>
+                <button
+                  onClick={rejectProof}
+                  disabled={actionLoading}
+                  className="flex-1 bg-[#D32F2F] text-white px-6 py-3 rounded-lg hover:bg-[#D32F2F]/90 disabled:bg-[#D4D1C8] disabled:text-[#5A6C7D] font-bold text-lg shadow-lg transition transform hover:scale-105 uppercase tracking-wider"
+                >
+                  {actionLoading ? "Processing..." : "❌ Reject Proof"}
+                </button>
+              </div>
+            </div>
           )}
-          {ticket.status === "REJECTED" && (
-            <button
-              onClick={() => updateStatus("RANKED")}
-              disabled={actionLoading}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
-            >
-              Re-rank
-            </button>
+
+          {/* Status indicator for RESOLVED */}
+          {ticket.status === "RESOLVED" && (
+            <div className="p-6 bg-[#2E7D32]/10 border-2 border-[#2E7D32] rounded-xl">
+              <div className="flex items-center gap-2 text-[#2E7D32]">
+                <span className="text-2xl">✅</span>
+                <span className="font-black uppercase tracking-wide">
+                  Ticket Resolved
+                </span>
+              </div>
+              <p className="text-sm text-[#2E7D32] mt-2">
+                This ticket has been completed and approved.
+              </p>
+            </div>
           )}
+
+          {/* Other status transitions */}
+          <div className="flex flex-wrap gap-2">
+            {ticket.status === "DETECTED" && (
+              <button
+                onClick={() => updateStatus("RANKED")}
+                disabled={actionLoading}
+                className="bg-[#7C4DFF] text-white px-6 py-3 rounded-lg hover:bg-[#7C4DFF]/90 disabled:bg-[#D4D1C8] disabled:text-[#5A6C7D] font-bold uppercase tracking-wider transition"
+              >
+                Mark as Ranked
+              </button>
+            )}
+            {ticket.status === "REJECTED" && (
+              <button
+                onClick={() => updateStatus("RANKED")}
+                disabled={actionLoading}
+                className="bg-[#1565C0] text-white px-6 py-3 rounded-lg hover:bg-[#1565C0]/90 disabled:bg-[#D4D1C8] disabled:text-[#5A6C7D] font-bold uppercase tracking-wider transition"
+              >
+                Re-rank
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

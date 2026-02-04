@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         notes: body.notes,
       },
       include: {
-        pothole: {
+        potholes: {
           include: {
             detection: true,
             roadInfo: true,
@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
       prisma.ticket.findMany({
         where,
         include: {
-          pothole: {
+          potholes: {
             include: {
               detection: true,
               roadInfo: true,
@@ -159,7 +159,6 @@ export async function GET(request: NextRequest) {
           },
         },
         orderBy: [
-          { pothole: { priorityScore: 'desc' } },
           { createdAt: 'desc' },
         ],
         take: limit,

@@ -20,6 +20,7 @@ import torch
 import logging
 import sys
 import traceback
+from transformers import AutoImageProcessor, SiglipForImageClassification
 
 # Configure comprehensive logging
 logging.basicConfig(
@@ -114,6 +115,23 @@ except Exception as e:
     logger.error(f"   Full traceback: {traceback.format_exc()}")
     raise
 
+# -------------------------
+# AI Image Detection Model
+# -------------------------
+AI_DETECTOR_MODEL_ID = "Ateeqq/ai-vs-human-image-detector"
+
+try:
+    logger.info("📥 Loading AI image detector model...")
+    ai_processor = AutoImageProcessor.from_pretrained(AI_DETECTOR_MODEL_ID)
+    ai_detector_model = SiglipForImageClassification.from_pretrained(AI_DETECTOR_MODEL_ID)
+    ai_detector_model.to(DEVICE)
+    ai_detector_model.eval()
+    logger.info(f"✅ AI detector model loaded successfully on device: {DEVICE}")
+except Exception as e:
+    logger.error(f"❌ Failed to load AI detector model: {e}")
+    logger.error(f"   Full traceback: {traceback.format_exc()}")
+    raise
+
 
 # -------------------------
 # API Models
@@ -135,6 +153,17 @@ class DetectionResponse(BaseModel):
     bbox: BBox | None = None
     annotatedImageUrl: str | None = None
     detectedClass: str = "pothole"
+
+
+class AIDetectionRequest(BaseModel):
+    imageUrl: str
+
+
+class AIDetectionResponse(BaseModel):
+    isAI: bool
+    label: str  # 'ai' or 'hum'
+    confidence: float
+    message: str
 
 
 # -------------------------
@@ -299,6 +328,88 @@ async def detect_pothole(request: DetectionRequest):
 @app.get("/health")
 def health():
     return {"status": "healthy", "model_loaded": model is not None}
+
+
+@app.post("/detect-ai-image", response_model=AIDetectionResponse)
+async def detect_ai_image(request: AIDetectionRequest):
+    """
+    Detect if an uploaded image is AI-generated or human-created
+    Returns: isAI (bool), label ('ai' or 'hum'), confidence score
+    """
+    logger.info(f"🤖 Starting AI detection for image: {request.imageUrl}")
+    
+    try:
+        # 1. Download image
+        logger.debug("📥 Downloading image for AI detection...")
+        try:
+            response = requests.get(request.imageUrl, timeout=15)
+            response.raise_for_status()
+            logger.info(f"✅ Image downloaded. Size: {len(response.content)} bytes")
+        except Exception as e:
+            logger.error(f"❌ Image download failed: {e}")
+            raise HTTPException(400, f"Image download failed: {str(e)}")
+
+        # 2. Load image
+        logger.debug("🖼️ Loading image...")
+        try:
+            image = Image.open(io.BytesIO(response.content)).convert("RGB")
+            logger.info(f"✅ Image loaded. Size: {image.size}")
+        except Exception as e:
+            logger.error(f"❌ Image loading failed: {e}")
+            raise HTTPException(400, f"Image processing failed: {str(e)}")
+
+        # 3. Preprocess image
+        logger.debug("⚙️ Preprocessing image...")
+        try:
+            inputs = ai_processor(images=image, return_tensors="pt").to(DEVICE)
+            logger.debug("✅ Image preprocessed")
+        except Exception as e:
+            logger.error(f"❌ Image preprocessing failed: {e}")
+            raise HTTPException(500, f"Preprocessing failed: {str(e)}")
+
+        # 4. Run inference
+        logger.debug("🔍 Running AI detection inference...")
+        try:
+            with torch.no_grad():
+                outputs = ai_detector_model(**inputs)
+                logits = outputs.logits
+            
+            # Get prediction
+            predicted_class_idx = logits.argmax(-1).item()
+            predicted_label = ai_detector_model.config.id2label[predicted_class_idx]
+            
+            # Get confidence
+            probabilities = torch.softmax(logits, dim=-1)
+            confidence = probabilities[0, predicted_class_idx].item()
+            
+            is_ai = predicted_label.lower() == "ai"
+            
+            logger.info(f"✅ AI Detection Result: {predicted_label} (confidence: {confidence:.4f})")
+            
+            # Determine message
+            if is_ai:
+                message = "AI-generated image detected. Please upload a real photo."
+            else:
+                message = "Image verification passed. This appears to be a real photo."
+            
+            return AIDetectionResponse(
+                isAI=is_ai,
+                label=predicted_label,
+                confidence=confidence,
+                message=message
+            )
+            
+        except Exception as e:
+            logger.error(f"❌ AI detection inference failed: {e}")
+            logger.error(f"   Full traceback: {traceback.format_exc()}")
+            raise HTTPException(500, f"AI detection failed: {str(e)}")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"💥 Unexpected error in detect_ai_image: {e}")
+        logger.error(f"   Full traceback: {traceback.format_exc()}")
+        raise HTTPException(500, f"AI detection failed: {str(e)}")
 
 
 # -------------------------

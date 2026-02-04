@@ -45,27 +45,69 @@ export async function POST(req: Request) {
 
     // Convert file to base64 for Cloudinary upload
     const buffer = Buffer.from(await file.arrayBuffer());
-    const base64Data = `data:${file.type};base64,${buffer.toString('base64')}`;
+    const base64Data = `data:${file.type};base64,${buffer.toString("base64")}`;
 
     // Generate unique public_id for Cloudinary
     const timestamp = Date.now();
-    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_').replace(/\.[^/.]+$/, '');
-    const publicId = `work-proof/${type || 'proof'}_${timestamp}_${sanitizedName}`;
+    const sanitizedName = file.name
+      .replace(/[^a-zA-Z0-9.-]/g, "_")
+      .replace(/\.[^/.]+$/, "");
+    const publicId = `work-proof/${type || "proof"}_${timestamp}_${sanitizedName}`;
 
     // Upload to Cloudinary
-    console.log('📤 Uploading to Cloudinary...');
+    console.log("📤 Uploading to Cloudinary...");
     const uploadResult = await cloudinary.uploader.upload(base64Data, {
       public_id: publicId,
       folder: "pothole-system/work-proofs",
       resource_type: "image",
-      transformation: [
-        { quality: "auto" },
-        { fetch_format: "auto" }
-      ],
-      tags: ["work-proof", type || "proof"]
+      transformation: [{ quality: "auto" }, { fetch_format: "auto" }],
+      tags: ["work-proof", type || "proof"],
     });
 
     console.log(`✅ Uploaded proof to Cloudinary: ${uploadResult.public_id}`);
+
+    // Check if image is AI-generated
+    console.log("🤖 Checking for AI-generated content...");
+    try {
+      const aiDetectionRes = await fetch(
+        "http://127.0.0.1:8000/detect-ai-image",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageUrl: uploadResult.secure_url }),
+        },
+      );
+
+      if (aiDetectionRes.ok) {
+        const aiResult = await aiDetectionRes.json();
+        console.log(
+          `🔍 AI Detection: ${aiResult.label} (confidence: ${aiResult.confidence})`,
+        );
+
+        if (aiResult.isAI) {
+          // Delete the uploaded image from Cloudinary
+          await cloudinary.uploader.destroy(uploadResult.public_id);
+          console.log("🗑️ AI-generated image deleted from Cloudinary");
+
+          return NextResponse.json(
+            {
+              success: false,
+              error: "AI_GENERATED_IMAGE",
+              message: aiResult.message,
+              isAI: true,
+              confidence: aiResult.confidence,
+            },
+            { status: 400 },
+          );
+        }
+      }
+    } catch (aiError) {
+      console.error(
+        "⚠️ AI detection failed (proceeding with upload):",
+        aiError,
+      );
+      // Continue with upload even if AI detection fails
+    }
 
     return NextResponse.json({
       success: true,
@@ -79,7 +121,6 @@ export async function POST(req: Request) {
       width: uploadResult.width,
       height: uploadResult.height,
     });
-
   } catch (error) {
     console.error("Cloudinary upload error:", error);
     return NextResponse.json(

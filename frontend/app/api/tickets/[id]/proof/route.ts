@@ -6,9 +6,9 @@
  * - Updates ticket status to AWAITING_VERIFICATION
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { validateTransition } from '@/lib/services/ticket-lifecycle.service';
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { validateTransition } from "@/lib/services/ticket-lifecycle.service";
 
 interface RouteParams {
   params: Promise<{
@@ -23,10 +23,7 @@ interface ProofUploadRequest {
   longitude?: number;
 }
 
-export async function POST(
-  request: NextRequest,
-  context: RouteParams
-) {
+export async function POST(request: NextRequest, context: RouteParams) {
   try {
     const { id } = await context.params; // ✅ CRITICAL: Await params
     const body: ProofUploadRequest = await request.json();
@@ -34,34 +31,27 @@ export async function POST(
     // Validate required fields
     if (!body.imageUrls || body.imageUrls.length === 0) {
       return NextResponse.json(
-        { error: 'At least one image URL is required' },
-        { status: 400 }
+        { error: "At least one image URL is required" },
+        { status: 400 },
       );
     }
 
     // Fetch ticket
     const ticket = await prisma.ticket.findUnique({
-      where: { id },
-      include: {
-        pothole: true,
-        assignedWorker: true,
-      },
+      where: { id: id },
     });
 
     if (!ticket) {
-      return NextResponse.json(
-        { error: 'Ticket not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
     }
 
     // Verify ticket is in progress
-    if (ticket.status !== 'IN_PROGRESS') {
+    if (ticket.status !== "IN_PROGRESS") {
       return NextResponse.json(
         {
           error: `Cannot upload proof. Ticket must be IN_PROGRESS. Current status: ${ticket.status}`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -79,25 +69,22 @@ export async function POST(
     // Validate transition to AWAITING_VERIFICATION
     const validation = validateTransition(
       ticket.status as any,
-      'AWAITING_VERIFICATION'
+      "AWAITING_VERIFICATION",
     );
 
     if (!validation.isValid) {
-      return NextResponse.json(
-        { error: validation.reason },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: validation.reason }, { status: 400 });
     }
 
     // Update ticket status
     const updatedTicket = await prisma.ticket.update({
       where: { id },
       data: {
-        status: 'AWAITING_VERIFICATION',
+        status: "AWAITING_VERIFICATION",
         completedAt: new Date(),
       },
       include: {
-        pothole: {
+        potholes: {
           include: {
             detection: true,
             roadInfo: true,
@@ -113,9 +100,9 @@ export async function POST(
       data: {
         ticketId: id,
         fromStatus: ticket.status as any,
-        toStatus: 'AWAITING_VERIFICATION',
+        toStatus: "AWAITING_VERIFICATION",
         changedBy: ticket.assignedWorkerId || undefined,
-        reason: 'Work proof uploaded by worker',
+        reason: "Work proof uploaded by worker",
       },
     });
 
@@ -123,13 +110,14 @@ export async function POST(
       success: true,
       ticket: updatedTicket,
       workProof,
-      message: 'Proof uploaded successfully. Ticket awaiting admin verification.',
+      message:
+        "Proof uploaded successfully. Ticket awaiting admin verification.",
     });
   } catch (error) {
-    console.error('Error uploading proof:', error);
+    console.error("Error uploading proof:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
-      { status: 500 }
+      { error: "Internal server error", details: String(error) },
+      { status: 500 },
     );
   }
 }
@@ -138,16 +126,13 @@ export async function POST(
  * GET /api/tickets/[id]/proof
  * Get all proof submissions for a ticket
  */
-export async function GET(
-  request: NextRequest,
-  context: RouteParams
-) {
+export async function GET(request: NextRequest, context: RouteParams) {
   try {
     const { id } = await context.params;
 
     const proofs = await prisma.workProof.findMany({
       where: { ticketId: id },
-      orderBy: { submittedAt: 'desc' },
+      orderBy: { submittedAt: "desc" },
     });
 
     return NextResponse.json({
@@ -155,10 +140,10 @@ export async function GET(
       proofs,
     });
   } catch (error) {
-    console.error('Error fetching proofs:', error);
+    console.error("Error fetching proofs:", error);
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
-      { status: 500 }
+      { error: "Internal server error", details: String(error) },
+      { status: 500 },
     );
   }
 }

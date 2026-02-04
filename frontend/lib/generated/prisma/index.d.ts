@@ -89,6 +89,16 @@ export type SensorTelemetry = $Result.DefaultSelection<Prisma.$SensorTelemetryPa
  */
 export type UtilityAnomaly = $Result.DefaultSelection<Prisma.$UtilityAnomalyPayload>
 /**
+ * Model MLAnomalyDetection
+ * 
+ */
+export type MLAnomalyDetection = $Result.DefaultSelection<Prisma.$MLAnomalyDetectionPayload>
+/**
+ * Model MLFailurePrediction
+ * 
+ */
+export type MLFailurePrediction = $Result.DefaultSelection<Prisma.$MLFailurePredictionPayload>
+/**
  * Model FailureEvent
  * 
  */
@@ -549,6 +559,26 @@ export class PrismaClient<
     * ```
     */
   get utilityAnomaly(): Prisma.UtilityAnomalyDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.mLAnomalyDetection`: Exposes CRUD operations for the **MLAnomalyDetection** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MLAnomalyDetections
+    * const mLAnomalyDetections = await prisma.mLAnomalyDetection.findMany()
+    * ```
+    */
+  get mLAnomalyDetection(): Prisma.MLAnomalyDetectionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.mLFailurePrediction`: Exposes CRUD operations for the **MLFailurePrediction** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MLFailurePredictions
+    * const mLFailurePredictions = await prisma.mLFailurePrediction.findMany()
+    * ```
+    */
+  get mLFailurePrediction(): Prisma.MLFailurePredictionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.failureEvent`: Exposes CRUD operations for the **FailureEvent** model.
@@ -1028,6 +1058,8 @@ export namespace Prisma {
     IoTSensor: 'IoTSensor',
     SensorTelemetry: 'SensorTelemetry',
     UtilityAnomaly: 'UtilityAnomaly',
+    MLAnomalyDetection: 'MLAnomalyDetection',
+    MLFailurePrediction: 'MLFailurePrediction',
     FailureEvent: 'FailureEvent',
     PredictiveForecast: 'PredictiveForecast',
     MaintenanceLog: 'MaintenanceLog'
@@ -1046,7 +1078,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "report" | "media" | "detection" | "pothole" | "roadInfo" | "ticket" | "ticketStatusHistory" | "worker" | "workerLocation" | "workProof" | "structure" | "ioTSensor" | "sensorTelemetry" | "utilityAnomaly" | "failureEvent" | "predictiveForecast" | "maintenanceLog"
+      modelProps: "user" | "report" | "media" | "detection" | "pothole" | "roadInfo" | "ticket" | "ticketStatusHistory" | "worker" | "workerLocation" | "workProof" | "structure" | "ioTSensor" | "sensorTelemetry" | "utilityAnomaly" | "mLAnomalyDetection" | "mLFailurePrediction" | "failureEvent" | "predictiveForecast" | "maintenanceLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2160,6 +2192,154 @@ export namespace Prisma {
           }
         }
       }
+      MLAnomalyDetection: {
+        payload: Prisma.$MLAnomalyDetectionPayload<ExtArgs>
+        fields: Prisma.MLAnomalyDetectionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MLAnomalyDetectionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLAnomalyDetectionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MLAnomalyDetectionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLAnomalyDetectionPayload>
+          }
+          findFirst: {
+            args: Prisma.MLAnomalyDetectionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLAnomalyDetectionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MLAnomalyDetectionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLAnomalyDetectionPayload>
+          }
+          findMany: {
+            args: Prisma.MLAnomalyDetectionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLAnomalyDetectionPayload>[]
+          }
+          create: {
+            args: Prisma.MLAnomalyDetectionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLAnomalyDetectionPayload>
+          }
+          createMany: {
+            args: Prisma.MLAnomalyDetectionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MLAnomalyDetectionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLAnomalyDetectionPayload>[]
+          }
+          delete: {
+            args: Prisma.MLAnomalyDetectionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLAnomalyDetectionPayload>
+          }
+          update: {
+            args: Prisma.MLAnomalyDetectionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLAnomalyDetectionPayload>
+          }
+          deleteMany: {
+            args: Prisma.MLAnomalyDetectionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MLAnomalyDetectionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MLAnomalyDetectionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLAnomalyDetectionPayload>[]
+          }
+          upsert: {
+            args: Prisma.MLAnomalyDetectionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLAnomalyDetectionPayload>
+          }
+          aggregate: {
+            args: Prisma.MLAnomalyDetectionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMLAnomalyDetection>
+          }
+          groupBy: {
+            args: Prisma.MLAnomalyDetectionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MLAnomalyDetectionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MLAnomalyDetectionCountArgs<ExtArgs>
+            result: $Utils.Optional<MLAnomalyDetectionCountAggregateOutputType> | number
+          }
+        }
+      }
+      MLFailurePrediction: {
+        payload: Prisma.$MLFailurePredictionPayload<ExtArgs>
+        fields: Prisma.MLFailurePredictionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MLFailurePredictionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLFailurePredictionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MLFailurePredictionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLFailurePredictionPayload>
+          }
+          findFirst: {
+            args: Prisma.MLFailurePredictionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLFailurePredictionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MLFailurePredictionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLFailurePredictionPayload>
+          }
+          findMany: {
+            args: Prisma.MLFailurePredictionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLFailurePredictionPayload>[]
+          }
+          create: {
+            args: Prisma.MLFailurePredictionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLFailurePredictionPayload>
+          }
+          createMany: {
+            args: Prisma.MLFailurePredictionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MLFailurePredictionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLFailurePredictionPayload>[]
+          }
+          delete: {
+            args: Prisma.MLFailurePredictionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLFailurePredictionPayload>
+          }
+          update: {
+            args: Prisma.MLFailurePredictionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLFailurePredictionPayload>
+          }
+          deleteMany: {
+            args: Prisma.MLFailurePredictionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MLFailurePredictionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MLFailurePredictionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLFailurePredictionPayload>[]
+          }
+          upsert: {
+            args: Prisma.MLFailurePredictionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MLFailurePredictionPayload>
+          }
+          aggregate: {
+            args: Prisma.MLFailurePredictionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMLFailurePrediction>
+          }
+          groupBy: {
+            args: Prisma.MLFailurePredictionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MLFailurePredictionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MLFailurePredictionCountArgs<ExtArgs>
+            result: $Utils.Optional<MLFailurePredictionCountAggregateOutputType> | number
+          }
+        }
+      }
       FailureEvent: {
         payload: Prisma.$FailureEventPayload<ExtArgs>
         fields: Prisma.FailureEventFieldRefs
@@ -2505,6 +2685,8 @@ export namespace Prisma {
     ioTSensor?: IoTSensorOmit
     sensorTelemetry?: SensorTelemetryOmit
     utilityAnomaly?: UtilityAnomalyOmit
+    mLAnomalyDetection?: MLAnomalyDetectionOmit
+    mLFailurePrediction?: MLFailurePredictionOmit
     failureEvent?: FailureEventOmit
     predictiveForecast?: PredictiveForecastOmit
     maintenanceLog?: MaintenanceLogOmit
@@ -2774,6 +2956,7 @@ export namespace Prisma {
     maintenanceLogs: number
     failureEvents: number
     forecasts: number
+    mlPredictions: number
   }
 
   export type StructureCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2781,6 +2964,7 @@ export namespace Prisma {
     maintenanceLogs?: boolean | StructureCountOutputTypeCountMaintenanceLogsArgs
     failureEvents?: boolean | StructureCountOutputTypeCountFailureEventsArgs
     forecasts?: boolean | StructureCountOutputTypeCountForecastsArgs
+    mlPredictions?: boolean | StructureCountOutputTypeCountMlPredictionsArgs
   }
 
   // Custom InputTypes
@@ -2822,6 +3006,13 @@ export namespace Prisma {
     where?: PredictiveForecastWhereInput
   }
 
+  /**
+   * StructureCountOutputType without action
+   */
+  export type StructureCountOutputTypeCountMlPredictionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MLFailurePredictionWhereInput
+  }
+
 
   /**
    * Count Type IoTSensorCountOutputType
@@ -2830,11 +3021,13 @@ export namespace Prisma {
   export type IoTSensorCountOutputType = {
     telemetry: number
     anomalies: number
+    mlAnomalies: number
   }
 
   export type IoTSensorCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     telemetry?: boolean | IoTSensorCountOutputTypeCountTelemetryArgs
     anomalies?: boolean | IoTSensorCountOutputTypeCountAnomaliesArgs
+    mlAnomalies?: boolean | IoTSensorCountOutputTypeCountMlAnomaliesArgs
   }
 
   // Custom InputTypes
@@ -2860,6 +3053,44 @@ export namespace Prisma {
    */
   export type IoTSensorCountOutputTypeCountAnomaliesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UtilityAnomalyWhereInput
+  }
+
+  /**
+   * IoTSensorCountOutputType without action
+   */
+  export type IoTSensorCountOutputTypeCountMlAnomaliesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MLAnomalyDetectionWhereInput
+  }
+
+
+  /**
+   * Count Type SensorTelemetryCountOutputType
+   */
+
+  export type SensorTelemetryCountOutputType = {
+    mlAnomalies: number
+  }
+
+  export type SensorTelemetryCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    mlAnomalies?: boolean | SensorTelemetryCountOutputTypeCountMlAnomaliesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * SensorTelemetryCountOutputType without action
+   */
+  export type SensorTelemetryCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SensorTelemetryCountOutputType
+     */
+    select?: SensorTelemetryCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * SensorTelemetryCountOutputType without action
+   */
+  export type SensorTelemetryCountOutputTypeCountMlAnomaliesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MLAnomalyDetectionWhereInput
   }
 
 
@@ -16045,6 +16276,7 @@ export namespace Prisma {
     maintenanceLogs?: boolean | Structure$maintenanceLogsArgs<ExtArgs>
     failureEvents?: boolean | Structure$failureEventsArgs<ExtArgs>
     forecasts?: boolean | Structure$forecastsArgs<ExtArgs>
+    mlPredictions?: boolean | Structure$mlPredictionsArgs<ExtArgs>
     _count?: boolean | StructureCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["structure"]>
 
@@ -16099,6 +16331,7 @@ export namespace Prisma {
     maintenanceLogs?: boolean | Structure$maintenanceLogsArgs<ExtArgs>
     failureEvents?: boolean | Structure$failureEventsArgs<ExtArgs>
     forecasts?: boolean | Structure$forecastsArgs<ExtArgs>
+    mlPredictions?: boolean | Structure$mlPredictionsArgs<ExtArgs>
     _count?: boolean | StructureCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StructureIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -16111,6 +16344,7 @@ export namespace Prisma {
       maintenanceLogs: Prisma.$MaintenanceLogPayload<ExtArgs>[]
       failureEvents: Prisma.$FailureEventPayload<ExtArgs>[]
       forecasts: Prisma.$PredictiveForecastPayload<ExtArgs>[]
+      mlPredictions: Prisma.$MLFailurePredictionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -16523,6 +16757,7 @@ export namespace Prisma {
     maintenanceLogs<T extends Structure$maintenanceLogsArgs<ExtArgs> = {}>(args?: Subset<T, Structure$maintenanceLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MaintenanceLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     failureEvents<T extends Structure$failureEventsArgs<ExtArgs> = {}>(args?: Subset<T, Structure$failureEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FailureEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     forecasts<T extends Structure$forecastsArgs<ExtArgs> = {}>(args?: Subset<T, Structure$forecastsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PredictiveForecastPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    mlPredictions<T extends Structure$mlPredictionsArgs<ExtArgs> = {}>(args?: Subset<T, Structure$mlPredictionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MLFailurePredictionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -17048,6 +17283,30 @@ export namespace Prisma {
   }
 
   /**
+   * Structure.mlPredictions
+   */
+  export type Structure$mlPredictionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLFailurePrediction
+     */
+    select?: MLFailurePredictionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLFailurePrediction
+     */
+    omit?: MLFailurePredictionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLFailurePredictionInclude<ExtArgs> | null
+    where?: MLFailurePredictionWhereInput
+    orderBy?: MLFailurePredictionOrderByWithRelationInput | MLFailurePredictionOrderByWithRelationInput[]
+    cursor?: MLFailurePredictionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MLFailurePredictionScalarFieldEnum | MLFailurePredictionScalarFieldEnum[]
+  }
+
+  /**
    * Structure without action
    */
   export type StructureDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -17327,6 +17586,7 @@ export namespace Prisma {
     structure?: boolean | StructureDefaultArgs<ExtArgs>
     telemetry?: boolean | IoTSensor$telemetryArgs<ExtArgs>
     anomalies?: boolean | IoTSensor$anomaliesArgs<ExtArgs>
+    mlAnomalies?: boolean | IoTSensor$mlAnomaliesArgs<ExtArgs>
     _count?: boolean | IoTSensorCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["ioTSensor"]>
 
@@ -17382,6 +17642,7 @@ export namespace Prisma {
     structure?: boolean | StructureDefaultArgs<ExtArgs>
     telemetry?: boolean | IoTSensor$telemetryArgs<ExtArgs>
     anomalies?: boolean | IoTSensor$anomaliesArgs<ExtArgs>
+    mlAnomalies?: boolean | IoTSensor$mlAnomaliesArgs<ExtArgs>
     _count?: boolean | IoTSensorCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type IoTSensorIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -17397,6 +17658,7 @@ export namespace Prisma {
       structure: Prisma.$StructurePayload<ExtArgs>
       telemetry: Prisma.$SensorTelemetryPayload<ExtArgs>[]
       anomalies: Prisma.$UtilityAnomalyPayload<ExtArgs>[]
+      mlAnomalies: Prisma.$MLAnomalyDetectionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -17808,6 +18070,7 @@ export namespace Prisma {
     structure<T extends StructureDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StructureDefaultArgs<ExtArgs>>): Prisma__StructureClient<$Result.GetResult<Prisma.$StructurePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     telemetry<T extends IoTSensor$telemetryArgs<ExtArgs> = {}>(args?: Subset<T, IoTSensor$telemetryArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SensorTelemetryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     anomalies<T extends IoTSensor$anomaliesArgs<ExtArgs> = {}>(args?: Subset<T, IoTSensor$anomaliesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UtilityAnomalyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    mlAnomalies<T extends IoTSensor$mlAnomaliesArgs<ExtArgs> = {}>(args?: Subset<T, IoTSensor$mlAnomaliesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MLAnomalyDetectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -18293,6 +18556,30 @@ export namespace Prisma {
   }
 
   /**
+   * IoTSensor.mlAnomalies
+   */
+  export type IoTSensor$mlAnomaliesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionInclude<ExtArgs> | null
+    where?: MLAnomalyDetectionWhereInput
+    orderBy?: MLAnomalyDetectionOrderByWithRelationInput | MLAnomalyDetectionOrderByWithRelationInput[]
+    cursor?: MLAnomalyDetectionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MLAnomalyDetectionScalarFieldEnum | MLAnomalyDetectionScalarFieldEnum[]
+  }
+
+  /**
    * IoTSensor without action
    */
   export type IoTSensorDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -18530,6 +18817,8 @@ export namespace Prisma {
     rawPayload?: boolean
     createdAt?: boolean
     sensor?: boolean | IoTSensorDefaultArgs<ExtArgs>
+    mlAnomalies?: boolean | SensorTelemetry$mlAnomaliesArgs<ExtArgs>
+    _count?: boolean | SensorTelemetryCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["sensorTelemetry"]>
 
   export type SensorTelemetrySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -18570,6 +18859,8 @@ export namespace Prisma {
   export type SensorTelemetryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sensorId" | "timestamp" | "readingType" | "value" | "unit" | "rawPayload" | "createdAt", ExtArgs["result"]["sensorTelemetry"]>
   export type SensorTelemetryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sensor?: boolean | IoTSensorDefaultArgs<ExtArgs>
+    mlAnomalies?: boolean | SensorTelemetry$mlAnomaliesArgs<ExtArgs>
+    _count?: boolean | SensorTelemetryCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type SensorTelemetryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sensor?: boolean | IoTSensorDefaultArgs<ExtArgs>
@@ -18582,6 +18873,7 @@ export namespace Prisma {
     name: "SensorTelemetry"
     objects: {
       sensor: Prisma.$IoTSensorPayload<ExtArgs>
+      mlAnomalies: Prisma.$MLAnomalyDetectionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -18987,6 +19279,7 @@ export namespace Prisma {
   export interface Prisma__SensorTelemetryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     sensor<T extends IoTSensorDefaultArgs<ExtArgs> = {}>(args?: Subset<T, IoTSensorDefaultArgs<ExtArgs>>): Prisma__IoTSensorClient<$Result.GetResult<Prisma.$IoTSensorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    mlAnomalies<T extends SensorTelemetry$mlAnomaliesArgs<ExtArgs> = {}>(args?: Subset<T, SensorTelemetry$mlAnomaliesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MLAnomalyDetectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -19417,6 +19710,30 @@ export namespace Prisma {
      * Limit how many SensorTelemetries to delete.
      */
     limit?: number
+  }
+
+  /**
+   * SensorTelemetry.mlAnomalies
+   */
+  export type SensorTelemetry$mlAnomaliesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionInclude<ExtArgs> | null
+    where?: MLAnomalyDetectionWhereInput
+    orderBy?: MLAnomalyDetectionOrderByWithRelationInput | MLAnomalyDetectionOrderByWithRelationInput[]
+    cursor?: MLAnomalyDetectionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MLAnomalyDetectionScalarFieldEnum | MLAnomalyDetectionScalarFieldEnum[]
   }
 
   /**
@@ -20600,6 +20917,2368 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: UtilityAnomalyInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model MLAnomalyDetection
+   */
+
+  export type AggregateMLAnomalyDetection = {
+    _count: MLAnomalyDetectionCountAggregateOutputType | null
+    _avg: MLAnomalyDetectionAvgAggregateOutputType | null
+    _sum: MLAnomalyDetectionSumAggregateOutputType | null
+    _min: MLAnomalyDetectionMinAggregateOutputType | null
+    _max: MLAnomalyDetectionMaxAggregateOutputType | null
+  }
+
+  export type MLAnomalyDetectionAvgAggregateOutputType = {
+    value: number | null
+    anomalyScore: number | null
+  }
+
+  export type MLAnomalyDetectionSumAggregateOutputType = {
+    value: number | null
+    anomalyScore: number | null
+  }
+
+  export type MLAnomalyDetectionMinAggregateOutputType = {
+    id: string | null
+    telemetryId: string | null
+    sensorId: string | null
+    readingType: $Enums.TelemetryType | null
+    value: number | null
+    isAnomaly: boolean | null
+    anomalyScore: number | null
+    modelVersion: string | null
+    detectedAt: Date | null
+  }
+
+  export type MLAnomalyDetectionMaxAggregateOutputType = {
+    id: string | null
+    telemetryId: string | null
+    sensorId: string | null
+    readingType: $Enums.TelemetryType | null
+    value: number | null
+    isAnomaly: boolean | null
+    anomalyScore: number | null
+    modelVersion: string | null
+    detectedAt: Date | null
+  }
+
+  export type MLAnomalyDetectionCountAggregateOutputType = {
+    id: number
+    telemetryId: number
+    sensorId: number
+    readingType: number
+    value: number
+    isAnomaly: number
+    anomalyScore: number
+    modelVersion: number
+    detectedAt: number
+    _all: number
+  }
+
+
+  export type MLAnomalyDetectionAvgAggregateInputType = {
+    value?: true
+    anomalyScore?: true
+  }
+
+  export type MLAnomalyDetectionSumAggregateInputType = {
+    value?: true
+    anomalyScore?: true
+  }
+
+  export type MLAnomalyDetectionMinAggregateInputType = {
+    id?: true
+    telemetryId?: true
+    sensorId?: true
+    readingType?: true
+    value?: true
+    isAnomaly?: true
+    anomalyScore?: true
+    modelVersion?: true
+    detectedAt?: true
+  }
+
+  export type MLAnomalyDetectionMaxAggregateInputType = {
+    id?: true
+    telemetryId?: true
+    sensorId?: true
+    readingType?: true
+    value?: true
+    isAnomaly?: true
+    anomalyScore?: true
+    modelVersion?: true
+    detectedAt?: true
+  }
+
+  export type MLAnomalyDetectionCountAggregateInputType = {
+    id?: true
+    telemetryId?: true
+    sensorId?: true
+    readingType?: true
+    value?: true
+    isAnomaly?: true
+    anomalyScore?: true
+    modelVersion?: true
+    detectedAt?: true
+    _all?: true
+  }
+
+  export type MLAnomalyDetectionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MLAnomalyDetection to aggregate.
+     */
+    where?: MLAnomalyDetectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MLAnomalyDetections to fetch.
+     */
+    orderBy?: MLAnomalyDetectionOrderByWithRelationInput | MLAnomalyDetectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MLAnomalyDetectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MLAnomalyDetections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MLAnomalyDetections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MLAnomalyDetections
+    **/
+    _count?: true | MLAnomalyDetectionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MLAnomalyDetectionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MLAnomalyDetectionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MLAnomalyDetectionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MLAnomalyDetectionMaxAggregateInputType
+  }
+
+  export type GetMLAnomalyDetectionAggregateType<T extends MLAnomalyDetectionAggregateArgs> = {
+        [P in keyof T & keyof AggregateMLAnomalyDetection]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMLAnomalyDetection[P]>
+      : GetScalarType<T[P], AggregateMLAnomalyDetection[P]>
+  }
+
+
+
+
+  export type MLAnomalyDetectionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MLAnomalyDetectionWhereInput
+    orderBy?: MLAnomalyDetectionOrderByWithAggregationInput | MLAnomalyDetectionOrderByWithAggregationInput[]
+    by: MLAnomalyDetectionScalarFieldEnum[] | MLAnomalyDetectionScalarFieldEnum
+    having?: MLAnomalyDetectionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MLAnomalyDetectionCountAggregateInputType | true
+    _avg?: MLAnomalyDetectionAvgAggregateInputType
+    _sum?: MLAnomalyDetectionSumAggregateInputType
+    _min?: MLAnomalyDetectionMinAggregateInputType
+    _max?: MLAnomalyDetectionMaxAggregateInputType
+  }
+
+  export type MLAnomalyDetectionGroupByOutputType = {
+    id: string
+    telemetryId: string | null
+    sensorId: string
+    readingType: $Enums.TelemetryType
+    value: number
+    isAnomaly: boolean
+    anomalyScore: number
+    modelVersion: string
+    detectedAt: Date
+    _count: MLAnomalyDetectionCountAggregateOutputType | null
+    _avg: MLAnomalyDetectionAvgAggregateOutputType | null
+    _sum: MLAnomalyDetectionSumAggregateOutputType | null
+    _min: MLAnomalyDetectionMinAggregateOutputType | null
+    _max: MLAnomalyDetectionMaxAggregateOutputType | null
+  }
+
+  type GetMLAnomalyDetectionGroupByPayload<T extends MLAnomalyDetectionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MLAnomalyDetectionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MLAnomalyDetectionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MLAnomalyDetectionGroupByOutputType[P]>
+            : GetScalarType<T[P], MLAnomalyDetectionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MLAnomalyDetectionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    telemetryId?: boolean
+    sensorId?: boolean
+    readingType?: boolean
+    value?: boolean
+    isAnomaly?: boolean
+    anomalyScore?: boolean
+    modelVersion?: boolean
+    detectedAt?: boolean
+    telemetry?: boolean | MLAnomalyDetection$telemetryArgs<ExtArgs>
+    sensor?: boolean | IoTSensorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["mLAnomalyDetection"]>
+
+  export type MLAnomalyDetectionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    telemetryId?: boolean
+    sensorId?: boolean
+    readingType?: boolean
+    value?: boolean
+    isAnomaly?: boolean
+    anomalyScore?: boolean
+    modelVersion?: boolean
+    detectedAt?: boolean
+    telemetry?: boolean | MLAnomalyDetection$telemetryArgs<ExtArgs>
+    sensor?: boolean | IoTSensorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["mLAnomalyDetection"]>
+
+  export type MLAnomalyDetectionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    telemetryId?: boolean
+    sensorId?: boolean
+    readingType?: boolean
+    value?: boolean
+    isAnomaly?: boolean
+    anomalyScore?: boolean
+    modelVersion?: boolean
+    detectedAt?: boolean
+    telemetry?: boolean | MLAnomalyDetection$telemetryArgs<ExtArgs>
+    sensor?: boolean | IoTSensorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["mLAnomalyDetection"]>
+
+  export type MLAnomalyDetectionSelectScalar = {
+    id?: boolean
+    telemetryId?: boolean
+    sensorId?: boolean
+    readingType?: boolean
+    value?: boolean
+    isAnomaly?: boolean
+    anomalyScore?: boolean
+    modelVersion?: boolean
+    detectedAt?: boolean
+  }
+
+  export type MLAnomalyDetectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "telemetryId" | "sensorId" | "readingType" | "value" | "isAnomaly" | "anomalyScore" | "modelVersion" | "detectedAt", ExtArgs["result"]["mLAnomalyDetection"]>
+  export type MLAnomalyDetectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    telemetry?: boolean | MLAnomalyDetection$telemetryArgs<ExtArgs>
+    sensor?: boolean | IoTSensorDefaultArgs<ExtArgs>
+  }
+  export type MLAnomalyDetectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    telemetry?: boolean | MLAnomalyDetection$telemetryArgs<ExtArgs>
+    sensor?: boolean | IoTSensorDefaultArgs<ExtArgs>
+  }
+  export type MLAnomalyDetectionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    telemetry?: boolean | MLAnomalyDetection$telemetryArgs<ExtArgs>
+    sensor?: boolean | IoTSensorDefaultArgs<ExtArgs>
+  }
+
+  export type $MLAnomalyDetectionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MLAnomalyDetection"
+    objects: {
+      telemetry: Prisma.$SensorTelemetryPayload<ExtArgs> | null
+      sensor: Prisma.$IoTSensorPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      telemetryId: string | null
+      sensorId: string
+      readingType: $Enums.TelemetryType
+      value: number
+      isAnomaly: boolean
+      anomalyScore: number
+      modelVersion: string
+      detectedAt: Date
+    }, ExtArgs["result"]["mLAnomalyDetection"]>
+    composites: {}
+  }
+
+  type MLAnomalyDetectionGetPayload<S extends boolean | null | undefined | MLAnomalyDetectionDefaultArgs> = $Result.GetResult<Prisma.$MLAnomalyDetectionPayload, S>
+
+  type MLAnomalyDetectionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MLAnomalyDetectionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MLAnomalyDetectionCountAggregateInputType | true
+    }
+
+  export interface MLAnomalyDetectionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MLAnomalyDetection'], meta: { name: 'MLAnomalyDetection' } }
+    /**
+     * Find zero or one MLAnomalyDetection that matches the filter.
+     * @param {MLAnomalyDetectionFindUniqueArgs} args - Arguments to find a MLAnomalyDetection
+     * @example
+     * // Get one MLAnomalyDetection
+     * const mLAnomalyDetection = await prisma.mLAnomalyDetection.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MLAnomalyDetectionFindUniqueArgs>(args: SelectSubset<T, MLAnomalyDetectionFindUniqueArgs<ExtArgs>>): Prisma__MLAnomalyDetectionClient<$Result.GetResult<Prisma.$MLAnomalyDetectionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MLAnomalyDetection that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MLAnomalyDetectionFindUniqueOrThrowArgs} args - Arguments to find a MLAnomalyDetection
+     * @example
+     * // Get one MLAnomalyDetection
+     * const mLAnomalyDetection = await prisma.mLAnomalyDetection.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MLAnomalyDetectionFindUniqueOrThrowArgs>(args: SelectSubset<T, MLAnomalyDetectionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MLAnomalyDetectionClient<$Result.GetResult<Prisma.$MLAnomalyDetectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MLAnomalyDetection that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLAnomalyDetectionFindFirstArgs} args - Arguments to find a MLAnomalyDetection
+     * @example
+     * // Get one MLAnomalyDetection
+     * const mLAnomalyDetection = await prisma.mLAnomalyDetection.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MLAnomalyDetectionFindFirstArgs>(args?: SelectSubset<T, MLAnomalyDetectionFindFirstArgs<ExtArgs>>): Prisma__MLAnomalyDetectionClient<$Result.GetResult<Prisma.$MLAnomalyDetectionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MLAnomalyDetection that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLAnomalyDetectionFindFirstOrThrowArgs} args - Arguments to find a MLAnomalyDetection
+     * @example
+     * // Get one MLAnomalyDetection
+     * const mLAnomalyDetection = await prisma.mLAnomalyDetection.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MLAnomalyDetectionFindFirstOrThrowArgs>(args?: SelectSubset<T, MLAnomalyDetectionFindFirstOrThrowArgs<ExtArgs>>): Prisma__MLAnomalyDetectionClient<$Result.GetResult<Prisma.$MLAnomalyDetectionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MLAnomalyDetections that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLAnomalyDetectionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MLAnomalyDetections
+     * const mLAnomalyDetections = await prisma.mLAnomalyDetection.findMany()
+     * 
+     * // Get first 10 MLAnomalyDetections
+     * const mLAnomalyDetections = await prisma.mLAnomalyDetection.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const mLAnomalyDetectionWithIdOnly = await prisma.mLAnomalyDetection.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MLAnomalyDetectionFindManyArgs>(args?: SelectSubset<T, MLAnomalyDetectionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MLAnomalyDetectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MLAnomalyDetection.
+     * @param {MLAnomalyDetectionCreateArgs} args - Arguments to create a MLAnomalyDetection.
+     * @example
+     * // Create one MLAnomalyDetection
+     * const MLAnomalyDetection = await prisma.mLAnomalyDetection.create({
+     *   data: {
+     *     // ... data to create a MLAnomalyDetection
+     *   }
+     * })
+     * 
+     */
+    create<T extends MLAnomalyDetectionCreateArgs>(args: SelectSubset<T, MLAnomalyDetectionCreateArgs<ExtArgs>>): Prisma__MLAnomalyDetectionClient<$Result.GetResult<Prisma.$MLAnomalyDetectionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MLAnomalyDetections.
+     * @param {MLAnomalyDetectionCreateManyArgs} args - Arguments to create many MLAnomalyDetections.
+     * @example
+     * // Create many MLAnomalyDetections
+     * const mLAnomalyDetection = await prisma.mLAnomalyDetection.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MLAnomalyDetectionCreateManyArgs>(args?: SelectSubset<T, MLAnomalyDetectionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MLAnomalyDetections and returns the data saved in the database.
+     * @param {MLAnomalyDetectionCreateManyAndReturnArgs} args - Arguments to create many MLAnomalyDetections.
+     * @example
+     * // Create many MLAnomalyDetections
+     * const mLAnomalyDetection = await prisma.mLAnomalyDetection.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MLAnomalyDetections and only return the `id`
+     * const mLAnomalyDetectionWithIdOnly = await prisma.mLAnomalyDetection.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MLAnomalyDetectionCreateManyAndReturnArgs>(args?: SelectSubset<T, MLAnomalyDetectionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MLAnomalyDetectionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MLAnomalyDetection.
+     * @param {MLAnomalyDetectionDeleteArgs} args - Arguments to delete one MLAnomalyDetection.
+     * @example
+     * // Delete one MLAnomalyDetection
+     * const MLAnomalyDetection = await prisma.mLAnomalyDetection.delete({
+     *   where: {
+     *     // ... filter to delete one MLAnomalyDetection
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MLAnomalyDetectionDeleteArgs>(args: SelectSubset<T, MLAnomalyDetectionDeleteArgs<ExtArgs>>): Prisma__MLAnomalyDetectionClient<$Result.GetResult<Prisma.$MLAnomalyDetectionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MLAnomalyDetection.
+     * @param {MLAnomalyDetectionUpdateArgs} args - Arguments to update one MLAnomalyDetection.
+     * @example
+     * // Update one MLAnomalyDetection
+     * const mLAnomalyDetection = await prisma.mLAnomalyDetection.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MLAnomalyDetectionUpdateArgs>(args: SelectSubset<T, MLAnomalyDetectionUpdateArgs<ExtArgs>>): Prisma__MLAnomalyDetectionClient<$Result.GetResult<Prisma.$MLAnomalyDetectionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MLAnomalyDetections.
+     * @param {MLAnomalyDetectionDeleteManyArgs} args - Arguments to filter MLAnomalyDetections to delete.
+     * @example
+     * // Delete a few MLAnomalyDetections
+     * const { count } = await prisma.mLAnomalyDetection.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MLAnomalyDetectionDeleteManyArgs>(args?: SelectSubset<T, MLAnomalyDetectionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MLAnomalyDetections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLAnomalyDetectionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MLAnomalyDetections
+     * const mLAnomalyDetection = await prisma.mLAnomalyDetection.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MLAnomalyDetectionUpdateManyArgs>(args: SelectSubset<T, MLAnomalyDetectionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MLAnomalyDetections and returns the data updated in the database.
+     * @param {MLAnomalyDetectionUpdateManyAndReturnArgs} args - Arguments to update many MLAnomalyDetections.
+     * @example
+     * // Update many MLAnomalyDetections
+     * const mLAnomalyDetection = await prisma.mLAnomalyDetection.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MLAnomalyDetections and only return the `id`
+     * const mLAnomalyDetectionWithIdOnly = await prisma.mLAnomalyDetection.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MLAnomalyDetectionUpdateManyAndReturnArgs>(args: SelectSubset<T, MLAnomalyDetectionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MLAnomalyDetectionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MLAnomalyDetection.
+     * @param {MLAnomalyDetectionUpsertArgs} args - Arguments to update or create a MLAnomalyDetection.
+     * @example
+     * // Update or create a MLAnomalyDetection
+     * const mLAnomalyDetection = await prisma.mLAnomalyDetection.upsert({
+     *   create: {
+     *     // ... data to create a MLAnomalyDetection
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MLAnomalyDetection we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MLAnomalyDetectionUpsertArgs>(args: SelectSubset<T, MLAnomalyDetectionUpsertArgs<ExtArgs>>): Prisma__MLAnomalyDetectionClient<$Result.GetResult<Prisma.$MLAnomalyDetectionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MLAnomalyDetections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLAnomalyDetectionCountArgs} args - Arguments to filter MLAnomalyDetections to count.
+     * @example
+     * // Count the number of MLAnomalyDetections
+     * const count = await prisma.mLAnomalyDetection.count({
+     *   where: {
+     *     // ... the filter for the MLAnomalyDetections we want to count
+     *   }
+     * })
+    **/
+    count<T extends MLAnomalyDetectionCountArgs>(
+      args?: Subset<T, MLAnomalyDetectionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MLAnomalyDetectionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MLAnomalyDetection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLAnomalyDetectionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MLAnomalyDetectionAggregateArgs>(args: Subset<T, MLAnomalyDetectionAggregateArgs>): Prisma.PrismaPromise<GetMLAnomalyDetectionAggregateType<T>>
+
+    /**
+     * Group by MLAnomalyDetection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLAnomalyDetectionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MLAnomalyDetectionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MLAnomalyDetectionGroupByArgs['orderBy'] }
+        : { orderBy?: MLAnomalyDetectionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MLAnomalyDetectionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMLAnomalyDetectionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MLAnomalyDetection model
+   */
+  readonly fields: MLAnomalyDetectionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MLAnomalyDetection.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MLAnomalyDetectionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    telemetry<T extends MLAnomalyDetection$telemetryArgs<ExtArgs> = {}>(args?: Subset<T, MLAnomalyDetection$telemetryArgs<ExtArgs>>): Prisma__SensorTelemetryClient<$Result.GetResult<Prisma.$SensorTelemetryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    sensor<T extends IoTSensorDefaultArgs<ExtArgs> = {}>(args?: Subset<T, IoTSensorDefaultArgs<ExtArgs>>): Prisma__IoTSensorClient<$Result.GetResult<Prisma.$IoTSensorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MLAnomalyDetection model
+   */
+  interface MLAnomalyDetectionFieldRefs {
+    readonly id: FieldRef<"MLAnomalyDetection", 'String'>
+    readonly telemetryId: FieldRef<"MLAnomalyDetection", 'String'>
+    readonly sensorId: FieldRef<"MLAnomalyDetection", 'String'>
+    readonly readingType: FieldRef<"MLAnomalyDetection", 'TelemetryType'>
+    readonly value: FieldRef<"MLAnomalyDetection", 'Float'>
+    readonly isAnomaly: FieldRef<"MLAnomalyDetection", 'Boolean'>
+    readonly anomalyScore: FieldRef<"MLAnomalyDetection", 'Float'>
+    readonly modelVersion: FieldRef<"MLAnomalyDetection", 'String'>
+    readonly detectedAt: FieldRef<"MLAnomalyDetection", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MLAnomalyDetection findUnique
+   */
+  export type MLAnomalyDetectionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionInclude<ExtArgs> | null
+    /**
+     * Filter, which MLAnomalyDetection to fetch.
+     */
+    where: MLAnomalyDetectionWhereUniqueInput
+  }
+
+  /**
+   * MLAnomalyDetection findUniqueOrThrow
+   */
+  export type MLAnomalyDetectionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionInclude<ExtArgs> | null
+    /**
+     * Filter, which MLAnomalyDetection to fetch.
+     */
+    where: MLAnomalyDetectionWhereUniqueInput
+  }
+
+  /**
+   * MLAnomalyDetection findFirst
+   */
+  export type MLAnomalyDetectionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionInclude<ExtArgs> | null
+    /**
+     * Filter, which MLAnomalyDetection to fetch.
+     */
+    where?: MLAnomalyDetectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MLAnomalyDetections to fetch.
+     */
+    orderBy?: MLAnomalyDetectionOrderByWithRelationInput | MLAnomalyDetectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MLAnomalyDetections.
+     */
+    cursor?: MLAnomalyDetectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MLAnomalyDetections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MLAnomalyDetections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MLAnomalyDetections.
+     */
+    distinct?: MLAnomalyDetectionScalarFieldEnum | MLAnomalyDetectionScalarFieldEnum[]
+  }
+
+  /**
+   * MLAnomalyDetection findFirstOrThrow
+   */
+  export type MLAnomalyDetectionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionInclude<ExtArgs> | null
+    /**
+     * Filter, which MLAnomalyDetection to fetch.
+     */
+    where?: MLAnomalyDetectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MLAnomalyDetections to fetch.
+     */
+    orderBy?: MLAnomalyDetectionOrderByWithRelationInput | MLAnomalyDetectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MLAnomalyDetections.
+     */
+    cursor?: MLAnomalyDetectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MLAnomalyDetections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MLAnomalyDetections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MLAnomalyDetections.
+     */
+    distinct?: MLAnomalyDetectionScalarFieldEnum | MLAnomalyDetectionScalarFieldEnum[]
+  }
+
+  /**
+   * MLAnomalyDetection findMany
+   */
+  export type MLAnomalyDetectionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionInclude<ExtArgs> | null
+    /**
+     * Filter, which MLAnomalyDetections to fetch.
+     */
+    where?: MLAnomalyDetectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MLAnomalyDetections to fetch.
+     */
+    orderBy?: MLAnomalyDetectionOrderByWithRelationInput | MLAnomalyDetectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MLAnomalyDetections.
+     */
+    cursor?: MLAnomalyDetectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MLAnomalyDetections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MLAnomalyDetections.
+     */
+    skip?: number
+    distinct?: MLAnomalyDetectionScalarFieldEnum | MLAnomalyDetectionScalarFieldEnum[]
+  }
+
+  /**
+   * MLAnomalyDetection create
+   */
+  export type MLAnomalyDetectionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MLAnomalyDetection.
+     */
+    data: XOR<MLAnomalyDetectionCreateInput, MLAnomalyDetectionUncheckedCreateInput>
+  }
+
+  /**
+   * MLAnomalyDetection createMany
+   */
+  export type MLAnomalyDetectionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MLAnomalyDetections.
+     */
+    data: MLAnomalyDetectionCreateManyInput | MLAnomalyDetectionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MLAnomalyDetection createManyAndReturn
+   */
+  export type MLAnomalyDetectionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * The data used to create many MLAnomalyDetections.
+     */
+    data: MLAnomalyDetectionCreateManyInput | MLAnomalyDetectionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MLAnomalyDetection update
+   */
+  export type MLAnomalyDetectionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MLAnomalyDetection.
+     */
+    data: XOR<MLAnomalyDetectionUpdateInput, MLAnomalyDetectionUncheckedUpdateInput>
+    /**
+     * Choose, which MLAnomalyDetection to update.
+     */
+    where: MLAnomalyDetectionWhereUniqueInput
+  }
+
+  /**
+   * MLAnomalyDetection updateMany
+   */
+  export type MLAnomalyDetectionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MLAnomalyDetections.
+     */
+    data: XOR<MLAnomalyDetectionUpdateManyMutationInput, MLAnomalyDetectionUncheckedUpdateManyInput>
+    /**
+     * Filter which MLAnomalyDetections to update
+     */
+    where?: MLAnomalyDetectionWhereInput
+    /**
+     * Limit how many MLAnomalyDetections to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MLAnomalyDetection updateManyAndReturn
+   */
+  export type MLAnomalyDetectionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * The data used to update MLAnomalyDetections.
+     */
+    data: XOR<MLAnomalyDetectionUpdateManyMutationInput, MLAnomalyDetectionUncheckedUpdateManyInput>
+    /**
+     * Filter which MLAnomalyDetections to update
+     */
+    where?: MLAnomalyDetectionWhereInput
+    /**
+     * Limit how many MLAnomalyDetections to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MLAnomalyDetection upsert
+   */
+  export type MLAnomalyDetectionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MLAnomalyDetection to update in case it exists.
+     */
+    where: MLAnomalyDetectionWhereUniqueInput
+    /**
+     * In case the MLAnomalyDetection found by the `where` argument doesn't exist, create a new MLAnomalyDetection with this data.
+     */
+    create: XOR<MLAnomalyDetectionCreateInput, MLAnomalyDetectionUncheckedCreateInput>
+    /**
+     * In case the MLAnomalyDetection was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MLAnomalyDetectionUpdateInput, MLAnomalyDetectionUncheckedUpdateInput>
+  }
+
+  /**
+   * MLAnomalyDetection delete
+   */
+  export type MLAnomalyDetectionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionInclude<ExtArgs> | null
+    /**
+     * Filter which MLAnomalyDetection to delete.
+     */
+    where: MLAnomalyDetectionWhereUniqueInput
+  }
+
+  /**
+   * MLAnomalyDetection deleteMany
+   */
+  export type MLAnomalyDetectionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MLAnomalyDetections to delete
+     */
+    where?: MLAnomalyDetectionWhereInput
+    /**
+     * Limit how many MLAnomalyDetections to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MLAnomalyDetection.telemetry
+   */
+  export type MLAnomalyDetection$telemetryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SensorTelemetry
+     */
+    select?: SensorTelemetrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SensorTelemetry
+     */
+    omit?: SensorTelemetryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SensorTelemetryInclude<ExtArgs> | null
+    where?: SensorTelemetryWhereInput
+  }
+
+  /**
+   * MLAnomalyDetection without action
+   */
+  export type MLAnomalyDetectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLAnomalyDetection
+     */
+    select?: MLAnomalyDetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLAnomalyDetection
+     */
+    omit?: MLAnomalyDetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLAnomalyDetectionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model MLFailurePrediction
+   */
+
+  export type AggregateMLFailurePrediction = {
+    _count: MLFailurePredictionCountAggregateOutputType | null
+    _avg: MLFailurePredictionAvgAggregateOutputType | null
+    _sum: MLFailurePredictionSumAggregateOutputType | null
+    _min: MLFailurePredictionMinAggregateOutputType | null
+    _max: MLFailurePredictionMaxAggregateOutputType | null
+  }
+
+  export type MLFailurePredictionAvgAggregateOutputType = {
+    failureProbability: number | null
+    confidenceScore: number | null
+    modelThreshold: number | null
+  }
+
+  export type MLFailurePredictionSumAggregateOutputType = {
+    failureProbability: number | null
+    confidenceScore: number | null
+    modelThreshold: number | null
+  }
+
+  export type MLFailurePredictionMinAggregateOutputType = {
+    id: string | null
+    structureId: string | null
+    failureProbability: number | null
+    failureRisk: string | null
+    predictedFailure24h: boolean | null
+    confidenceScore: number | null
+    modelVersion: string | null
+    modelThreshold: number | null
+    predictionWindow: string | null
+    predictedAt: Date | null
+    validUntil: Date | null
+  }
+
+  export type MLFailurePredictionMaxAggregateOutputType = {
+    id: string | null
+    structureId: string | null
+    failureProbability: number | null
+    failureRisk: string | null
+    predictedFailure24h: boolean | null
+    confidenceScore: number | null
+    modelVersion: string | null
+    modelThreshold: number | null
+    predictionWindow: string | null
+    predictedAt: Date | null
+    validUntil: Date | null
+  }
+
+  export type MLFailurePredictionCountAggregateOutputType = {
+    id: number
+    structureId: number
+    failureProbability: number
+    failureRisk: number
+    predictedFailure24h: number
+    confidenceScore: number
+    contributingFactors: number
+    modelVersion: number
+    modelThreshold: number
+    predictionWindow: number
+    predictedAt: number
+    validUntil: number
+    _all: number
+  }
+
+
+  export type MLFailurePredictionAvgAggregateInputType = {
+    failureProbability?: true
+    confidenceScore?: true
+    modelThreshold?: true
+  }
+
+  export type MLFailurePredictionSumAggregateInputType = {
+    failureProbability?: true
+    confidenceScore?: true
+    modelThreshold?: true
+  }
+
+  export type MLFailurePredictionMinAggregateInputType = {
+    id?: true
+    structureId?: true
+    failureProbability?: true
+    failureRisk?: true
+    predictedFailure24h?: true
+    confidenceScore?: true
+    modelVersion?: true
+    modelThreshold?: true
+    predictionWindow?: true
+    predictedAt?: true
+    validUntil?: true
+  }
+
+  export type MLFailurePredictionMaxAggregateInputType = {
+    id?: true
+    structureId?: true
+    failureProbability?: true
+    failureRisk?: true
+    predictedFailure24h?: true
+    confidenceScore?: true
+    modelVersion?: true
+    modelThreshold?: true
+    predictionWindow?: true
+    predictedAt?: true
+    validUntil?: true
+  }
+
+  export type MLFailurePredictionCountAggregateInputType = {
+    id?: true
+    structureId?: true
+    failureProbability?: true
+    failureRisk?: true
+    predictedFailure24h?: true
+    confidenceScore?: true
+    contributingFactors?: true
+    modelVersion?: true
+    modelThreshold?: true
+    predictionWindow?: true
+    predictedAt?: true
+    validUntil?: true
+    _all?: true
+  }
+
+  export type MLFailurePredictionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MLFailurePrediction to aggregate.
+     */
+    where?: MLFailurePredictionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MLFailurePredictions to fetch.
+     */
+    orderBy?: MLFailurePredictionOrderByWithRelationInput | MLFailurePredictionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MLFailurePredictionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MLFailurePredictions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MLFailurePredictions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MLFailurePredictions
+    **/
+    _count?: true | MLFailurePredictionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MLFailurePredictionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MLFailurePredictionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MLFailurePredictionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MLFailurePredictionMaxAggregateInputType
+  }
+
+  export type GetMLFailurePredictionAggregateType<T extends MLFailurePredictionAggregateArgs> = {
+        [P in keyof T & keyof AggregateMLFailurePrediction]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMLFailurePrediction[P]>
+      : GetScalarType<T[P], AggregateMLFailurePrediction[P]>
+  }
+
+
+
+
+  export type MLFailurePredictionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MLFailurePredictionWhereInput
+    orderBy?: MLFailurePredictionOrderByWithAggregationInput | MLFailurePredictionOrderByWithAggregationInput[]
+    by: MLFailurePredictionScalarFieldEnum[] | MLFailurePredictionScalarFieldEnum
+    having?: MLFailurePredictionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MLFailurePredictionCountAggregateInputType | true
+    _avg?: MLFailurePredictionAvgAggregateInputType
+    _sum?: MLFailurePredictionSumAggregateInputType
+    _min?: MLFailurePredictionMinAggregateInputType
+    _max?: MLFailurePredictionMaxAggregateInputType
+  }
+
+  export type MLFailurePredictionGroupByOutputType = {
+    id: string
+    structureId: string
+    failureProbability: number
+    failureRisk: string
+    predictedFailure24h: boolean
+    confidenceScore: number | null
+    contributingFactors: JsonValue | null
+    modelVersion: string
+    modelThreshold: number
+    predictionWindow: string
+    predictedAt: Date
+    validUntil: Date | null
+    _count: MLFailurePredictionCountAggregateOutputType | null
+    _avg: MLFailurePredictionAvgAggregateOutputType | null
+    _sum: MLFailurePredictionSumAggregateOutputType | null
+    _min: MLFailurePredictionMinAggregateOutputType | null
+    _max: MLFailurePredictionMaxAggregateOutputType | null
+  }
+
+  type GetMLFailurePredictionGroupByPayload<T extends MLFailurePredictionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MLFailurePredictionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MLFailurePredictionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MLFailurePredictionGroupByOutputType[P]>
+            : GetScalarType<T[P], MLFailurePredictionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MLFailurePredictionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    structureId?: boolean
+    failureProbability?: boolean
+    failureRisk?: boolean
+    predictedFailure24h?: boolean
+    confidenceScore?: boolean
+    contributingFactors?: boolean
+    modelVersion?: boolean
+    modelThreshold?: boolean
+    predictionWindow?: boolean
+    predictedAt?: boolean
+    validUntil?: boolean
+    structure?: boolean | StructureDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["mLFailurePrediction"]>
+
+  export type MLFailurePredictionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    structureId?: boolean
+    failureProbability?: boolean
+    failureRisk?: boolean
+    predictedFailure24h?: boolean
+    confidenceScore?: boolean
+    contributingFactors?: boolean
+    modelVersion?: boolean
+    modelThreshold?: boolean
+    predictionWindow?: boolean
+    predictedAt?: boolean
+    validUntil?: boolean
+    structure?: boolean | StructureDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["mLFailurePrediction"]>
+
+  export type MLFailurePredictionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    structureId?: boolean
+    failureProbability?: boolean
+    failureRisk?: boolean
+    predictedFailure24h?: boolean
+    confidenceScore?: boolean
+    contributingFactors?: boolean
+    modelVersion?: boolean
+    modelThreshold?: boolean
+    predictionWindow?: boolean
+    predictedAt?: boolean
+    validUntil?: boolean
+    structure?: boolean | StructureDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["mLFailurePrediction"]>
+
+  export type MLFailurePredictionSelectScalar = {
+    id?: boolean
+    structureId?: boolean
+    failureProbability?: boolean
+    failureRisk?: boolean
+    predictedFailure24h?: boolean
+    confidenceScore?: boolean
+    contributingFactors?: boolean
+    modelVersion?: boolean
+    modelThreshold?: boolean
+    predictionWindow?: boolean
+    predictedAt?: boolean
+    validUntil?: boolean
+  }
+
+  export type MLFailurePredictionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "structureId" | "failureProbability" | "failureRisk" | "predictedFailure24h" | "confidenceScore" | "contributingFactors" | "modelVersion" | "modelThreshold" | "predictionWindow" | "predictedAt" | "validUntil", ExtArgs["result"]["mLFailurePrediction"]>
+  export type MLFailurePredictionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    structure?: boolean | StructureDefaultArgs<ExtArgs>
+  }
+  export type MLFailurePredictionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    structure?: boolean | StructureDefaultArgs<ExtArgs>
+  }
+  export type MLFailurePredictionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    structure?: boolean | StructureDefaultArgs<ExtArgs>
+  }
+
+  export type $MLFailurePredictionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MLFailurePrediction"
+    objects: {
+      structure: Prisma.$StructurePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      structureId: string
+      failureProbability: number
+      failureRisk: string
+      predictedFailure24h: boolean
+      confidenceScore: number | null
+      contributingFactors: Prisma.JsonValue | null
+      modelVersion: string
+      modelThreshold: number
+      predictionWindow: string
+      predictedAt: Date
+      validUntil: Date | null
+    }, ExtArgs["result"]["mLFailurePrediction"]>
+    composites: {}
+  }
+
+  type MLFailurePredictionGetPayload<S extends boolean | null | undefined | MLFailurePredictionDefaultArgs> = $Result.GetResult<Prisma.$MLFailurePredictionPayload, S>
+
+  type MLFailurePredictionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MLFailurePredictionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MLFailurePredictionCountAggregateInputType | true
+    }
+
+  export interface MLFailurePredictionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MLFailurePrediction'], meta: { name: 'MLFailurePrediction' } }
+    /**
+     * Find zero or one MLFailurePrediction that matches the filter.
+     * @param {MLFailurePredictionFindUniqueArgs} args - Arguments to find a MLFailurePrediction
+     * @example
+     * // Get one MLFailurePrediction
+     * const mLFailurePrediction = await prisma.mLFailurePrediction.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MLFailurePredictionFindUniqueArgs>(args: SelectSubset<T, MLFailurePredictionFindUniqueArgs<ExtArgs>>): Prisma__MLFailurePredictionClient<$Result.GetResult<Prisma.$MLFailurePredictionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MLFailurePrediction that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MLFailurePredictionFindUniqueOrThrowArgs} args - Arguments to find a MLFailurePrediction
+     * @example
+     * // Get one MLFailurePrediction
+     * const mLFailurePrediction = await prisma.mLFailurePrediction.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MLFailurePredictionFindUniqueOrThrowArgs>(args: SelectSubset<T, MLFailurePredictionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MLFailurePredictionClient<$Result.GetResult<Prisma.$MLFailurePredictionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MLFailurePrediction that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLFailurePredictionFindFirstArgs} args - Arguments to find a MLFailurePrediction
+     * @example
+     * // Get one MLFailurePrediction
+     * const mLFailurePrediction = await prisma.mLFailurePrediction.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MLFailurePredictionFindFirstArgs>(args?: SelectSubset<T, MLFailurePredictionFindFirstArgs<ExtArgs>>): Prisma__MLFailurePredictionClient<$Result.GetResult<Prisma.$MLFailurePredictionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MLFailurePrediction that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLFailurePredictionFindFirstOrThrowArgs} args - Arguments to find a MLFailurePrediction
+     * @example
+     * // Get one MLFailurePrediction
+     * const mLFailurePrediction = await prisma.mLFailurePrediction.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MLFailurePredictionFindFirstOrThrowArgs>(args?: SelectSubset<T, MLFailurePredictionFindFirstOrThrowArgs<ExtArgs>>): Prisma__MLFailurePredictionClient<$Result.GetResult<Prisma.$MLFailurePredictionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MLFailurePredictions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLFailurePredictionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MLFailurePredictions
+     * const mLFailurePredictions = await prisma.mLFailurePrediction.findMany()
+     * 
+     * // Get first 10 MLFailurePredictions
+     * const mLFailurePredictions = await prisma.mLFailurePrediction.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const mLFailurePredictionWithIdOnly = await prisma.mLFailurePrediction.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MLFailurePredictionFindManyArgs>(args?: SelectSubset<T, MLFailurePredictionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MLFailurePredictionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MLFailurePrediction.
+     * @param {MLFailurePredictionCreateArgs} args - Arguments to create a MLFailurePrediction.
+     * @example
+     * // Create one MLFailurePrediction
+     * const MLFailurePrediction = await prisma.mLFailurePrediction.create({
+     *   data: {
+     *     // ... data to create a MLFailurePrediction
+     *   }
+     * })
+     * 
+     */
+    create<T extends MLFailurePredictionCreateArgs>(args: SelectSubset<T, MLFailurePredictionCreateArgs<ExtArgs>>): Prisma__MLFailurePredictionClient<$Result.GetResult<Prisma.$MLFailurePredictionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MLFailurePredictions.
+     * @param {MLFailurePredictionCreateManyArgs} args - Arguments to create many MLFailurePredictions.
+     * @example
+     * // Create many MLFailurePredictions
+     * const mLFailurePrediction = await prisma.mLFailurePrediction.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MLFailurePredictionCreateManyArgs>(args?: SelectSubset<T, MLFailurePredictionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MLFailurePredictions and returns the data saved in the database.
+     * @param {MLFailurePredictionCreateManyAndReturnArgs} args - Arguments to create many MLFailurePredictions.
+     * @example
+     * // Create many MLFailurePredictions
+     * const mLFailurePrediction = await prisma.mLFailurePrediction.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MLFailurePredictions and only return the `id`
+     * const mLFailurePredictionWithIdOnly = await prisma.mLFailurePrediction.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MLFailurePredictionCreateManyAndReturnArgs>(args?: SelectSubset<T, MLFailurePredictionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MLFailurePredictionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MLFailurePrediction.
+     * @param {MLFailurePredictionDeleteArgs} args - Arguments to delete one MLFailurePrediction.
+     * @example
+     * // Delete one MLFailurePrediction
+     * const MLFailurePrediction = await prisma.mLFailurePrediction.delete({
+     *   where: {
+     *     // ... filter to delete one MLFailurePrediction
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MLFailurePredictionDeleteArgs>(args: SelectSubset<T, MLFailurePredictionDeleteArgs<ExtArgs>>): Prisma__MLFailurePredictionClient<$Result.GetResult<Prisma.$MLFailurePredictionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MLFailurePrediction.
+     * @param {MLFailurePredictionUpdateArgs} args - Arguments to update one MLFailurePrediction.
+     * @example
+     * // Update one MLFailurePrediction
+     * const mLFailurePrediction = await prisma.mLFailurePrediction.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MLFailurePredictionUpdateArgs>(args: SelectSubset<T, MLFailurePredictionUpdateArgs<ExtArgs>>): Prisma__MLFailurePredictionClient<$Result.GetResult<Prisma.$MLFailurePredictionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MLFailurePredictions.
+     * @param {MLFailurePredictionDeleteManyArgs} args - Arguments to filter MLFailurePredictions to delete.
+     * @example
+     * // Delete a few MLFailurePredictions
+     * const { count } = await prisma.mLFailurePrediction.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MLFailurePredictionDeleteManyArgs>(args?: SelectSubset<T, MLFailurePredictionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MLFailurePredictions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLFailurePredictionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MLFailurePredictions
+     * const mLFailurePrediction = await prisma.mLFailurePrediction.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MLFailurePredictionUpdateManyArgs>(args: SelectSubset<T, MLFailurePredictionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MLFailurePredictions and returns the data updated in the database.
+     * @param {MLFailurePredictionUpdateManyAndReturnArgs} args - Arguments to update many MLFailurePredictions.
+     * @example
+     * // Update many MLFailurePredictions
+     * const mLFailurePrediction = await prisma.mLFailurePrediction.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MLFailurePredictions and only return the `id`
+     * const mLFailurePredictionWithIdOnly = await prisma.mLFailurePrediction.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MLFailurePredictionUpdateManyAndReturnArgs>(args: SelectSubset<T, MLFailurePredictionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MLFailurePredictionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MLFailurePrediction.
+     * @param {MLFailurePredictionUpsertArgs} args - Arguments to update or create a MLFailurePrediction.
+     * @example
+     * // Update or create a MLFailurePrediction
+     * const mLFailurePrediction = await prisma.mLFailurePrediction.upsert({
+     *   create: {
+     *     // ... data to create a MLFailurePrediction
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MLFailurePrediction we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MLFailurePredictionUpsertArgs>(args: SelectSubset<T, MLFailurePredictionUpsertArgs<ExtArgs>>): Prisma__MLFailurePredictionClient<$Result.GetResult<Prisma.$MLFailurePredictionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MLFailurePredictions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLFailurePredictionCountArgs} args - Arguments to filter MLFailurePredictions to count.
+     * @example
+     * // Count the number of MLFailurePredictions
+     * const count = await prisma.mLFailurePrediction.count({
+     *   where: {
+     *     // ... the filter for the MLFailurePredictions we want to count
+     *   }
+     * })
+    **/
+    count<T extends MLFailurePredictionCountArgs>(
+      args?: Subset<T, MLFailurePredictionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MLFailurePredictionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MLFailurePrediction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLFailurePredictionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MLFailurePredictionAggregateArgs>(args: Subset<T, MLFailurePredictionAggregateArgs>): Prisma.PrismaPromise<GetMLFailurePredictionAggregateType<T>>
+
+    /**
+     * Group by MLFailurePrediction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MLFailurePredictionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MLFailurePredictionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MLFailurePredictionGroupByArgs['orderBy'] }
+        : { orderBy?: MLFailurePredictionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MLFailurePredictionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMLFailurePredictionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MLFailurePrediction model
+   */
+  readonly fields: MLFailurePredictionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MLFailurePrediction.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MLFailurePredictionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    structure<T extends StructureDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StructureDefaultArgs<ExtArgs>>): Prisma__StructureClient<$Result.GetResult<Prisma.$StructurePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MLFailurePrediction model
+   */
+  interface MLFailurePredictionFieldRefs {
+    readonly id: FieldRef<"MLFailurePrediction", 'String'>
+    readonly structureId: FieldRef<"MLFailurePrediction", 'String'>
+    readonly failureProbability: FieldRef<"MLFailurePrediction", 'Float'>
+    readonly failureRisk: FieldRef<"MLFailurePrediction", 'String'>
+    readonly predictedFailure24h: FieldRef<"MLFailurePrediction", 'Boolean'>
+    readonly confidenceScore: FieldRef<"MLFailurePrediction", 'Float'>
+    readonly contributingFactors: FieldRef<"MLFailurePrediction", 'Json'>
+    readonly modelVersion: FieldRef<"MLFailurePrediction", 'String'>
+    readonly modelThreshold: FieldRef<"MLFailurePrediction", 'Float'>
+    readonly predictionWindow: FieldRef<"MLFailurePrediction", 'String'>
+    readonly predictedAt: FieldRef<"MLFailurePrediction", 'DateTime'>
+    readonly validUntil: FieldRef<"MLFailurePrediction", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MLFailurePrediction findUnique
+   */
+  export type MLFailurePredictionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLFailurePrediction
+     */
+    select?: MLFailurePredictionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLFailurePrediction
+     */
+    omit?: MLFailurePredictionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLFailurePredictionInclude<ExtArgs> | null
+    /**
+     * Filter, which MLFailurePrediction to fetch.
+     */
+    where: MLFailurePredictionWhereUniqueInput
+  }
+
+  /**
+   * MLFailurePrediction findUniqueOrThrow
+   */
+  export type MLFailurePredictionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLFailurePrediction
+     */
+    select?: MLFailurePredictionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLFailurePrediction
+     */
+    omit?: MLFailurePredictionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLFailurePredictionInclude<ExtArgs> | null
+    /**
+     * Filter, which MLFailurePrediction to fetch.
+     */
+    where: MLFailurePredictionWhereUniqueInput
+  }
+
+  /**
+   * MLFailurePrediction findFirst
+   */
+  export type MLFailurePredictionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLFailurePrediction
+     */
+    select?: MLFailurePredictionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLFailurePrediction
+     */
+    omit?: MLFailurePredictionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLFailurePredictionInclude<ExtArgs> | null
+    /**
+     * Filter, which MLFailurePrediction to fetch.
+     */
+    where?: MLFailurePredictionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MLFailurePredictions to fetch.
+     */
+    orderBy?: MLFailurePredictionOrderByWithRelationInput | MLFailurePredictionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MLFailurePredictions.
+     */
+    cursor?: MLFailurePredictionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MLFailurePredictions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MLFailurePredictions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MLFailurePredictions.
+     */
+    distinct?: MLFailurePredictionScalarFieldEnum | MLFailurePredictionScalarFieldEnum[]
+  }
+
+  /**
+   * MLFailurePrediction findFirstOrThrow
+   */
+  export type MLFailurePredictionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLFailurePrediction
+     */
+    select?: MLFailurePredictionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLFailurePrediction
+     */
+    omit?: MLFailurePredictionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLFailurePredictionInclude<ExtArgs> | null
+    /**
+     * Filter, which MLFailurePrediction to fetch.
+     */
+    where?: MLFailurePredictionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MLFailurePredictions to fetch.
+     */
+    orderBy?: MLFailurePredictionOrderByWithRelationInput | MLFailurePredictionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MLFailurePredictions.
+     */
+    cursor?: MLFailurePredictionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MLFailurePredictions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MLFailurePredictions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MLFailurePredictions.
+     */
+    distinct?: MLFailurePredictionScalarFieldEnum | MLFailurePredictionScalarFieldEnum[]
+  }
+
+  /**
+   * MLFailurePrediction findMany
+   */
+  export type MLFailurePredictionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLFailurePrediction
+     */
+    select?: MLFailurePredictionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLFailurePrediction
+     */
+    omit?: MLFailurePredictionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLFailurePredictionInclude<ExtArgs> | null
+    /**
+     * Filter, which MLFailurePredictions to fetch.
+     */
+    where?: MLFailurePredictionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MLFailurePredictions to fetch.
+     */
+    orderBy?: MLFailurePredictionOrderByWithRelationInput | MLFailurePredictionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MLFailurePredictions.
+     */
+    cursor?: MLFailurePredictionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MLFailurePredictions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MLFailurePredictions.
+     */
+    skip?: number
+    distinct?: MLFailurePredictionScalarFieldEnum | MLFailurePredictionScalarFieldEnum[]
+  }
+
+  /**
+   * MLFailurePrediction create
+   */
+  export type MLFailurePredictionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLFailurePrediction
+     */
+    select?: MLFailurePredictionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLFailurePrediction
+     */
+    omit?: MLFailurePredictionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLFailurePredictionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MLFailurePrediction.
+     */
+    data: XOR<MLFailurePredictionCreateInput, MLFailurePredictionUncheckedCreateInput>
+  }
+
+  /**
+   * MLFailurePrediction createMany
+   */
+  export type MLFailurePredictionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MLFailurePredictions.
+     */
+    data: MLFailurePredictionCreateManyInput | MLFailurePredictionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MLFailurePrediction createManyAndReturn
+   */
+  export type MLFailurePredictionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLFailurePrediction
+     */
+    select?: MLFailurePredictionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLFailurePrediction
+     */
+    omit?: MLFailurePredictionOmit<ExtArgs> | null
+    /**
+     * The data used to create many MLFailurePredictions.
+     */
+    data: MLFailurePredictionCreateManyInput | MLFailurePredictionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLFailurePredictionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MLFailurePrediction update
+   */
+  export type MLFailurePredictionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLFailurePrediction
+     */
+    select?: MLFailurePredictionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLFailurePrediction
+     */
+    omit?: MLFailurePredictionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLFailurePredictionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MLFailurePrediction.
+     */
+    data: XOR<MLFailurePredictionUpdateInput, MLFailurePredictionUncheckedUpdateInput>
+    /**
+     * Choose, which MLFailurePrediction to update.
+     */
+    where: MLFailurePredictionWhereUniqueInput
+  }
+
+  /**
+   * MLFailurePrediction updateMany
+   */
+  export type MLFailurePredictionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MLFailurePredictions.
+     */
+    data: XOR<MLFailurePredictionUpdateManyMutationInput, MLFailurePredictionUncheckedUpdateManyInput>
+    /**
+     * Filter which MLFailurePredictions to update
+     */
+    where?: MLFailurePredictionWhereInput
+    /**
+     * Limit how many MLFailurePredictions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MLFailurePrediction updateManyAndReturn
+   */
+  export type MLFailurePredictionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLFailurePrediction
+     */
+    select?: MLFailurePredictionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLFailurePrediction
+     */
+    omit?: MLFailurePredictionOmit<ExtArgs> | null
+    /**
+     * The data used to update MLFailurePredictions.
+     */
+    data: XOR<MLFailurePredictionUpdateManyMutationInput, MLFailurePredictionUncheckedUpdateManyInput>
+    /**
+     * Filter which MLFailurePredictions to update
+     */
+    where?: MLFailurePredictionWhereInput
+    /**
+     * Limit how many MLFailurePredictions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLFailurePredictionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MLFailurePrediction upsert
+   */
+  export type MLFailurePredictionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLFailurePrediction
+     */
+    select?: MLFailurePredictionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLFailurePrediction
+     */
+    omit?: MLFailurePredictionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLFailurePredictionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MLFailurePrediction to update in case it exists.
+     */
+    where: MLFailurePredictionWhereUniqueInput
+    /**
+     * In case the MLFailurePrediction found by the `where` argument doesn't exist, create a new MLFailurePrediction with this data.
+     */
+    create: XOR<MLFailurePredictionCreateInput, MLFailurePredictionUncheckedCreateInput>
+    /**
+     * In case the MLFailurePrediction was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MLFailurePredictionUpdateInput, MLFailurePredictionUncheckedUpdateInput>
+  }
+
+  /**
+   * MLFailurePrediction delete
+   */
+  export type MLFailurePredictionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLFailurePrediction
+     */
+    select?: MLFailurePredictionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLFailurePrediction
+     */
+    omit?: MLFailurePredictionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLFailurePredictionInclude<ExtArgs> | null
+    /**
+     * Filter which MLFailurePrediction to delete.
+     */
+    where: MLFailurePredictionWhereUniqueInput
+  }
+
+  /**
+   * MLFailurePrediction deleteMany
+   */
+  export type MLFailurePredictionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MLFailurePredictions to delete
+     */
+    where?: MLFailurePredictionWhereInput
+    /**
+     * Limit how many MLFailurePredictions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MLFailurePrediction without action
+   */
+  export type MLFailurePredictionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MLFailurePrediction
+     */
+    select?: MLFailurePredictionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MLFailurePrediction
+     */
+    omit?: MLFailurePredictionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MLFailurePredictionInclude<ExtArgs> | null
   }
 
 
@@ -24205,6 +26884,39 @@ export namespace Prisma {
   export type UtilityAnomalyScalarFieldEnum = (typeof UtilityAnomalyScalarFieldEnum)[keyof typeof UtilityAnomalyScalarFieldEnum]
 
 
+  export const MLAnomalyDetectionScalarFieldEnum: {
+    id: 'id',
+    telemetryId: 'telemetryId',
+    sensorId: 'sensorId',
+    readingType: 'readingType',
+    value: 'value',
+    isAnomaly: 'isAnomaly',
+    anomalyScore: 'anomalyScore',
+    modelVersion: 'modelVersion',
+    detectedAt: 'detectedAt'
+  };
+
+  export type MLAnomalyDetectionScalarFieldEnum = (typeof MLAnomalyDetectionScalarFieldEnum)[keyof typeof MLAnomalyDetectionScalarFieldEnum]
+
+
+  export const MLFailurePredictionScalarFieldEnum: {
+    id: 'id',
+    structureId: 'structureId',
+    failureProbability: 'failureProbability',
+    failureRisk: 'failureRisk',
+    predictedFailure24h: 'predictedFailure24h',
+    confidenceScore: 'confidenceScore',
+    contributingFactors: 'contributingFactors',
+    modelVersion: 'modelVersion',
+    modelThreshold: 'modelThreshold',
+    predictionWindow: 'predictionWindow',
+    predictedAt: 'predictedAt',
+    validUntil: 'validUntil'
+  };
+
+  export type MLFailurePredictionScalarFieldEnum = (typeof MLFailurePredictionScalarFieldEnum)[keyof typeof MLFailurePredictionScalarFieldEnum]
+
+
   export const FailureEventScalarFieldEnum: {
     id: 'id',
     structureId: 'structureId',
@@ -25433,6 +28145,7 @@ export namespace Prisma {
     maintenanceLogs?: MaintenanceLogListRelationFilter
     failureEvents?: FailureEventListRelationFilter
     forecasts?: PredictiveForecastListRelationFilter
+    mlPredictions?: MLFailurePredictionListRelationFilter
   }
 
   export type StructureOrderByWithRelationInput = {
@@ -25452,6 +28165,7 @@ export namespace Prisma {
     maintenanceLogs?: MaintenanceLogOrderByRelationAggregateInput
     failureEvents?: FailureEventOrderByRelationAggregateInput
     forecasts?: PredictiveForecastOrderByRelationAggregateInput
+    mlPredictions?: MLFailurePredictionOrderByRelationAggregateInput
   }
 
   export type StructureWhereUniqueInput = Prisma.AtLeast<{
@@ -25474,6 +28188,7 @@ export namespace Prisma {
     maintenanceLogs?: MaintenanceLogListRelationFilter
     failureEvents?: FailureEventListRelationFilter
     forecasts?: PredictiveForecastListRelationFilter
+    mlPredictions?: MLFailurePredictionListRelationFilter
   }, "id">
 
   export type StructureOrderByWithAggregationInput = {
@@ -25533,6 +28248,7 @@ export namespace Prisma {
     structure?: XOR<StructureScalarRelationFilter, StructureWhereInput>
     telemetry?: SensorTelemetryListRelationFilter
     anomalies?: UtilityAnomalyListRelationFilter
+    mlAnomalies?: MLAnomalyDetectionListRelationFilter
   }
 
   export type IoTSensorOrderByWithRelationInput = {
@@ -25551,6 +28267,7 @@ export namespace Prisma {
     structure?: StructureOrderByWithRelationInput
     telemetry?: SensorTelemetryOrderByRelationAggregateInput
     anomalies?: UtilityAnomalyOrderByRelationAggregateInput
+    mlAnomalies?: MLAnomalyDetectionOrderByRelationAggregateInput
   }
 
   export type IoTSensorWhereUniqueInput = Prisma.AtLeast<{
@@ -25572,6 +28289,7 @@ export namespace Prisma {
     structure?: XOR<StructureScalarRelationFilter, StructureWhereInput>
     telemetry?: SensorTelemetryListRelationFilter
     anomalies?: UtilityAnomalyListRelationFilter
+    mlAnomalies?: MLAnomalyDetectionListRelationFilter
   }, "id" | "sensorCode">
 
   export type IoTSensorOrderByWithAggregationInput = {
@@ -25625,6 +28343,7 @@ export namespace Prisma {
     rawPayload?: JsonNullableFilter<"SensorTelemetry">
     createdAt?: DateTimeFilter<"SensorTelemetry"> | Date | string
     sensor?: XOR<IoTSensorScalarRelationFilter, IoTSensorWhereInput>
+    mlAnomalies?: MLAnomalyDetectionListRelationFilter
   }
 
   export type SensorTelemetryOrderByWithRelationInput = {
@@ -25637,6 +28356,7 @@ export namespace Prisma {
     rawPayload?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     sensor?: IoTSensorOrderByWithRelationInput
+    mlAnomalies?: MLAnomalyDetectionOrderByRelationAggregateInput
   }
 
   export type SensorTelemetryWhereUniqueInput = Prisma.AtLeast<{
@@ -25652,6 +28372,7 @@ export namespace Prisma {
     rawPayload?: JsonNullableFilter<"SensorTelemetry">
     createdAt?: DateTimeFilter<"SensorTelemetry"> | Date | string
     sensor?: XOR<IoTSensorScalarRelationFilter, IoTSensorWhereInput>
+    mlAnomalies?: MLAnomalyDetectionListRelationFilter
   }, "id">
 
   export type SensorTelemetryOrderByWithAggregationInput = {
@@ -25764,6 +28485,178 @@ export namespace Prisma {
     longitude?: FloatNullableWithAggregatesFilter<"UtilityAnomaly"> | number | null
     detectedAt?: DateTimeWithAggregatesFilter<"UtilityAnomaly"> | Date | string
     isResolved?: BoolWithAggregatesFilter<"UtilityAnomaly"> | boolean
+  }
+
+  export type MLAnomalyDetectionWhereInput = {
+    AND?: MLAnomalyDetectionWhereInput | MLAnomalyDetectionWhereInput[]
+    OR?: MLAnomalyDetectionWhereInput[]
+    NOT?: MLAnomalyDetectionWhereInput | MLAnomalyDetectionWhereInput[]
+    id?: StringFilter<"MLAnomalyDetection"> | string
+    telemetryId?: StringNullableFilter<"MLAnomalyDetection"> | string | null
+    sensorId?: StringFilter<"MLAnomalyDetection"> | string
+    readingType?: EnumTelemetryTypeFilter<"MLAnomalyDetection"> | $Enums.TelemetryType
+    value?: FloatFilter<"MLAnomalyDetection"> | number
+    isAnomaly?: BoolFilter<"MLAnomalyDetection"> | boolean
+    anomalyScore?: FloatFilter<"MLAnomalyDetection"> | number
+    modelVersion?: StringFilter<"MLAnomalyDetection"> | string
+    detectedAt?: DateTimeFilter<"MLAnomalyDetection"> | Date | string
+    telemetry?: XOR<SensorTelemetryNullableScalarRelationFilter, SensorTelemetryWhereInput> | null
+    sensor?: XOR<IoTSensorScalarRelationFilter, IoTSensorWhereInput>
+  }
+
+  export type MLAnomalyDetectionOrderByWithRelationInput = {
+    id?: SortOrder
+    telemetryId?: SortOrderInput | SortOrder
+    sensorId?: SortOrder
+    readingType?: SortOrder
+    value?: SortOrder
+    isAnomaly?: SortOrder
+    anomalyScore?: SortOrder
+    modelVersion?: SortOrder
+    detectedAt?: SortOrder
+    telemetry?: SensorTelemetryOrderByWithRelationInput
+    sensor?: IoTSensorOrderByWithRelationInput
+  }
+
+  export type MLAnomalyDetectionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: MLAnomalyDetectionWhereInput | MLAnomalyDetectionWhereInput[]
+    OR?: MLAnomalyDetectionWhereInput[]
+    NOT?: MLAnomalyDetectionWhereInput | MLAnomalyDetectionWhereInput[]
+    telemetryId?: StringNullableFilter<"MLAnomalyDetection"> | string | null
+    sensorId?: StringFilter<"MLAnomalyDetection"> | string
+    readingType?: EnumTelemetryTypeFilter<"MLAnomalyDetection"> | $Enums.TelemetryType
+    value?: FloatFilter<"MLAnomalyDetection"> | number
+    isAnomaly?: BoolFilter<"MLAnomalyDetection"> | boolean
+    anomalyScore?: FloatFilter<"MLAnomalyDetection"> | number
+    modelVersion?: StringFilter<"MLAnomalyDetection"> | string
+    detectedAt?: DateTimeFilter<"MLAnomalyDetection"> | Date | string
+    telemetry?: XOR<SensorTelemetryNullableScalarRelationFilter, SensorTelemetryWhereInput> | null
+    sensor?: XOR<IoTSensorScalarRelationFilter, IoTSensorWhereInput>
+  }, "id">
+
+  export type MLAnomalyDetectionOrderByWithAggregationInput = {
+    id?: SortOrder
+    telemetryId?: SortOrderInput | SortOrder
+    sensorId?: SortOrder
+    readingType?: SortOrder
+    value?: SortOrder
+    isAnomaly?: SortOrder
+    anomalyScore?: SortOrder
+    modelVersion?: SortOrder
+    detectedAt?: SortOrder
+    _count?: MLAnomalyDetectionCountOrderByAggregateInput
+    _avg?: MLAnomalyDetectionAvgOrderByAggregateInput
+    _max?: MLAnomalyDetectionMaxOrderByAggregateInput
+    _min?: MLAnomalyDetectionMinOrderByAggregateInput
+    _sum?: MLAnomalyDetectionSumOrderByAggregateInput
+  }
+
+  export type MLAnomalyDetectionScalarWhereWithAggregatesInput = {
+    AND?: MLAnomalyDetectionScalarWhereWithAggregatesInput | MLAnomalyDetectionScalarWhereWithAggregatesInput[]
+    OR?: MLAnomalyDetectionScalarWhereWithAggregatesInput[]
+    NOT?: MLAnomalyDetectionScalarWhereWithAggregatesInput | MLAnomalyDetectionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MLAnomalyDetection"> | string
+    telemetryId?: StringNullableWithAggregatesFilter<"MLAnomalyDetection"> | string | null
+    sensorId?: StringWithAggregatesFilter<"MLAnomalyDetection"> | string
+    readingType?: EnumTelemetryTypeWithAggregatesFilter<"MLAnomalyDetection"> | $Enums.TelemetryType
+    value?: FloatWithAggregatesFilter<"MLAnomalyDetection"> | number
+    isAnomaly?: BoolWithAggregatesFilter<"MLAnomalyDetection"> | boolean
+    anomalyScore?: FloatWithAggregatesFilter<"MLAnomalyDetection"> | number
+    modelVersion?: StringWithAggregatesFilter<"MLAnomalyDetection"> | string
+    detectedAt?: DateTimeWithAggregatesFilter<"MLAnomalyDetection"> | Date | string
+  }
+
+  export type MLFailurePredictionWhereInput = {
+    AND?: MLFailurePredictionWhereInput | MLFailurePredictionWhereInput[]
+    OR?: MLFailurePredictionWhereInput[]
+    NOT?: MLFailurePredictionWhereInput | MLFailurePredictionWhereInput[]
+    id?: StringFilter<"MLFailurePrediction"> | string
+    structureId?: StringFilter<"MLFailurePrediction"> | string
+    failureProbability?: FloatFilter<"MLFailurePrediction"> | number
+    failureRisk?: StringFilter<"MLFailurePrediction"> | string
+    predictedFailure24h?: BoolFilter<"MLFailurePrediction"> | boolean
+    confidenceScore?: FloatNullableFilter<"MLFailurePrediction"> | number | null
+    contributingFactors?: JsonNullableFilter<"MLFailurePrediction">
+    modelVersion?: StringFilter<"MLFailurePrediction"> | string
+    modelThreshold?: FloatFilter<"MLFailurePrediction"> | number
+    predictionWindow?: StringFilter<"MLFailurePrediction"> | string
+    predictedAt?: DateTimeFilter<"MLFailurePrediction"> | Date | string
+    validUntil?: DateTimeNullableFilter<"MLFailurePrediction"> | Date | string | null
+    structure?: XOR<StructureScalarRelationFilter, StructureWhereInput>
+  }
+
+  export type MLFailurePredictionOrderByWithRelationInput = {
+    id?: SortOrder
+    structureId?: SortOrder
+    failureProbability?: SortOrder
+    failureRisk?: SortOrder
+    predictedFailure24h?: SortOrder
+    confidenceScore?: SortOrderInput | SortOrder
+    contributingFactors?: SortOrderInput | SortOrder
+    modelVersion?: SortOrder
+    modelThreshold?: SortOrder
+    predictionWindow?: SortOrder
+    predictedAt?: SortOrder
+    validUntil?: SortOrderInput | SortOrder
+    structure?: StructureOrderByWithRelationInput
+  }
+
+  export type MLFailurePredictionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: MLFailurePredictionWhereInput | MLFailurePredictionWhereInput[]
+    OR?: MLFailurePredictionWhereInput[]
+    NOT?: MLFailurePredictionWhereInput | MLFailurePredictionWhereInput[]
+    structureId?: StringFilter<"MLFailurePrediction"> | string
+    failureProbability?: FloatFilter<"MLFailurePrediction"> | number
+    failureRisk?: StringFilter<"MLFailurePrediction"> | string
+    predictedFailure24h?: BoolFilter<"MLFailurePrediction"> | boolean
+    confidenceScore?: FloatNullableFilter<"MLFailurePrediction"> | number | null
+    contributingFactors?: JsonNullableFilter<"MLFailurePrediction">
+    modelVersion?: StringFilter<"MLFailurePrediction"> | string
+    modelThreshold?: FloatFilter<"MLFailurePrediction"> | number
+    predictionWindow?: StringFilter<"MLFailurePrediction"> | string
+    predictedAt?: DateTimeFilter<"MLFailurePrediction"> | Date | string
+    validUntil?: DateTimeNullableFilter<"MLFailurePrediction"> | Date | string | null
+    structure?: XOR<StructureScalarRelationFilter, StructureWhereInput>
+  }, "id">
+
+  export type MLFailurePredictionOrderByWithAggregationInput = {
+    id?: SortOrder
+    structureId?: SortOrder
+    failureProbability?: SortOrder
+    failureRisk?: SortOrder
+    predictedFailure24h?: SortOrder
+    confidenceScore?: SortOrderInput | SortOrder
+    contributingFactors?: SortOrderInput | SortOrder
+    modelVersion?: SortOrder
+    modelThreshold?: SortOrder
+    predictionWindow?: SortOrder
+    predictedAt?: SortOrder
+    validUntil?: SortOrderInput | SortOrder
+    _count?: MLFailurePredictionCountOrderByAggregateInput
+    _avg?: MLFailurePredictionAvgOrderByAggregateInput
+    _max?: MLFailurePredictionMaxOrderByAggregateInput
+    _min?: MLFailurePredictionMinOrderByAggregateInput
+    _sum?: MLFailurePredictionSumOrderByAggregateInput
+  }
+
+  export type MLFailurePredictionScalarWhereWithAggregatesInput = {
+    AND?: MLFailurePredictionScalarWhereWithAggregatesInput | MLFailurePredictionScalarWhereWithAggregatesInput[]
+    OR?: MLFailurePredictionScalarWhereWithAggregatesInput[]
+    NOT?: MLFailurePredictionScalarWhereWithAggregatesInput | MLFailurePredictionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MLFailurePrediction"> | string
+    structureId?: StringWithAggregatesFilter<"MLFailurePrediction"> | string
+    failureProbability?: FloatWithAggregatesFilter<"MLFailurePrediction"> | number
+    failureRisk?: StringWithAggregatesFilter<"MLFailurePrediction"> | string
+    predictedFailure24h?: BoolWithAggregatesFilter<"MLFailurePrediction"> | boolean
+    confidenceScore?: FloatNullableWithAggregatesFilter<"MLFailurePrediction"> | number | null
+    contributingFactors?: JsonNullableWithAggregatesFilter<"MLFailurePrediction">
+    modelVersion?: StringWithAggregatesFilter<"MLFailurePrediction"> | string
+    modelThreshold?: FloatWithAggregatesFilter<"MLFailurePrediction"> | number
+    predictionWindow?: StringWithAggregatesFilter<"MLFailurePrediction"> | string
+    predictedAt?: DateTimeWithAggregatesFilter<"MLFailurePrediction"> | Date | string
+    validUntil?: DateTimeNullableWithAggregatesFilter<"MLFailurePrediction"> | Date | string | null
   }
 
   export type FailureEventWhereInput = {
@@ -26970,6 +29863,7 @@ export namespace Prisma {
     maintenanceLogs?: MaintenanceLogCreateNestedManyWithoutStructureInput
     failureEvents?: FailureEventCreateNestedManyWithoutStructureInput
     forecasts?: PredictiveForecastCreateNestedManyWithoutStructureInput
+    mlPredictions?: MLFailurePredictionCreateNestedManyWithoutStructureInput
   }
 
   export type StructureUncheckedCreateInput = {
@@ -26989,6 +29883,7 @@ export namespace Prisma {
     maintenanceLogs?: MaintenanceLogUncheckedCreateNestedManyWithoutStructureInput
     failureEvents?: FailureEventUncheckedCreateNestedManyWithoutStructureInput
     forecasts?: PredictiveForecastUncheckedCreateNestedManyWithoutStructureInput
+    mlPredictions?: MLFailurePredictionUncheckedCreateNestedManyWithoutStructureInput
   }
 
   export type StructureUpdateInput = {
@@ -27008,6 +29903,7 @@ export namespace Prisma {
     maintenanceLogs?: MaintenanceLogUpdateManyWithoutStructureNestedInput
     failureEvents?: FailureEventUpdateManyWithoutStructureNestedInput
     forecasts?: PredictiveForecastUpdateManyWithoutStructureNestedInput
+    mlPredictions?: MLFailurePredictionUpdateManyWithoutStructureNestedInput
   }
 
   export type StructureUncheckedUpdateInput = {
@@ -27027,6 +29923,7 @@ export namespace Prisma {
     maintenanceLogs?: MaintenanceLogUncheckedUpdateManyWithoutStructureNestedInput
     failureEvents?: FailureEventUncheckedUpdateManyWithoutStructureNestedInput
     forecasts?: PredictiveForecastUncheckedUpdateManyWithoutStructureNestedInput
+    mlPredictions?: MLFailurePredictionUncheckedUpdateManyWithoutStructureNestedInput
   }
 
   export type StructureCreateManyInput = {
@@ -27089,6 +29986,7 @@ export namespace Prisma {
     structure: StructureCreateNestedOneWithoutSensorsInput
     telemetry?: SensorTelemetryCreateNestedManyWithoutSensorInput
     anomalies?: UtilityAnomalyCreateNestedManyWithoutSensorInput
+    mlAnomalies?: MLAnomalyDetectionCreateNestedManyWithoutSensorInput
   }
 
   export type IoTSensorUncheckedCreateInput = {
@@ -27106,6 +30004,7 @@ export namespace Prisma {
     isSubscribed?: boolean
     telemetry?: SensorTelemetryUncheckedCreateNestedManyWithoutSensorInput
     anomalies?: UtilityAnomalyUncheckedCreateNestedManyWithoutSensorInput
+    mlAnomalies?: MLAnomalyDetectionUncheckedCreateNestedManyWithoutSensorInput
   }
 
   export type IoTSensorUpdateInput = {
@@ -27123,6 +30022,7 @@ export namespace Prisma {
     structure?: StructureUpdateOneRequiredWithoutSensorsNestedInput
     telemetry?: SensorTelemetryUpdateManyWithoutSensorNestedInput
     anomalies?: UtilityAnomalyUpdateManyWithoutSensorNestedInput
+    mlAnomalies?: MLAnomalyDetectionUpdateManyWithoutSensorNestedInput
   }
 
   export type IoTSensorUncheckedUpdateInput = {
@@ -27140,6 +30040,7 @@ export namespace Prisma {
     isSubscribed?: BoolFieldUpdateOperationsInput | boolean
     telemetry?: SensorTelemetryUncheckedUpdateManyWithoutSensorNestedInput
     anomalies?: UtilityAnomalyUncheckedUpdateManyWithoutSensorNestedInput
+    mlAnomalies?: MLAnomalyDetectionUncheckedUpdateManyWithoutSensorNestedInput
   }
 
   export type IoTSensorCreateManyInput = {
@@ -27195,6 +30096,7 @@ export namespace Prisma {
     rawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     sensor: IoTSensorCreateNestedOneWithoutTelemetryInput
+    mlAnomalies?: MLAnomalyDetectionCreateNestedManyWithoutTelemetryInput
   }
 
   export type SensorTelemetryUncheckedCreateInput = {
@@ -27206,6 +30108,7 @@ export namespace Prisma {
     unit: string
     rawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    mlAnomalies?: MLAnomalyDetectionUncheckedCreateNestedManyWithoutTelemetryInput
   }
 
   export type SensorTelemetryUpdateInput = {
@@ -27217,6 +30120,7 @@ export namespace Prisma {
     rawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sensor?: IoTSensorUpdateOneRequiredWithoutTelemetryNestedInput
+    mlAnomalies?: MLAnomalyDetectionUpdateManyWithoutTelemetryNestedInput
   }
 
   export type SensorTelemetryUncheckedUpdateInput = {
@@ -27228,6 +30132,7 @@ export namespace Prisma {
     unit?: StringFieldUpdateOperationsInput | string
     rawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mlAnomalies?: MLAnomalyDetectionUncheckedUpdateManyWithoutTelemetryNestedInput
   }
 
   export type SensorTelemetryCreateManyInput = {
@@ -27350,6 +30255,192 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isResolved?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type MLAnomalyDetectionCreateInput = {
+    id?: string
+    readingType: $Enums.TelemetryType
+    value: number
+    isAnomaly: boolean
+    anomalyScore: number
+    modelVersion?: string
+    detectedAt?: Date | string
+    telemetry?: SensorTelemetryCreateNestedOneWithoutMlAnomaliesInput
+    sensor: IoTSensorCreateNestedOneWithoutMlAnomaliesInput
+  }
+
+  export type MLAnomalyDetectionUncheckedCreateInput = {
+    id?: string
+    telemetryId?: string | null
+    sensorId: string
+    readingType: $Enums.TelemetryType
+    value: number
+    isAnomaly: boolean
+    anomalyScore: number
+    modelVersion?: string
+    detectedAt?: Date | string
+  }
+
+  export type MLAnomalyDetectionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    readingType?: EnumTelemetryTypeFieldUpdateOperationsInput | $Enums.TelemetryType
+    value?: FloatFieldUpdateOperationsInput | number
+    isAnomaly?: BoolFieldUpdateOperationsInput | boolean
+    anomalyScore?: FloatFieldUpdateOperationsInput | number
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    telemetry?: SensorTelemetryUpdateOneWithoutMlAnomaliesNestedInput
+    sensor?: IoTSensorUpdateOneRequiredWithoutMlAnomaliesNestedInput
+  }
+
+  export type MLAnomalyDetectionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    telemetryId?: NullableStringFieldUpdateOperationsInput | string | null
+    sensorId?: StringFieldUpdateOperationsInput | string
+    readingType?: EnumTelemetryTypeFieldUpdateOperationsInput | $Enums.TelemetryType
+    value?: FloatFieldUpdateOperationsInput | number
+    isAnomaly?: BoolFieldUpdateOperationsInput | boolean
+    anomalyScore?: FloatFieldUpdateOperationsInput | number
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MLAnomalyDetectionCreateManyInput = {
+    id?: string
+    telemetryId?: string | null
+    sensorId: string
+    readingType: $Enums.TelemetryType
+    value: number
+    isAnomaly: boolean
+    anomalyScore: number
+    modelVersion?: string
+    detectedAt?: Date | string
+  }
+
+  export type MLAnomalyDetectionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    readingType?: EnumTelemetryTypeFieldUpdateOperationsInput | $Enums.TelemetryType
+    value?: FloatFieldUpdateOperationsInput | number
+    isAnomaly?: BoolFieldUpdateOperationsInput | boolean
+    anomalyScore?: FloatFieldUpdateOperationsInput | number
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MLAnomalyDetectionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    telemetryId?: NullableStringFieldUpdateOperationsInput | string | null
+    sensorId?: StringFieldUpdateOperationsInput | string
+    readingType?: EnumTelemetryTypeFieldUpdateOperationsInput | $Enums.TelemetryType
+    value?: FloatFieldUpdateOperationsInput | number
+    isAnomaly?: BoolFieldUpdateOperationsInput | boolean
+    anomalyScore?: FloatFieldUpdateOperationsInput | number
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MLFailurePredictionCreateInput = {
+    id?: string
+    failureProbability: number
+    failureRisk: string
+    predictedFailure24h: boolean
+    confidenceScore?: number | null
+    contributingFactors?: NullableJsonNullValueInput | InputJsonValue
+    modelVersion?: string
+    modelThreshold: number
+    predictionWindow?: string
+    predictedAt?: Date | string
+    validUntil?: Date | string | null
+    structure: StructureCreateNestedOneWithoutMlPredictionsInput
+  }
+
+  export type MLFailurePredictionUncheckedCreateInput = {
+    id?: string
+    structureId: string
+    failureProbability: number
+    failureRisk: string
+    predictedFailure24h: boolean
+    confidenceScore?: number | null
+    contributingFactors?: NullableJsonNullValueInput | InputJsonValue
+    modelVersion?: string
+    modelThreshold: number
+    predictionWindow?: string
+    predictedAt?: Date | string
+    validUntil?: Date | string | null
+  }
+
+  export type MLFailurePredictionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    failureProbability?: FloatFieldUpdateOperationsInput | number
+    failureRisk?: StringFieldUpdateOperationsInput | string
+    predictedFailure24h?: BoolFieldUpdateOperationsInput | boolean
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    contributingFactors?: NullableJsonNullValueInput | InputJsonValue
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    modelThreshold?: FloatFieldUpdateOperationsInput | number
+    predictionWindow?: StringFieldUpdateOperationsInput | string
+    predictedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    structure?: StructureUpdateOneRequiredWithoutMlPredictionsNestedInput
+  }
+
+  export type MLFailurePredictionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    structureId?: StringFieldUpdateOperationsInput | string
+    failureProbability?: FloatFieldUpdateOperationsInput | number
+    failureRisk?: StringFieldUpdateOperationsInput | string
+    predictedFailure24h?: BoolFieldUpdateOperationsInput | boolean
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    contributingFactors?: NullableJsonNullValueInput | InputJsonValue
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    modelThreshold?: FloatFieldUpdateOperationsInput | number
+    predictionWindow?: StringFieldUpdateOperationsInput | string
+    predictedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MLFailurePredictionCreateManyInput = {
+    id?: string
+    structureId: string
+    failureProbability: number
+    failureRisk: string
+    predictedFailure24h: boolean
+    confidenceScore?: number | null
+    contributingFactors?: NullableJsonNullValueInput | InputJsonValue
+    modelVersion?: string
+    modelThreshold: number
+    predictionWindow?: string
+    predictedAt?: Date | string
+    validUntil?: Date | string | null
+  }
+
+  export type MLFailurePredictionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    failureProbability?: FloatFieldUpdateOperationsInput | number
+    failureRisk?: StringFieldUpdateOperationsInput | string
+    predictedFailure24h?: BoolFieldUpdateOperationsInput | boolean
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    contributingFactors?: NullableJsonNullValueInput | InputJsonValue
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    modelThreshold?: FloatFieldUpdateOperationsInput | number
+    predictionWindow?: StringFieldUpdateOperationsInput | string
+    predictedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MLFailurePredictionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    structureId?: StringFieldUpdateOperationsInput | string
+    failureProbability?: FloatFieldUpdateOperationsInput | number
+    failureRisk?: StringFieldUpdateOperationsInput | string
+    predictedFailure24h?: BoolFieldUpdateOperationsInput | boolean
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    contributingFactors?: NullableJsonNullValueInput | InputJsonValue
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    modelThreshold?: FloatFieldUpdateOperationsInput | number
+    predictionWindow?: StringFieldUpdateOperationsInput | string
+    predictedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type FailureEventCreateInput = {
@@ -28611,6 +31702,12 @@ export namespace Prisma {
     none?: PredictiveForecastWhereInput
   }
 
+  export type MLFailurePredictionListRelationFilter = {
+    every?: MLFailurePredictionWhereInput
+    some?: MLFailurePredictionWhereInput
+    none?: MLFailurePredictionWhereInput
+  }
+
   export type IoTSensorOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -28624,6 +31721,10 @@ export namespace Prisma {
   }
 
   export type PredictiveForecastOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MLFailurePredictionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -28722,11 +31823,21 @@ export namespace Prisma {
     none?: UtilityAnomalyWhereInput
   }
 
+  export type MLAnomalyDetectionListRelationFilter = {
+    every?: MLAnomalyDetectionWhereInput
+    some?: MLAnomalyDetectionWhereInput
+    none?: MLAnomalyDetectionWhereInput
+  }
+
   export type SensorTelemetryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type UtilityAnomalyOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MLAnomalyDetectionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -28939,6 +32050,112 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPriorityLevelFilter<$PrismaModel>
     _max?: NestedEnumPriorityLevelFilter<$PrismaModel>
+  }
+
+  export type SensorTelemetryNullableScalarRelationFilter = {
+    is?: SensorTelemetryWhereInput | null
+    isNot?: SensorTelemetryWhereInput | null
+  }
+
+  export type MLAnomalyDetectionCountOrderByAggregateInput = {
+    id?: SortOrder
+    telemetryId?: SortOrder
+    sensorId?: SortOrder
+    readingType?: SortOrder
+    value?: SortOrder
+    isAnomaly?: SortOrder
+    anomalyScore?: SortOrder
+    modelVersion?: SortOrder
+    detectedAt?: SortOrder
+  }
+
+  export type MLAnomalyDetectionAvgOrderByAggregateInput = {
+    value?: SortOrder
+    anomalyScore?: SortOrder
+  }
+
+  export type MLAnomalyDetectionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    telemetryId?: SortOrder
+    sensorId?: SortOrder
+    readingType?: SortOrder
+    value?: SortOrder
+    isAnomaly?: SortOrder
+    anomalyScore?: SortOrder
+    modelVersion?: SortOrder
+    detectedAt?: SortOrder
+  }
+
+  export type MLAnomalyDetectionMinOrderByAggregateInput = {
+    id?: SortOrder
+    telemetryId?: SortOrder
+    sensorId?: SortOrder
+    readingType?: SortOrder
+    value?: SortOrder
+    isAnomaly?: SortOrder
+    anomalyScore?: SortOrder
+    modelVersion?: SortOrder
+    detectedAt?: SortOrder
+  }
+
+  export type MLAnomalyDetectionSumOrderByAggregateInput = {
+    value?: SortOrder
+    anomalyScore?: SortOrder
+  }
+
+  export type MLFailurePredictionCountOrderByAggregateInput = {
+    id?: SortOrder
+    structureId?: SortOrder
+    failureProbability?: SortOrder
+    failureRisk?: SortOrder
+    predictedFailure24h?: SortOrder
+    confidenceScore?: SortOrder
+    contributingFactors?: SortOrder
+    modelVersion?: SortOrder
+    modelThreshold?: SortOrder
+    predictionWindow?: SortOrder
+    predictedAt?: SortOrder
+    validUntil?: SortOrder
+  }
+
+  export type MLFailurePredictionAvgOrderByAggregateInput = {
+    failureProbability?: SortOrder
+    confidenceScore?: SortOrder
+    modelThreshold?: SortOrder
+  }
+
+  export type MLFailurePredictionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    structureId?: SortOrder
+    failureProbability?: SortOrder
+    failureRisk?: SortOrder
+    predictedFailure24h?: SortOrder
+    confidenceScore?: SortOrder
+    modelVersion?: SortOrder
+    modelThreshold?: SortOrder
+    predictionWindow?: SortOrder
+    predictedAt?: SortOrder
+    validUntil?: SortOrder
+  }
+
+  export type MLFailurePredictionMinOrderByAggregateInput = {
+    id?: SortOrder
+    structureId?: SortOrder
+    failureProbability?: SortOrder
+    failureRisk?: SortOrder
+    predictedFailure24h?: SortOrder
+    confidenceScore?: SortOrder
+    modelVersion?: SortOrder
+    modelThreshold?: SortOrder
+    predictionWindow?: SortOrder
+    predictedAt?: SortOrder
+    validUntil?: SortOrder
+  }
+
+  export type MLFailurePredictionSumOrderByAggregateInput = {
+    failureProbability?: SortOrder
+    confidenceScore?: SortOrder
+    modelThreshold?: SortOrder
   }
 
   export type EnumFailureTypeFilter<$PrismaModel = never> = {
@@ -29794,6 +33011,13 @@ export namespace Prisma {
     connect?: PredictiveForecastWhereUniqueInput | PredictiveForecastWhereUniqueInput[]
   }
 
+  export type MLFailurePredictionCreateNestedManyWithoutStructureInput = {
+    create?: XOR<MLFailurePredictionCreateWithoutStructureInput, MLFailurePredictionUncheckedCreateWithoutStructureInput> | MLFailurePredictionCreateWithoutStructureInput[] | MLFailurePredictionUncheckedCreateWithoutStructureInput[]
+    connectOrCreate?: MLFailurePredictionCreateOrConnectWithoutStructureInput | MLFailurePredictionCreateOrConnectWithoutStructureInput[]
+    createMany?: MLFailurePredictionCreateManyStructureInputEnvelope
+    connect?: MLFailurePredictionWhereUniqueInput | MLFailurePredictionWhereUniqueInput[]
+  }
+
   export type IoTSensorUncheckedCreateNestedManyWithoutStructureInput = {
     create?: XOR<IoTSensorCreateWithoutStructureInput, IoTSensorUncheckedCreateWithoutStructureInput> | IoTSensorCreateWithoutStructureInput[] | IoTSensorUncheckedCreateWithoutStructureInput[]
     connectOrCreate?: IoTSensorCreateOrConnectWithoutStructureInput | IoTSensorCreateOrConnectWithoutStructureInput[]
@@ -29820,6 +33044,13 @@ export namespace Prisma {
     connectOrCreate?: PredictiveForecastCreateOrConnectWithoutStructureInput | PredictiveForecastCreateOrConnectWithoutStructureInput[]
     createMany?: PredictiveForecastCreateManyStructureInputEnvelope
     connect?: PredictiveForecastWhereUniqueInput | PredictiveForecastWhereUniqueInput[]
+  }
+
+  export type MLFailurePredictionUncheckedCreateNestedManyWithoutStructureInput = {
+    create?: XOR<MLFailurePredictionCreateWithoutStructureInput, MLFailurePredictionUncheckedCreateWithoutStructureInput> | MLFailurePredictionCreateWithoutStructureInput[] | MLFailurePredictionUncheckedCreateWithoutStructureInput[]
+    connectOrCreate?: MLFailurePredictionCreateOrConnectWithoutStructureInput | MLFailurePredictionCreateOrConnectWithoutStructureInput[]
+    createMany?: MLFailurePredictionCreateManyStructureInputEnvelope
+    connect?: MLFailurePredictionWhereUniqueInput | MLFailurePredictionWhereUniqueInput[]
   }
 
   export type EnumStructureTypeFieldUpdateOperationsInput = {
@@ -29882,6 +33113,20 @@ export namespace Prisma {
     deleteMany?: PredictiveForecastScalarWhereInput | PredictiveForecastScalarWhereInput[]
   }
 
+  export type MLFailurePredictionUpdateManyWithoutStructureNestedInput = {
+    create?: XOR<MLFailurePredictionCreateWithoutStructureInput, MLFailurePredictionUncheckedCreateWithoutStructureInput> | MLFailurePredictionCreateWithoutStructureInput[] | MLFailurePredictionUncheckedCreateWithoutStructureInput[]
+    connectOrCreate?: MLFailurePredictionCreateOrConnectWithoutStructureInput | MLFailurePredictionCreateOrConnectWithoutStructureInput[]
+    upsert?: MLFailurePredictionUpsertWithWhereUniqueWithoutStructureInput | MLFailurePredictionUpsertWithWhereUniqueWithoutStructureInput[]
+    createMany?: MLFailurePredictionCreateManyStructureInputEnvelope
+    set?: MLFailurePredictionWhereUniqueInput | MLFailurePredictionWhereUniqueInput[]
+    disconnect?: MLFailurePredictionWhereUniqueInput | MLFailurePredictionWhereUniqueInput[]
+    delete?: MLFailurePredictionWhereUniqueInput | MLFailurePredictionWhereUniqueInput[]
+    connect?: MLFailurePredictionWhereUniqueInput | MLFailurePredictionWhereUniqueInput[]
+    update?: MLFailurePredictionUpdateWithWhereUniqueWithoutStructureInput | MLFailurePredictionUpdateWithWhereUniqueWithoutStructureInput[]
+    updateMany?: MLFailurePredictionUpdateManyWithWhereWithoutStructureInput | MLFailurePredictionUpdateManyWithWhereWithoutStructureInput[]
+    deleteMany?: MLFailurePredictionScalarWhereInput | MLFailurePredictionScalarWhereInput[]
+  }
+
   export type IoTSensorUncheckedUpdateManyWithoutStructureNestedInput = {
     create?: XOR<IoTSensorCreateWithoutStructureInput, IoTSensorUncheckedCreateWithoutStructureInput> | IoTSensorCreateWithoutStructureInput[] | IoTSensorUncheckedCreateWithoutStructureInput[]
     connectOrCreate?: IoTSensorCreateOrConnectWithoutStructureInput | IoTSensorCreateOrConnectWithoutStructureInput[]
@@ -29938,6 +33183,20 @@ export namespace Prisma {
     deleteMany?: PredictiveForecastScalarWhereInput | PredictiveForecastScalarWhereInput[]
   }
 
+  export type MLFailurePredictionUncheckedUpdateManyWithoutStructureNestedInput = {
+    create?: XOR<MLFailurePredictionCreateWithoutStructureInput, MLFailurePredictionUncheckedCreateWithoutStructureInput> | MLFailurePredictionCreateWithoutStructureInput[] | MLFailurePredictionUncheckedCreateWithoutStructureInput[]
+    connectOrCreate?: MLFailurePredictionCreateOrConnectWithoutStructureInput | MLFailurePredictionCreateOrConnectWithoutStructureInput[]
+    upsert?: MLFailurePredictionUpsertWithWhereUniqueWithoutStructureInput | MLFailurePredictionUpsertWithWhereUniqueWithoutStructureInput[]
+    createMany?: MLFailurePredictionCreateManyStructureInputEnvelope
+    set?: MLFailurePredictionWhereUniqueInput | MLFailurePredictionWhereUniqueInput[]
+    disconnect?: MLFailurePredictionWhereUniqueInput | MLFailurePredictionWhereUniqueInput[]
+    delete?: MLFailurePredictionWhereUniqueInput | MLFailurePredictionWhereUniqueInput[]
+    connect?: MLFailurePredictionWhereUniqueInput | MLFailurePredictionWhereUniqueInput[]
+    update?: MLFailurePredictionUpdateWithWhereUniqueWithoutStructureInput | MLFailurePredictionUpdateWithWhereUniqueWithoutStructureInput[]
+    updateMany?: MLFailurePredictionUpdateManyWithWhereWithoutStructureInput | MLFailurePredictionUpdateManyWithWhereWithoutStructureInput[]
+    deleteMany?: MLFailurePredictionScalarWhereInput | MLFailurePredictionScalarWhereInput[]
+  }
+
   export type StructureCreateNestedOneWithoutSensorsInput = {
     create?: XOR<StructureCreateWithoutSensorsInput, StructureUncheckedCreateWithoutSensorsInput>
     connectOrCreate?: StructureCreateOrConnectWithoutSensorsInput
@@ -29958,6 +33217,13 @@ export namespace Prisma {
     connect?: UtilityAnomalyWhereUniqueInput | UtilityAnomalyWhereUniqueInput[]
   }
 
+  export type MLAnomalyDetectionCreateNestedManyWithoutSensorInput = {
+    create?: XOR<MLAnomalyDetectionCreateWithoutSensorInput, MLAnomalyDetectionUncheckedCreateWithoutSensorInput> | MLAnomalyDetectionCreateWithoutSensorInput[] | MLAnomalyDetectionUncheckedCreateWithoutSensorInput[]
+    connectOrCreate?: MLAnomalyDetectionCreateOrConnectWithoutSensorInput | MLAnomalyDetectionCreateOrConnectWithoutSensorInput[]
+    createMany?: MLAnomalyDetectionCreateManySensorInputEnvelope
+    connect?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+  }
+
   export type SensorTelemetryUncheckedCreateNestedManyWithoutSensorInput = {
     create?: XOR<SensorTelemetryCreateWithoutSensorInput, SensorTelemetryUncheckedCreateWithoutSensorInput> | SensorTelemetryCreateWithoutSensorInput[] | SensorTelemetryUncheckedCreateWithoutSensorInput[]
     connectOrCreate?: SensorTelemetryCreateOrConnectWithoutSensorInput | SensorTelemetryCreateOrConnectWithoutSensorInput[]
@@ -29970,6 +33236,13 @@ export namespace Prisma {
     connectOrCreate?: UtilityAnomalyCreateOrConnectWithoutSensorInput | UtilityAnomalyCreateOrConnectWithoutSensorInput[]
     createMany?: UtilityAnomalyCreateManySensorInputEnvelope
     connect?: UtilityAnomalyWhereUniqueInput | UtilityAnomalyWhereUniqueInput[]
+  }
+
+  export type MLAnomalyDetectionUncheckedCreateNestedManyWithoutSensorInput = {
+    create?: XOR<MLAnomalyDetectionCreateWithoutSensorInput, MLAnomalyDetectionUncheckedCreateWithoutSensorInput> | MLAnomalyDetectionCreateWithoutSensorInput[] | MLAnomalyDetectionUncheckedCreateWithoutSensorInput[]
+    connectOrCreate?: MLAnomalyDetectionCreateOrConnectWithoutSensorInput | MLAnomalyDetectionCreateOrConnectWithoutSensorInput[]
+    createMany?: MLAnomalyDetectionCreateManySensorInputEnvelope
+    connect?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
   }
 
   export type EnumSensorTypeFieldUpdateOperationsInput = {
@@ -30012,6 +33285,20 @@ export namespace Prisma {
     deleteMany?: UtilityAnomalyScalarWhereInput | UtilityAnomalyScalarWhereInput[]
   }
 
+  export type MLAnomalyDetectionUpdateManyWithoutSensorNestedInput = {
+    create?: XOR<MLAnomalyDetectionCreateWithoutSensorInput, MLAnomalyDetectionUncheckedCreateWithoutSensorInput> | MLAnomalyDetectionCreateWithoutSensorInput[] | MLAnomalyDetectionUncheckedCreateWithoutSensorInput[]
+    connectOrCreate?: MLAnomalyDetectionCreateOrConnectWithoutSensorInput | MLAnomalyDetectionCreateOrConnectWithoutSensorInput[]
+    upsert?: MLAnomalyDetectionUpsertWithWhereUniqueWithoutSensorInput | MLAnomalyDetectionUpsertWithWhereUniqueWithoutSensorInput[]
+    createMany?: MLAnomalyDetectionCreateManySensorInputEnvelope
+    set?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    disconnect?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    delete?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    connect?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    update?: MLAnomalyDetectionUpdateWithWhereUniqueWithoutSensorInput | MLAnomalyDetectionUpdateWithWhereUniqueWithoutSensorInput[]
+    updateMany?: MLAnomalyDetectionUpdateManyWithWhereWithoutSensorInput | MLAnomalyDetectionUpdateManyWithWhereWithoutSensorInput[]
+    deleteMany?: MLAnomalyDetectionScalarWhereInput | MLAnomalyDetectionScalarWhereInput[]
+  }
+
   export type SensorTelemetryUncheckedUpdateManyWithoutSensorNestedInput = {
     create?: XOR<SensorTelemetryCreateWithoutSensorInput, SensorTelemetryUncheckedCreateWithoutSensorInput> | SensorTelemetryCreateWithoutSensorInput[] | SensorTelemetryUncheckedCreateWithoutSensorInput[]
     connectOrCreate?: SensorTelemetryCreateOrConnectWithoutSensorInput | SensorTelemetryCreateOrConnectWithoutSensorInput[]
@@ -30040,10 +33327,38 @@ export namespace Prisma {
     deleteMany?: UtilityAnomalyScalarWhereInput | UtilityAnomalyScalarWhereInput[]
   }
 
+  export type MLAnomalyDetectionUncheckedUpdateManyWithoutSensorNestedInput = {
+    create?: XOR<MLAnomalyDetectionCreateWithoutSensorInput, MLAnomalyDetectionUncheckedCreateWithoutSensorInput> | MLAnomalyDetectionCreateWithoutSensorInput[] | MLAnomalyDetectionUncheckedCreateWithoutSensorInput[]
+    connectOrCreate?: MLAnomalyDetectionCreateOrConnectWithoutSensorInput | MLAnomalyDetectionCreateOrConnectWithoutSensorInput[]
+    upsert?: MLAnomalyDetectionUpsertWithWhereUniqueWithoutSensorInput | MLAnomalyDetectionUpsertWithWhereUniqueWithoutSensorInput[]
+    createMany?: MLAnomalyDetectionCreateManySensorInputEnvelope
+    set?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    disconnect?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    delete?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    connect?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    update?: MLAnomalyDetectionUpdateWithWhereUniqueWithoutSensorInput | MLAnomalyDetectionUpdateWithWhereUniqueWithoutSensorInput[]
+    updateMany?: MLAnomalyDetectionUpdateManyWithWhereWithoutSensorInput | MLAnomalyDetectionUpdateManyWithWhereWithoutSensorInput[]
+    deleteMany?: MLAnomalyDetectionScalarWhereInput | MLAnomalyDetectionScalarWhereInput[]
+  }
+
   export type IoTSensorCreateNestedOneWithoutTelemetryInput = {
     create?: XOR<IoTSensorCreateWithoutTelemetryInput, IoTSensorUncheckedCreateWithoutTelemetryInput>
     connectOrCreate?: IoTSensorCreateOrConnectWithoutTelemetryInput
     connect?: IoTSensorWhereUniqueInput
+  }
+
+  export type MLAnomalyDetectionCreateNestedManyWithoutTelemetryInput = {
+    create?: XOR<MLAnomalyDetectionCreateWithoutTelemetryInput, MLAnomalyDetectionUncheckedCreateWithoutTelemetryInput> | MLAnomalyDetectionCreateWithoutTelemetryInput[] | MLAnomalyDetectionUncheckedCreateWithoutTelemetryInput[]
+    connectOrCreate?: MLAnomalyDetectionCreateOrConnectWithoutTelemetryInput | MLAnomalyDetectionCreateOrConnectWithoutTelemetryInput[]
+    createMany?: MLAnomalyDetectionCreateManyTelemetryInputEnvelope
+    connect?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+  }
+
+  export type MLAnomalyDetectionUncheckedCreateNestedManyWithoutTelemetryInput = {
+    create?: XOR<MLAnomalyDetectionCreateWithoutTelemetryInput, MLAnomalyDetectionUncheckedCreateWithoutTelemetryInput> | MLAnomalyDetectionCreateWithoutTelemetryInput[] | MLAnomalyDetectionUncheckedCreateWithoutTelemetryInput[]
+    connectOrCreate?: MLAnomalyDetectionCreateOrConnectWithoutTelemetryInput | MLAnomalyDetectionCreateOrConnectWithoutTelemetryInput[]
+    createMany?: MLAnomalyDetectionCreateManyTelemetryInputEnvelope
+    connect?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
   }
 
   export type EnumTelemetryTypeFieldUpdateOperationsInput = {
@@ -30056,6 +33371,34 @@ export namespace Prisma {
     upsert?: IoTSensorUpsertWithoutTelemetryInput
     connect?: IoTSensorWhereUniqueInput
     update?: XOR<XOR<IoTSensorUpdateToOneWithWhereWithoutTelemetryInput, IoTSensorUpdateWithoutTelemetryInput>, IoTSensorUncheckedUpdateWithoutTelemetryInput>
+  }
+
+  export type MLAnomalyDetectionUpdateManyWithoutTelemetryNestedInput = {
+    create?: XOR<MLAnomalyDetectionCreateWithoutTelemetryInput, MLAnomalyDetectionUncheckedCreateWithoutTelemetryInput> | MLAnomalyDetectionCreateWithoutTelemetryInput[] | MLAnomalyDetectionUncheckedCreateWithoutTelemetryInput[]
+    connectOrCreate?: MLAnomalyDetectionCreateOrConnectWithoutTelemetryInput | MLAnomalyDetectionCreateOrConnectWithoutTelemetryInput[]
+    upsert?: MLAnomalyDetectionUpsertWithWhereUniqueWithoutTelemetryInput | MLAnomalyDetectionUpsertWithWhereUniqueWithoutTelemetryInput[]
+    createMany?: MLAnomalyDetectionCreateManyTelemetryInputEnvelope
+    set?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    disconnect?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    delete?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    connect?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    update?: MLAnomalyDetectionUpdateWithWhereUniqueWithoutTelemetryInput | MLAnomalyDetectionUpdateWithWhereUniqueWithoutTelemetryInput[]
+    updateMany?: MLAnomalyDetectionUpdateManyWithWhereWithoutTelemetryInput | MLAnomalyDetectionUpdateManyWithWhereWithoutTelemetryInput[]
+    deleteMany?: MLAnomalyDetectionScalarWhereInput | MLAnomalyDetectionScalarWhereInput[]
+  }
+
+  export type MLAnomalyDetectionUncheckedUpdateManyWithoutTelemetryNestedInput = {
+    create?: XOR<MLAnomalyDetectionCreateWithoutTelemetryInput, MLAnomalyDetectionUncheckedCreateWithoutTelemetryInput> | MLAnomalyDetectionCreateWithoutTelemetryInput[] | MLAnomalyDetectionUncheckedCreateWithoutTelemetryInput[]
+    connectOrCreate?: MLAnomalyDetectionCreateOrConnectWithoutTelemetryInput | MLAnomalyDetectionCreateOrConnectWithoutTelemetryInput[]
+    upsert?: MLAnomalyDetectionUpsertWithWhereUniqueWithoutTelemetryInput | MLAnomalyDetectionUpsertWithWhereUniqueWithoutTelemetryInput[]
+    createMany?: MLAnomalyDetectionCreateManyTelemetryInputEnvelope
+    set?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    disconnect?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    delete?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    connect?: MLAnomalyDetectionWhereUniqueInput | MLAnomalyDetectionWhereUniqueInput[]
+    update?: MLAnomalyDetectionUpdateWithWhereUniqueWithoutTelemetryInput | MLAnomalyDetectionUpdateWithWhereUniqueWithoutTelemetryInput[]
+    updateMany?: MLAnomalyDetectionUpdateManyWithWhereWithoutTelemetryInput | MLAnomalyDetectionUpdateManyWithWhereWithoutTelemetryInput[]
+    deleteMany?: MLAnomalyDetectionScalarWhereInput | MLAnomalyDetectionScalarWhereInput[]
   }
 
   export type IoTSensorCreateNestedOneWithoutAnomaliesInput = {
@@ -30078,6 +33421,50 @@ export namespace Prisma {
     upsert?: IoTSensorUpsertWithoutAnomaliesInput
     connect?: IoTSensorWhereUniqueInput
     update?: XOR<XOR<IoTSensorUpdateToOneWithWhereWithoutAnomaliesInput, IoTSensorUpdateWithoutAnomaliesInput>, IoTSensorUncheckedUpdateWithoutAnomaliesInput>
+  }
+
+  export type SensorTelemetryCreateNestedOneWithoutMlAnomaliesInput = {
+    create?: XOR<SensorTelemetryCreateWithoutMlAnomaliesInput, SensorTelemetryUncheckedCreateWithoutMlAnomaliesInput>
+    connectOrCreate?: SensorTelemetryCreateOrConnectWithoutMlAnomaliesInput
+    connect?: SensorTelemetryWhereUniqueInput
+  }
+
+  export type IoTSensorCreateNestedOneWithoutMlAnomaliesInput = {
+    create?: XOR<IoTSensorCreateWithoutMlAnomaliesInput, IoTSensorUncheckedCreateWithoutMlAnomaliesInput>
+    connectOrCreate?: IoTSensorCreateOrConnectWithoutMlAnomaliesInput
+    connect?: IoTSensorWhereUniqueInput
+  }
+
+  export type SensorTelemetryUpdateOneWithoutMlAnomaliesNestedInput = {
+    create?: XOR<SensorTelemetryCreateWithoutMlAnomaliesInput, SensorTelemetryUncheckedCreateWithoutMlAnomaliesInput>
+    connectOrCreate?: SensorTelemetryCreateOrConnectWithoutMlAnomaliesInput
+    upsert?: SensorTelemetryUpsertWithoutMlAnomaliesInput
+    disconnect?: SensorTelemetryWhereInput | boolean
+    delete?: SensorTelemetryWhereInput | boolean
+    connect?: SensorTelemetryWhereUniqueInput
+    update?: XOR<XOR<SensorTelemetryUpdateToOneWithWhereWithoutMlAnomaliesInput, SensorTelemetryUpdateWithoutMlAnomaliesInput>, SensorTelemetryUncheckedUpdateWithoutMlAnomaliesInput>
+  }
+
+  export type IoTSensorUpdateOneRequiredWithoutMlAnomaliesNestedInput = {
+    create?: XOR<IoTSensorCreateWithoutMlAnomaliesInput, IoTSensorUncheckedCreateWithoutMlAnomaliesInput>
+    connectOrCreate?: IoTSensorCreateOrConnectWithoutMlAnomaliesInput
+    upsert?: IoTSensorUpsertWithoutMlAnomaliesInput
+    connect?: IoTSensorWhereUniqueInput
+    update?: XOR<XOR<IoTSensorUpdateToOneWithWhereWithoutMlAnomaliesInput, IoTSensorUpdateWithoutMlAnomaliesInput>, IoTSensorUncheckedUpdateWithoutMlAnomaliesInput>
+  }
+
+  export type StructureCreateNestedOneWithoutMlPredictionsInput = {
+    create?: XOR<StructureCreateWithoutMlPredictionsInput, StructureUncheckedCreateWithoutMlPredictionsInput>
+    connectOrCreate?: StructureCreateOrConnectWithoutMlPredictionsInput
+    connect?: StructureWhereUniqueInput
+  }
+
+  export type StructureUpdateOneRequiredWithoutMlPredictionsNestedInput = {
+    create?: XOR<StructureCreateWithoutMlPredictionsInput, StructureUncheckedCreateWithoutMlPredictionsInput>
+    connectOrCreate?: StructureCreateOrConnectWithoutMlPredictionsInput
+    upsert?: StructureUpsertWithoutMlPredictionsInput
+    connect?: StructureWhereUniqueInput
+    update?: XOR<XOR<StructureUpdateToOneWithWhereWithoutMlPredictionsInput, StructureUpdateWithoutMlPredictionsInput>, StructureUncheckedUpdateWithoutMlPredictionsInput>
   }
 
   export type StructureCreateNestedOneWithoutFailureEventsInput = {
@@ -32158,6 +35545,7 @@ export namespace Prisma {
     isSubscribed?: boolean
     telemetry?: SensorTelemetryCreateNestedManyWithoutSensorInput
     anomalies?: UtilityAnomalyCreateNestedManyWithoutSensorInput
+    mlAnomalies?: MLAnomalyDetectionCreateNestedManyWithoutSensorInput
   }
 
   export type IoTSensorUncheckedCreateWithoutStructureInput = {
@@ -32174,6 +35562,7 @@ export namespace Prisma {
     isSubscribed?: boolean
     telemetry?: SensorTelemetryUncheckedCreateNestedManyWithoutSensorInput
     anomalies?: UtilityAnomalyUncheckedCreateNestedManyWithoutSensorInput
+    mlAnomalies?: MLAnomalyDetectionUncheckedCreateNestedManyWithoutSensorInput
   }
 
   export type IoTSensorCreateOrConnectWithoutStructureInput = {
@@ -32271,6 +35660,44 @@ export namespace Prisma {
 
   export type PredictiveForecastCreateManyStructureInputEnvelope = {
     data: PredictiveForecastCreateManyStructureInput | PredictiveForecastCreateManyStructureInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MLFailurePredictionCreateWithoutStructureInput = {
+    id?: string
+    failureProbability: number
+    failureRisk: string
+    predictedFailure24h: boolean
+    confidenceScore?: number | null
+    contributingFactors?: NullableJsonNullValueInput | InputJsonValue
+    modelVersion?: string
+    modelThreshold: number
+    predictionWindow?: string
+    predictedAt?: Date | string
+    validUntil?: Date | string | null
+  }
+
+  export type MLFailurePredictionUncheckedCreateWithoutStructureInput = {
+    id?: string
+    failureProbability: number
+    failureRisk: string
+    predictedFailure24h: boolean
+    confidenceScore?: number | null
+    contributingFactors?: NullableJsonNullValueInput | InputJsonValue
+    modelVersion?: string
+    modelThreshold: number
+    predictionWindow?: string
+    predictedAt?: Date | string
+    validUntil?: Date | string | null
+  }
+
+  export type MLFailurePredictionCreateOrConnectWithoutStructureInput = {
+    where: MLFailurePredictionWhereUniqueInput
+    create: XOR<MLFailurePredictionCreateWithoutStructureInput, MLFailurePredictionUncheckedCreateWithoutStructureInput>
+  }
+
+  export type MLFailurePredictionCreateManyStructureInputEnvelope = {
+    data: MLFailurePredictionCreateManyStructureInput | MLFailurePredictionCreateManyStructureInput[]
     skipDuplicates?: boolean
   }
 
@@ -32397,6 +35824,40 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"PredictiveForecast"> | Date | string
   }
 
+  export type MLFailurePredictionUpsertWithWhereUniqueWithoutStructureInput = {
+    where: MLFailurePredictionWhereUniqueInput
+    update: XOR<MLFailurePredictionUpdateWithoutStructureInput, MLFailurePredictionUncheckedUpdateWithoutStructureInput>
+    create: XOR<MLFailurePredictionCreateWithoutStructureInput, MLFailurePredictionUncheckedCreateWithoutStructureInput>
+  }
+
+  export type MLFailurePredictionUpdateWithWhereUniqueWithoutStructureInput = {
+    where: MLFailurePredictionWhereUniqueInput
+    data: XOR<MLFailurePredictionUpdateWithoutStructureInput, MLFailurePredictionUncheckedUpdateWithoutStructureInput>
+  }
+
+  export type MLFailurePredictionUpdateManyWithWhereWithoutStructureInput = {
+    where: MLFailurePredictionScalarWhereInput
+    data: XOR<MLFailurePredictionUpdateManyMutationInput, MLFailurePredictionUncheckedUpdateManyWithoutStructureInput>
+  }
+
+  export type MLFailurePredictionScalarWhereInput = {
+    AND?: MLFailurePredictionScalarWhereInput | MLFailurePredictionScalarWhereInput[]
+    OR?: MLFailurePredictionScalarWhereInput[]
+    NOT?: MLFailurePredictionScalarWhereInput | MLFailurePredictionScalarWhereInput[]
+    id?: StringFilter<"MLFailurePrediction"> | string
+    structureId?: StringFilter<"MLFailurePrediction"> | string
+    failureProbability?: FloatFilter<"MLFailurePrediction"> | number
+    failureRisk?: StringFilter<"MLFailurePrediction"> | string
+    predictedFailure24h?: BoolFilter<"MLFailurePrediction"> | boolean
+    confidenceScore?: FloatNullableFilter<"MLFailurePrediction"> | number | null
+    contributingFactors?: JsonNullableFilter<"MLFailurePrediction">
+    modelVersion?: StringFilter<"MLFailurePrediction"> | string
+    modelThreshold?: FloatFilter<"MLFailurePrediction"> | number
+    predictionWindow?: StringFilter<"MLFailurePrediction"> | string
+    predictedAt?: DateTimeFilter<"MLFailurePrediction"> | Date | string
+    validUntil?: DateTimeNullableFilter<"MLFailurePrediction"> | Date | string | null
+  }
+
   export type StructureCreateWithoutSensorsInput = {
     id?: string
     name?: string | null
@@ -32413,6 +35874,7 @@ export namespace Prisma {
     maintenanceLogs?: MaintenanceLogCreateNestedManyWithoutStructureInput
     failureEvents?: FailureEventCreateNestedManyWithoutStructureInput
     forecasts?: PredictiveForecastCreateNestedManyWithoutStructureInput
+    mlPredictions?: MLFailurePredictionCreateNestedManyWithoutStructureInput
   }
 
   export type StructureUncheckedCreateWithoutSensorsInput = {
@@ -32431,6 +35893,7 @@ export namespace Prisma {
     maintenanceLogs?: MaintenanceLogUncheckedCreateNestedManyWithoutStructureInput
     failureEvents?: FailureEventUncheckedCreateNestedManyWithoutStructureInput
     forecasts?: PredictiveForecastUncheckedCreateNestedManyWithoutStructureInput
+    mlPredictions?: MLFailurePredictionUncheckedCreateNestedManyWithoutStructureInput
   }
 
   export type StructureCreateOrConnectWithoutSensorsInput = {
@@ -32446,6 +35909,7 @@ export namespace Prisma {
     unit: string
     rawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    mlAnomalies?: MLAnomalyDetectionCreateNestedManyWithoutTelemetryInput
   }
 
   export type SensorTelemetryUncheckedCreateWithoutSensorInput = {
@@ -32456,6 +35920,7 @@ export namespace Prisma {
     unit: string
     rawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+    mlAnomalies?: MLAnomalyDetectionUncheckedCreateNestedManyWithoutTelemetryInput
   }
 
   export type SensorTelemetryCreateOrConnectWithoutSensorInput = {
@@ -32502,6 +35967,38 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MLAnomalyDetectionCreateWithoutSensorInput = {
+    id?: string
+    readingType: $Enums.TelemetryType
+    value: number
+    isAnomaly: boolean
+    anomalyScore: number
+    modelVersion?: string
+    detectedAt?: Date | string
+    telemetry?: SensorTelemetryCreateNestedOneWithoutMlAnomaliesInput
+  }
+
+  export type MLAnomalyDetectionUncheckedCreateWithoutSensorInput = {
+    id?: string
+    telemetryId?: string | null
+    readingType: $Enums.TelemetryType
+    value: number
+    isAnomaly: boolean
+    anomalyScore: number
+    modelVersion?: string
+    detectedAt?: Date | string
+  }
+
+  export type MLAnomalyDetectionCreateOrConnectWithoutSensorInput = {
+    where: MLAnomalyDetectionWhereUniqueInput
+    create: XOR<MLAnomalyDetectionCreateWithoutSensorInput, MLAnomalyDetectionUncheckedCreateWithoutSensorInput>
+  }
+
+  export type MLAnomalyDetectionCreateManySensorInputEnvelope = {
+    data: MLAnomalyDetectionCreateManySensorInput | MLAnomalyDetectionCreateManySensorInput[]
+    skipDuplicates?: boolean
+  }
+
   export type StructureUpsertWithoutSensorsInput = {
     update: XOR<StructureUpdateWithoutSensorsInput, StructureUncheckedUpdateWithoutSensorsInput>
     create: XOR<StructureCreateWithoutSensorsInput, StructureUncheckedCreateWithoutSensorsInput>
@@ -32529,6 +36026,7 @@ export namespace Prisma {
     maintenanceLogs?: MaintenanceLogUpdateManyWithoutStructureNestedInput
     failureEvents?: FailureEventUpdateManyWithoutStructureNestedInput
     forecasts?: PredictiveForecastUpdateManyWithoutStructureNestedInput
+    mlPredictions?: MLFailurePredictionUpdateManyWithoutStructureNestedInput
   }
 
   export type StructureUncheckedUpdateWithoutSensorsInput = {
@@ -32547,6 +36045,7 @@ export namespace Prisma {
     maintenanceLogs?: MaintenanceLogUncheckedUpdateManyWithoutStructureNestedInput
     failureEvents?: FailureEventUncheckedUpdateManyWithoutStructureNestedInput
     forecasts?: PredictiveForecastUncheckedUpdateManyWithoutStructureNestedInput
+    mlPredictions?: MLFailurePredictionUncheckedUpdateManyWithoutStructureNestedInput
   }
 
   export type SensorTelemetryUpsertWithWhereUniqueWithoutSensorInput = {
@@ -32611,6 +36110,37 @@ export namespace Prisma {
     isResolved?: BoolFilter<"UtilityAnomaly"> | boolean
   }
 
+  export type MLAnomalyDetectionUpsertWithWhereUniqueWithoutSensorInput = {
+    where: MLAnomalyDetectionWhereUniqueInput
+    update: XOR<MLAnomalyDetectionUpdateWithoutSensorInput, MLAnomalyDetectionUncheckedUpdateWithoutSensorInput>
+    create: XOR<MLAnomalyDetectionCreateWithoutSensorInput, MLAnomalyDetectionUncheckedCreateWithoutSensorInput>
+  }
+
+  export type MLAnomalyDetectionUpdateWithWhereUniqueWithoutSensorInput = {
+    where: MLAnomalyDetectionWhereUniqueInput
+    data: XOR<MLAnomalyDetectionUpdateWithoutSensorInput, MLAnomalyDetectionUncheckedUpdateWithoutSensorInput>
+  }
+
+  export type MLAnomalyDetectionUpdateManyWithWhereWithoutSensorInput = {
+    where: MLAnomalyDetectionScalarWhereInput
+    data: XOR<MLAnomalyDetectionUpdateManyMutationInput, MLAnomalyDetectionUncheckedUpdateManyWithoutSensorInput>
+  }
+
+  export type MLAnomalyDetectionScalarWhereInput = {
+    AND?: MLAnomalyDetectionScalarWhereInput | MLAnomalyDetectionScalarWhereInput[]
+    OR?: MLAnomalyDetectionScalarWhereInput[]
+    NOT?: MLAnomalyDetectionScalarWhereInput | MLAnomalyDetectionScalarWhereInput[]
+    id?: StringFilter<"MLAnomalyDetection"> | string
+    telemetryId?: StringNullableFilter<"MLAnomalyDetection"> | string | null
+    sensorId?: StringFilter<"MLAnomalyDetection"> | string
+    readingType?: EnumTelemetryTypeFilter<"MLAnomalyDetection"> | $Enums.TelemetryType
+    value?: FloatFilter<"MLAnomalyDetection"> | number
+    isAnomaly?: BoolFilter<"MLAnomalyDetection"> | boolean
+    anomalyScore?: FloatFilter<"MLAnomalyDetection"> | number
+    modelVersion?: StringFilter<"MLAnomalyDetection"> | string
+    detectedAt?: DateTimeFilter<"MLAnomalyDetection"> | Date | string
+  }
+
   export type IoTSensorCreateWithoutTelemetryInput = {
     id?: string
     sensorCode: string
@@ -32625,6 +36155,7 @@ export namespace Prisma {
     isSubscribed?: boolean
     structure: StructureCreateNestedOneWithoutSensorsInput
     anomalies?: UtilityAnomalyCreateNestedManyWithoutSensorInput
+    mlAnomalies?: MLAnomalyDetectionCreateNestedManyWithoutSensorInput
   }
 
   export type IoTSensorUncheckedCreateWithoutTelemetryInput = {
@@ -32641,11 +36172,44 @@ export namespace Prisma {
     lastHeartbeat?: Date | string | null
     isSubscribed?: boolean
     anomalies?: UtilityAnomalyUncheckedCreateNestedManyWithoutSensorInput
+    mlAnomalies?: MLAnomalyDetectionUncheckedCreateNestedManyWithoutSensorInput
   }
 
   export type IoTSensorCreateOrConnectWithoutTelemetryInput = {
     where: IoTSensorWhereUniqueInput
     create: XOR<IoTSensorCreateWithoutTelemetryInput, IoTSensorUncheckedCreateWithoutTelemetryInput>
+  }
+
+  export type MLAnomalyDetectionCreateWithoutTelemetryInput = {
+    id?: string
+    readingType: $Enums.TelemetryType
+    value: number
+    isAnomaly: boolean
+    anomalyScore: number
+    modelVersion?: string
+    detectedAt?: Date | string
+    sensor: IoTSensorCreateNestedOneWithoutMlAnomaliesInput
+  }
+
+  export type MLAnomalyDetectionUncheckedCreateWithoutTelemetryInput = {
+    id?: string
+    sensorId: string
+    readingType: $Enums.TelemetryType
+    value: number
+    isAnomaly: boolean
+    anomalyScore: number
+    modelVersion?: string
+    detectedAt?: Date | string
+  }
+
+  export type MLAnomalyDetectionCreateOrConnectWithoutTelemetryInput = {
+    where: MLAnomalyDetectionWhereUniqueInput
+    create: XOR<MLAnomalyDetectionCreateWithoutTelemetryInput, MLAnomalyDetectionUncheckedCreateWithoutTelemetryInput>
+  }
+
+  export type MLAnomalyDetectionCreateManyTelemetryInputEnvelope = {
+    data: MLAnomalyDetectionCreateManyTelemetryInput | MLAnomalyDetectionCreateManyTelemetryInput[]
+    skipDuplicates?: boolean
   }
 
   export type IoTSensorUpsertWithoutTelemetryInput = {
@@ -32673,6 +36237,7 @@ export namespace Prisma {
     isSubscribed?: BoolFieldUpdateOperationsInput | boolean
     structure?: StructureUpdateOneRequiredWithoutSensorsNestedInput
     anomalies?: UtilityAnomalyUpdateManyWithoutSensorNestedInput
+    mlAnomalies?: MLAnomalyDetectionUpdateManyWithoutSensorNestedInput
   }
 
   export type IoTSensorUncheckedUpdateWithoutTelemetryInput = {
@@ -32689,6 +36254,23 @@ export namespace Prisma {
     lastHeartbeat?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isSubscribed?: BoolFieldUpdateOperationsInput | boolean
     anomalies?: UtilityAnomalyUncheckedUpdateManyWithoutSensorNestedInput
+    mlAnomalies?: MLAnomalyDetectionUncheckedUpdateManyWithoutSensorNestedInput
+  }
+
+  export type MLAnomalyDetectionUpsertWithWhereUniqueWithoutTelemetryInput = {
+    where: MLAnomalyDetectionWhereUniqueInput
+    update: XOR<MLAnomalyDetectionUpdateWithoutTelemetryInput, MLAnomalyDetectionUncheckedUpdateWithoutTelemetryInput>
+    create: XOR<MLAnomalyDetectionCreateWithoutTelemetryInput, MLAnomalyDetectionUncheckedCreateWithoutTelemetryInput>
+  }
+
+  export type MLAnomalyDetectionUpdateWithWhereUniqueWithoutTelemetryInput = {
+    where: MLAnomalyDetectionWhereUniqueInput
+    data: XOR<MLAnomalyDetectionUpdateWithoutTelemetryInput, MLAnomalyDetectionUncheckedUpdateWithoutTelemetryInput>
+  }
+
+  export type MLAnomalyDetectionUpdateManyWithWhereWithoutTelemetryInput = {
+    where: MLAnomalyDetectionScalarWhereInput
+    data: XOR<MLAnomalyDetectionUpdateManyMutationInput, MLAnomalyDetectionUncheckedUpdateManyWithoutTelemetryInput>
   }
 
   export type IoTSensorCreateWithoutAnomaliesInput = {
@@ -32705,6 +36287,7 @@ export namespace Prisma {
     isSubscribed?: boolean
     structure: StructureCreateNestedOneWithoutSensorsInput
     telemetry?: SensorTelemetryCreateNestedManyWithoutSensorInput
+    mlAnomalies?: MLAnomalyDetectionCreateNestedManyWithoutSensorInput
   }
 
   export type IoTSensorUncheckedCreateWithoutAnomaliesInput = {
@@ -32721,6 +36304,7 @@ export namespace Prisma {
     lastHeartbeat?: Date | string | null
     isSubscribed?: boolean
     telemetry?: SensorTelemetryUncheckedCreateNestedManyWithoutSensorInput
+    mlAnomalies?: MLAnomalyDetectionUncheckedCreateNestedManyWithoutSensorInput
   }
 
   export type IoTSensorCreateOrConnectWithoutAnomaliesInput = {
@@ -32753,6 +36337,7 @@ export namespace Prisma {
     isSubscribed?: BoolFieldUpdateOperationsInput | boolean
     structure?: StructureUpdateOneRequiredWithoutSensorsNestedInput
     telemetry?: SensorTelemetryUpdateManyWithoutSensorNestedInput
+    mlAnomalies?: MLAnomalyDetectionUpdateManyWithoutSensorNestedInput
   }
 
   export type IoTSensorUncheckedUpdateWithoutAnomaliesInput = {
@@ -32769,6 +36354,243 @@ export namespace Prisma {
     lastHeartbeat?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isSubscribed?: BoolFieldUpdateOperationsInput | boolean
     telemetry?: SensorTelemetryUncheckedUpdateManyWithoutSensorNestedInput
+    mlAnomalies?: MLAnomalyDetectionUncheckedUpdateManyWithoutSensorNestedInput
+  }
+
+  export type SensorTelemetryCreateWithoutMlAnomaliesInput = {
+    id?: string
+    timestamp: Date | string
+    readingType: $Enums.TelemetryType
+    value: number
+    unit: string
+    rawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    sensor: IoTSensorCreateNestedOneWithoutTelemetryInput
+  }
+
+  export type SensorTelemetryUncheckedCreateWithoutMlAnomaliesInput = {
+    id?: string
+    sensorId: string
+    timestamp: Date | string
+    readingType: $Enums.TelemetryType
+    value: number
+    unit: string
+    rawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type SensorTelemetryCreateOrConnectWithoutMlAnomaliesInput = {
+    where: SensorTelemetryWhereUniqueInput
+    create: XOR<SensorTelemetryCreateWithoutMlAnomaliesInput, SensorTelemetryUncheckedCreateWithoutMlAnomaliesInput>
+  }
+
+  export type IoTSensorCreateWithoutMlAnomaliesInput = {
+    id?: string
+    sensorCode: string
+    sensorType: $Enums.SensorType
+    topicName: string
+    zone?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    isActive?: boolean
+    installedAt?: Date | string
+    lastHeartbeat?: Date | string | null
+    isSubscribed?: boolean
+    structure: StructureCreateNestedOneWithoutSensorsInput
+    telemetry?: SensorTelemetryCreateNestedManyWithoutSensorInput
+    anomalies?: UtilityAnomalyCreateNestedManyWithoutSensorInput
+  }
+
+  export type IoTSensorUncheckedCreateWithoutMlAnomaliesInput = {
+    id?: string
+    sensorCode: string
+    sensorType: $Enums.SensorType
+    topicName: string
+    zone?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    structureId: string
+    isActive?: boolean
+    installedAt?: Date | string
+    lastHeartbeat?: Date | string | null
+    isSubscribed?: boolean
+    telemetry?: SensorTelemetryUncheckedCreateNestedManyWithoutSensorInput
+    anomalies?: UtilityAnomalyUncheckedCreateNestedManyWithoutSensorInput
+  }
+
+  export type IoTSensorCreateOrConnectWithoutMlAnomaliesInput = {
+    where: IoTSensorWhereUniqueInput
+    create: XOR<IoTSensorCreateWithoutMlAnomaliesInput, IoTSensorUncheckedCreateWithoutMlAnomaliesInput>
+  }
+
+  export type SensorTelemetryUpsertWithoutMlAnomaliesInput = {
+    update: XOR<SensorTelemetryUpdateWithoutMlAnomaliesInput, SensorTelemetryUncheckedUpdateWithoutMlAnomaliesInput>
+    create: XOR<SensorTelemetryCreateWithoutMlAnomaliesInput, SensorTelemetryUncheckedCreateWithoutMlAnomaliesInput>
+    where?: SensorTelemetryWhereInput
+  }
+
+  export type SensorTelemetryUpdateToOneWithWhereWithoutMlAnomaliesInput = {
+    where?: SensorTelemetryWhereInput
+    data: XOR<SensorTelemetryUpdateWithoutMlAnomaliesInput, SensorTelemetryUncheckedUpdateWithoutMlAnomaliesInput>
+  }
+
+  export type SensorTelemetryUpdateWithoutMlAnomaliesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    readingType?: EnumTelemetryTypeFieldUpdateOperationsInput | $Enums.TelemetryType
+    value?: FloatFieldUpdateOperationsInput | number
+    unit?: StringFieldUpdateOperationsInput | string
+    rawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sensor?: IoTSensorUpdateOneRequiredWithoutTelemetryNestedInput
+  }
+
+  export type SensorTelemetryUncheckedUpdateWithoutMlAnomaliesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sensorId?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    readingType?: EnumTelemetryTypeFieldUpdateOperationsInput | $Enums.TelemetryType
+    value?: FloatFieldUpdateOperationsInput | number
+    unit?: StringFieldUpdateOperationsInput | string
+    rawPayload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type IoTSensorUpsertWithoutMlAnomaliesInput = {
+    update: XOR<IoTSensorUpdateWithoutMlAnomaliesInput, IoTSensorUncheckedUpdateWithoutMlAnomaliesInput>
+    create: XOR<IoTSensorCreateWithoutMlAnomaliesInput, IoTSensorUncheckedCreateWithoutMlAnomaliesInput>
+    where?: IoTSensorWhereInput
+  }
+
+  export type IoTSensorUpdateToOneWithWhereWithoutMlAnomaliesInput = {
+    where?: IoTSensorWhereInput
+    data: XOR<IoTSensorUpdateWithoutMlAnomaliesInput, IoTSensorUncheckedUpdateWithoutMlAnomaliesInput>
+  }
+
+  export type IoTSensorUpdateWithoutMlAnomaliesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sensorCode?: StringFieldUpdateOperationsInput | string
+    sensorType?: EnumSensorTypeFieldUpdateOperationsInput | $Enums.SensorType
+    topicName?: StringFieldUpdateOperationsInput | string
+    zone?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    installedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastHeartbeat?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isSubscribed?: BoolFieldUpdateOperationsInput | boolean
+    structure?: StructureUpdateOneRequiredWithoutSensorsNestedInput
+    telemetry?: SensorTelemetryUpdateManyWithoutSensorNestedInput
+    anomalies?: UtilityAnomalyUpdateManyWithoutSensorNestedInput
+  }
+
+  export type IoTSensorUncheckedUpdateWithoutMlAnomaliesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sensorCode?: StringFieldUpdateOperationsInput | string
+    sensorType?: EnumSensorTypeFieldUpdateOperationsInput | $Enums.SensorType
+    topicName?: StringFieldUpdateOperationsInput | string
+    zone?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    structureId?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    installedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastHeartbeat?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isSubscribed?: BoolFieldUpdateOperationsInput | boolean
+    telemetry?: SensorTelemetryUncheckedUpdateManyWithoutSensorNestedInput
+    anomalies?: UtilityAnomalyUncheckedUpdateManyWithoutSensorNestedInput
+  }
+
+  export type StructureCreateWithoutMlPredictionsInput = {
+    id?: string
+    name?: string | null
+    structureType: $Enums.StructureType
+    zone?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    installedAt?: Date | string | null
+    expectedLifespanYears?: number | null
+    conditionScore?: number | null
+    riskScore?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sensors?: IoTSensorCreateNestedManyWithoutStructureInput
+    maintenanceLogs?: MaintenanceLogCreateNestedManyWithoutStructureInput
+    failureEvents?: FailureEventCreateNestedManyWithoutStructureInput
+    forecasts?: PredictiveForecastCreateNestedManyWithoutStructureInput
+  }
+
+  export type StructureUncheckedCreateWithoutMlPredictionsInput = {
+    id?: string
+    name?: string | null
+    structureType: $Enums.StructureType
+    zone?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    installedAt?: Date | string | null
+    expectedLifespanYears?: number | null
+    conditionScore?: number | null
+    riskScore?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sensors?: IoTSensorUncheckedCreateNestedManyWithoutStructureInput
+    maintenanceLogs?: MaintenanceLogUncheckedCreateNestedManyWithoutStructureInput
+    failureEvents?: FailureEventUncheckedCreateNestedManyWithoutStructureInput
+    forecasts?: PredictiveForecastUncheckedCreateNestedManyWithoutStructureInput
+  }
+
+  export type StructureCreateOrConnectWithoutMlPredictionsInput = {
+    where: StructureWhereUniqueInput
+    create: XOR<StructureCreateWithoutMlPredictionsInput, StructureUncheckedCreateWithoutMlPredictionsInput>
+  }
+
+  export type StructureUpsertWithoutMlPredictionsInput = {
+    update: XOR<StructureUpdateWithoutMlPredictionsInput, StructureUncheckedUpdateWithoutMlPredictionsInput>
+    create: XOR<StructureCreateWithoutMlPredictionsInput, StructureUncheckedCreateWithoutMlPredictionsInput>
+    where?: StructureWhereInput
+  }
+
+  export type StructureUpdateToOneWithWhereWithoutMlPredictionsInput = {
+    where?: StructureWhereInput
+    data: XOR<StructureUpdateWithoutMlPredictionsInput, StructureUncheckedUpdateWithoutMlPredictionsInput>
+  }
+
+  export type StructureUpdateWithoutMlPredictionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    structureType?: EnumStructureTypeFieldUpdateOperationsInput | $Enums.StructureType
+    zone?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    installedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedLifespanYears?: NullableIntFieldUpdateOperationsInput | number | null
+    conditionScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    riskScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sensors?: IoTSensorUpdateManyWithoutStructureNestedInput
+    maintenanceLogs?: MaintenanceLogUpdateManyWithoutStructureNestedInput
+    failureEvents?: FailureEventUpdateManyWithoutStructureNestedInput
+    forecasts?: PredictiveForecastUpdateManyWithoutStructureNestedInput
+  }
+
+  export type StructureUncheckedUpdateWithoutMlPredictionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    structureType?: EnumStructureTypeFieldUpdateOperationsInput | $Enums.StructureType
+    zone?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    installedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedLifespanYears?: NullableIntFieldUpdateOperationsInput | number | null
+    conditionScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    riskScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sensors?: IoTSensorUncheckedUpdateManyWithoutStructureNestedInput
+    maintenanceLogs?: MaintenanceLogUncheckedUpdateManyWithoutStructureNestedInput
+    failureEvents?: FailureEventUncheckedUpdateManyWithoutStructureNestedInput
+    forecasts?: PredictiveForecastUncheckedUpdateManyWithoutStructureNestedInput
   }
 
   export type StructureCreateWithoutFailureEventsInput = {
@@ -32787,6 +36609,7 @@ export namespace Prisma {
     sensors?: IoTSensorCreateNestedManyWithoutStructureInput
     maintenanceLogs?: MaintenanceLogCreateNestedManyWithoutStructureInput
     forecasts?: PredictiveForecastCreateNestedManyWithoutStructureInput
+    mlPredictions?: MLFailurePredictionCreateNestedManyWithoutStructureInput
   }
 
   export type StructureUncheckedCreateWithoutFailureEventsInput = {
@@ -32805,6 +36628,7 @@ export namespace Prisma {
     sensors?: IoTSensorUncheckedCreateNestedManyWithoutStructureInput
     maintenanceLogs?: MaintenanceLogUncheckedCreateNestedManyWithoutStructureInput
     forecasts?: PredictiveForecastUncheckedCreateNestedManyWithoutStructureInput
+    mlPredictions?: MLFailurePredictionUncheckedCreateNestedManyWithoutStructureInput
   }
 
   export type StructureCreateOrConnectWithoutFailureEventsInput = {
@@ -32839,6 +36663,7 @@ export namespace Prisma {
     sensors?: IoTSensorUpdateManyWithoutStructureNestedInput
     maintenanceLogs?: MaintenanceLogUpdateManyWithoutStructureNestedInput
     forecasts?: PredictiveForecastUpdateManyWithoutStructureNestedInput
+    mlPredictions?: MLFailurePredictionUpdateManyWithoutStructureNestedInput
   }
 
   export type StructureUncheckedUpdateWithoutFailureEventsInput = {
@@ -32857,6 +36682,7 @@ export namespace Prisma {
     sensors?: IoTSensorUncheckedUpdateManyWithoutStructureNestedInput
     maintenanceLogs?: MaintenanceLogUncheckedUpdateManyWithoutStructureNestedInput
     forecasts?: PredictiveForecastUncheckedUpdateManyWithoutStructureNestedInput
+    mlPredictions?: MLFailurePredictionUncheckedUpdateManyWithoutStructureNestedInput
   }
 
   export type StructureCreateWithoutForecastsInput = {
@@ -32875,6 +36701,7 @@ export namespace Prisma {
     sensors?: IoTSensorCreateNestedManyWithoutStructureInput
     maintenanceLogs?: MaintenanceLogCreateNestedManyWithoutStructureInput
     failureEvents?: FailureEventCreateNestedManyWithoutStructureInput
+    mlPredictions?: MLFailurePredictionCreateNestedManyWithoutStructureInput
   }
 
   export type StructureUncheckedCreateWithoutForecastsInput = {
@@ -32893,6 +36720,7 @@ export namespace Prisma {
     sensors?: IoTSensorUncheckedCreateNestedManyWithoutStructureInput
     maintenanceLogs?: MaintenanceLogUncheckedCreateNestedManyWithoutStructureInput
     failureEvents?: FailureEventUncheckedCreateNestedManyWithoutStructureInput
+    mlPredictions?: MLFailurePredictionUncheckedCreateNestedManyWithoutStructureInput
   }
 
   export type StructureCreateOrConnectWithoutForecastsInput = {
@@ -32927,6 +36755,7 @@ export namespace Prisma {
     sensors?: IoTSensorUpdateManyWithoutStructureNestedInput
     maintenanceLogs?: MaintenanceLogUpdateManyWithoutStructureNestedInput
     failureEvents?: FailureEventUpdateManyWithoutStructureNestedInput
+    mlPredictions?: MLFailurePredictionUpdateManyWithoutStructureNestedInput
   }
 
   export type StructureUncheckedUpdateWithoutForecastsInput = {
@@ -32945,6 +36774,7 @@ export namespace Prisma {
     sensors?: IoTSensorUncheckedUpdateManyWithoutStructureNestedInput
     maintenanceLogs?: MaintenanceLogUncheckedUpdateManyWithoutStructureNestedInput
     failureEvents?: FailureEventUncheckedUpdateManyWithoutStructureNestedInput
+    mlPredictions?: MLFailurePredictionUncheckedUpdateManyWithoutStructureNestedInput
   }
 
   export type StructureCreateWithoutMaintenanceLogsInput = {
@@ -32963,6 +36793,7 @@ export namespace Prisma {
     sensors?: IoTSensorCreateNestedManyWithoutStructureInput
     failureEvents?: FailureEventCreateNestedManyWithoutStructureInput
     forecasts?: PredictiveForecastCreateNestedManyWithoutStructureInput
+    mlPredictions?: MLFailurePredictionCreateNestedManyWithoutStructureInput
   }
 
   export type StructureUncheckedCreateWithoutMaintenanceLogsInput = {
@@ -32981,6 +36812,7 @@ export namespace Prisma {
     sensors?: IoTSensorUncheckedCreateNestedManyWithoutStructureInput
     failureEvents?: FailureEventUncheckedCreateNestedManyWithoutStructureInput
     forecasts?: PredictiveForecastUncheckedCreateNestedManyWithoutStructureInput
+    mlPredictions?: MLFailurePredictionUncheckedCreateNestedManyWithoutStructureInput
   }
 
   export type StructureCreateOrConnectWithoutMaintenanceLogsInput = {
@@ -33015,6 +36847,7 @@ export namespace Prisma {
     sensors?: IoTSensorUpdateManyWithoutStructureNestedInput
     failureEvents?: FailureEventUpdateManyWithoutStructureNestedInput
     forecasts?: PredictiveForecastUpdateManyWithoutStructureNestedInput
+    mlPredictions?: MLFailurePredictionUpdateManyWithoutStructureNestedInput
   }
 
   export type StructureUncheckedUpdateWithoutMaintenanceLogsInput = {
@@ -33033,6 +36866,7 @@ export namespace Prisma {
     sensors?: IoTSensorUncheckedUpdateManyWithoutStructureNestedInput
     failureEvents?: FailureEventUncheckedUpdateManyWithoutStructureNestedInput
     forecasts?: PredictiveForecastUncheckedUpdateManyWithoutStructureNestedInput
+    mlPredictions?: MLFailurePredictionUncheckedUpdateManyWithoutStructureNestedInput
   }
 
   export type ReportCreateManyUserInput = {
@@ -33452,6 +37286,20 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type MLFailurePredictionCreateManyStructureInput = {
+    id?: string
+    failureProbability: number
+    failureRisk: string
+    predictedFailure24h: boolean
+    confidenceScore?: number | null
+    contributingFactors?: NullableJsonNullValueInput | InputJsonValue
+    modelVersion?: string
+    modelThreshold: number
+    predictionWindow?: string
+    predictedAt?: Date | string
+    validUntil?: Date | string | null
+  }
+
   export type IoTSensorUpdateWithoutStructureInput = {
     id?: StringFieldUpdateOperationsInput | string
     sensorCode?: StringFieldUpdateOperationsInput | string
@@ -33466,6 +37314,7 @@ export namespace Prisma {
     isSubscribed?: BoolFieldUpdateOperationsInput | boolean
     telemetry?: SensorTelemetryUpdateManyWithoutSensorNestedInput
     anomalies?: UtilityAnomalyUpdateManyWithoutSensorNestedInput
+    mlAnomalies?: MLAnomalyDetectionUpdateManyWithoutSensorNestedInput
   }
 
   export type IoTSensorUncheckedUpdateWithoutStructureInput = {
@@ -33482,6 +37331,7 @@ export namespace Prisma {
     isSubscribed?: BoolFieldUpdateOperationsInput | boolean
     telemetry?: SensorTelemetryUncheckedUpdateManyWithoutSensorNestedInput
     anomalies?: UtilityAnomalyUncheckedUpdateManyWithoutSensorNestedInput
+    mlAnomalies?: MLAnomalyDetectionUncheckedUpdateManyWithoutSensorNestedInput
   }
 
   export type IoTSensorUncheckedUpdateManyWithoutStructureInput = {
@@ -33585,6 +37435,48 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MLFailurePredictionUpdateWithoutStructureInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    failureProbability?: FloatFieldUpdateOperationsInput | number
+    failureRisk?: StringFieldUpdateOperationsInput | string
+    predictedFailure24h?: BoolFieldUpdateOperationsInput | boolean
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    contributingFactors?: NullableJsonNullValueInput | InputJsonValue
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    modelThreshold?: FloatFieldUpdateOperationsInput | number
+    predictionWindow?: StringFieldUpdateOperationsInput | string
+    predictedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MLFailurePredictionUncheckedUpdateWithoutStructureInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    failureProbability?: FloatFieldUpdateOperationsInput | number
+    failureRisk?: StringFieldUpdateOperationsInput | string
+    predictedFailure24h?: BoolFieldUpdateOperationsInput | boolean
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    contributingFactors?: NullableJsonNullValueInput | InputJsonValue
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    modelThreshold?: FloatFieldUpdateOperationsInput | number
+    predictionWindow?: StringFieldUpdateOperationsInput | string
+    predictedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MLFailurePredictionUncheckedUpdateManyWithoutStructureInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    failureProbability?: FloatFieldUpdateOperationsInput | number
+    failureRisk?: StringFieldUpdateOperationsInput | string
+    predictedFailure24h?: BoolFieldUpdateOperationsInput | boolean
+    confidenceScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    contributingFactors?: NullableJsonNullValueInput | InputJsonValue
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    modelThreshold?: FloatFieldUpdateOperationsInput | number
+    predictionWindow?: StringFieldUpdateOperationsInput | string
+    predictedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    validUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type SensorTelemetryCreateManySensorInput = {
     id?: string
     timestamp: Date | string
@@ -33607,6 +37499,17 @@ export namespace Prisma {
     isResolved?: boolean
   }
 
+  export type MLAnomalyDetectionCreateManySensorInput = {
+    id?: string
+    telemetryId?: string | null
+    readingType: $Enums.TelemetryType
+    value: number
+    isAnomaly: boolean
+    anomalyScore: number
+    modelVersion?: string
+    detectedAt?: Date | string
+  }
+
   export type SensorTelemetryUpdateWithoutSensorInput = {
     id?: StringFieldUpdateOperationsInput | string
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33615,6 +37518,7 @@ export namespace Prisma {
     unit?: StringFieldUpdateOperationsInput | string
     rawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mlAnomalies?: MLAnomalyDetectionUpdateManyWithoutTelemetryNestedInput
   }
 
   export type SensorTelemetryUncheckedUpdateWithoutSensorInput = {
@@ -33625,6 +37529,7 @@ export namespace Prisma {
     unit?: StringFieldUpdateOperationsInput | string
     rawPayload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mlAnomalies?: MLAnomalyDetectionUncheckedUpdateManyWithoutTelemetryNestedInput
   }
 
   export type SensorTelemetryUncheckedUpdateManyWithoutSensorInput = {
@@ -33671,6 +37576,83 @@ export namespace Prisma {
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isResolved?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type MLAnomalyDetectionUpdateWithoutSensorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    readingType?: EnumTelemetryTypeFieldUpdateOperationsInput | $Enums.TelemetryType
+    value?: FloatFieldUpdateOperationsInput | number
+    isAnomaly?: BoolFieldUpdateOperationsInput | boolean
+    anomalyScore?: FloatFieldUpdateOperationsInput | number
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    telemetry?: SensorTelemetryUpdateOneWithoutMlAnomaliesNestedInput
+  }
+
+  export type MLAnomalyDetectionUncheckedUpdateWithoutSensorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    telemetryId?: NullableStringFieldUpdateOperationsInput | string | null
+    readingType?: EnumTelemetryTypeFieldUpdateOperationsInput | $Enums.TelemetryType
+    value?: FloatFieldUpdateOperationsInput | number
+    isAnomaly?: BoolFieldUpdateOperationsInput | boolean
+    anomalyScore?: FloatFieldUpdateOperationsInput | number
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MLAnomalyDetectionUncheckedUpdateManyWithoutSensorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    telemetryId?: NullableStringFieldUpdateOperationsInput | string | null
+    readingType?: EnumTelemetryTypeFieldUpdateOperationsInput | $Enums.TelemetryType
+    value?: FloatFieldUpdateOperationsInput | number
+    isAnomaly?: BoolFieldUpdateOperationsInput | boolean
+    anomalyScore?: FloatFieldUpdateOperationsInput | number
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MLAnomalyDetectionCreateManyTelemetryInput = {
+    id?: string
+    sensorId: string
+    readingType: $Enums.TelemetryType
+    value: number
+    isAnomaly: boolean
+    anomalyScore: number
+    modelVersion?: string
+    detectedAt?: Date | string
+  }
+
+  export type MLAnomalyDetectionUpdateWithoutTelemetryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    readingType?: EnumTelemetryTypeFieldUpdateOperationsInput | $Enums.TelemetryType
+    value?: FloatFieldUpdateOperationsInput | number
+    isAnomaly?: BoolFieldUpdateOperationsInput | boolean
+    anomalyScore?: FloatFieldUpdateOperationsInput | number
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sensor?: IoTSensorUpdateOneRequiredWithoutMlAnomaliesNestedInput
+  }
+
+  export type MLAnomalyDetectionUncheckedUpdateWithoutTelemetryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sensorId?: StringFieldUpdateOperationsInput | string
+    readingType?: EnumTelemetryTypeFieldUpdateOperationsInput | $Enums.TelemetryType
+    value?: FloatFieldUpdateOperationsInput | number
+    isAnomaly?: BoolFieldUpdateOperationsInput | boolean
+    anomalyScore?: FloatFieldUpdateOperationsInput | number
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MLAnomalyDetectionUncheckedUpdateManyWithoutTelemetryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sensorId?: StringFieldUpdateOperationsInput | string
+    readingType?: EnumTelemetryTypeFieldUpdateOperationsInput | $Enums.TelemetryType
+    value?: FloatFieldUpdateOperationsInput | number
+    isAnomaly?: BoolFieldUpdateOperationsInput | boolean
+    anomalyScore?: FloatFieldUpdateOperationsInput | number
+    modelVersion?: StringFieldUpdateOperationsInput | string
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

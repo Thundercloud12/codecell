@@ -79,6 +79,47 @@ interface Stats {
   criticalAnomalies: number;
 }
 
+interface MLAnomaly {
+  id: string;
+  readingType: string;
+  value: number;
+  isAnomaly: boolean;
+  anomalyScore: number;
+  modelVersion: string;
+  detectedAt: string;
+  sensor: {
+    sensorCode: string;
+    name: string;
+    structure: {
+      name: string;
+    };
+  };
+}
+
+interface MLPrediction {
+  id: string;
+  structureId: string;
+  failureProbability: number;
+  failureRisk: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  predictedFailure24h: boolean;
+  confidenceScore: number;
+  contributingFactors: Record<string, number>;
+  modelVersion: string;
+  predictedAt: string;
+  validUntil: string;
+  structure: {
+    name: string;
+    type: string;
+  };
+}
+
+interface MLStats {
+  anomalyCount: number;
+  avgAnomalyScore: number;
+  highRiskCount: number;
+  failure24hCount: number;
+}
+
 const READING_COLORS: Record<string, string> = {
   FLOW_RATE: "#00E676",
   PRESSURE: "#2196F3",
@@ -106,22 +147,47 @@ export default function IoTMonitoringPage() {
     totalAnomalies: 0,
     criticalAnomalies: 0,
   });
+  const [mlAnomalies, setMlAnomalies] = useState<MLAnomaly[]>([]);
+  const [mlPredictions, setMlPredictions] = useState<MLPrediction[]>([]);
+  const [mlStats, setMlStats] = useState<MLStats>({
+    anomalyCount: 0,
+    avgAnomalyScore: 0,
+    highRiskCount: 0,
+    failure24hCount: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [selectedReadingType, setSelectedReadingType] = useState<string>("ALL");
   const [isLive, setIsLive] = useState(true);
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch("/api/telemetry?hours=1&limit=500");
-      const data = await res.json();
+      const [telemetryRes, mlAnomaliesRes, mlPredictionsRes] = await Promise.all([
+        fetch("/api/telemetry?hours=1&limit=500"),
+        fetch("/api/ml/anomalies?hours=1&limit=100&onlyAnomalies=true"),
+        fetch("/api/ml/predictions?onlyValid=true"),
+      ]);
+
+      const data = await telemetryRes.json();
+      const mlAnomaliesData = await mlAnomaliesRes.json();
+      const mlPredictionsData = await mlPredictionsRes.json();
 
       setTelemetry(data.telemetry || []);
       setSensors(data.sensors || []);
       setAnomalies(data.anomalies || []);
       setStats(data.stats || {});
+      
+      setMlAnomalies(mlAnomaliesData.anomalies || []);
+      setMlStats({
+        anomalyCount: mlAnomaliesData.stats?.anomalyCount || 0,
+        avgAnomalyScore: mlAnomaliesData.stats?.avgAnomalyScore || 0,
+        highRiskCount: mlPredictionsData.stats?.highRiskCount || 0,
+        failure24hCount: mlPredictionsData.stats?.failure24hCount || 0,
+      });
+      setMlPredictions(mlPredictionsData.latestPredictions || []);
+      
       setLoading(false);
     } catch (error) {
-      console.error("Failed to fetch telemetry:", error);
+      console.error("Failed to fetch data:", error);
       setLoading(false);
     }
   }, []);
@@ -154,6 +220,45 @@ export default function IoTMonitoringPage() {
             const newData = [...data.anomalies, ...prev];
             return newData.slice(0, 20);
           });
+        }
+
+        // Handle ML anomalies
+        if (data.mlAnomalies?.length > 0) {
+          setMlAnomalies((prev) => {
+            const newData = [...data.mlAnomalies, ...prev];
+            return newData.slice(0, 100);
+          });
+          
+          // Update ML stats
+          setMlStats((prev) => ({
+            ...prev,
+            anomalyCount: prev.anomalyCount + data.mlAnomalies.length,
+            avgAnomalyScore: data.mlAnomalies.reduce((sum: number, a: MLAnomaly) => sum + a.anomalyScore, 0) / data.mlAnomalies.length,
+          }));
+        }
+
+        // Handle ML predictions
+        if (data.mlPredictions?.length > 0) {
+          setMlPredictions((prev) => {
+            // Replace predictions for structures that have new data
+            const structureIds = new Set(data.mlPredictions.map((p: MLPrediction) => p.structureId));
+            const filtered = prev.filter(p => !structureIds.has(p.structureId));
+            return [...data.mlPredictions, ...filtered];
+          });
+
+          // Update ML stats
+          const highRisk = data.mlPredictions.filter((p: MLPrediction) => 
+            p.failureRisk === 'HIGH' || p.failureRisk === 'CRITICAL'
+          ).length;
+          const failure24h = data.mlPredictions.filter((p: MLPrediction) => 
+            p.predictedFailure24h
+          ).length;
+
+          setMlStats((prev) => ({
+            ...prev,
+            highRiskCount: prev.highRiskCount + highRisk,
+            failure24hCount: prev.failure24hCount + failure24h,
+          }));
         }
       } catch (e) {
         // Heartbeat or parse error
@@ -283,6 +388,76 @@ export default function IoTMonitoringPage() {
             value={stats.criticalAnomalies.toString()}
             color="red"
           />
+        </div>
+
+        {/* ML Insights Section */}
+        <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-2xl p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+              <Activity className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white">🤖 ML-Powered Insights</h2>
+              <p className="text-xs text-gray-400">Real-time AI predictions from Isolation Forest & LSTM models</p>
+            </div>
+          </div>
+
+          {/* ML Stats Row */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-[#111827]/60 rounded-xl p-4 border border-purple-500/20">
+              <p className="text-gray-400 text-sm mb-1">🔍 ML Anomalies</p>
+              <p className="text-3xl font-bold font-mono text-purple-400">{mlStats.anomalyCount}</p>
+              <p className="text-xs text-gray-500 mt-1">Avg Score: {mlStats.avgAnomalyScore.toFixed(3)}</p>
+            </div>
+            <div className="bg-[#111827]/60 rounded-xl p-4 border border-pink-500/20">
+              <p className="text-gray-400 text-sm mb-1">⚠️ High Risk</p>
+              <p className="text-3xl font-bold font-mono text-pink-400">{mlStats.highRiskCount}</p>
+              <p className="text-xs text-gray-500 mt-1">Structures at risk</p>
+            </div>
+            <div className="bg-[#111827]/60 rounded-xl p-4 border border-red-500/20">
+              <p className="text-gray-400 text-sm mb-1">🚨 24h Failures</p>
+              <p className="text-3xl font-bold font-mono text-red-400">{mlStats.failure24hCount}</p>
+              <p className="text-xs text-gray-500 mt-1">Predicted soon</p>
+            </div>
+            <div className="bg-[#111827]/60 rounded-xl p-4 border border-cyan-500/20">
+              <p className="text-gray-400 text-sm mb-1">🔮 Predictions</p>
+              <p className="text-3xl font-bold font-mono text-cyan-400">{mlPredictions.length}</p>
+              <p className="text-xs text-gray-500 mt-1">Active forecasts</p>
+            </div>
+          </div>
+
+          {/* ML Predictions & Anomalies Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Failure Predictions */}
+            <div className="bg-[#111827]/60 rounded-xl border border-purple-500/20 p-4">
+              <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+                <Zap className="w-4 h-4 text-purple-400" />
+                Structure Failure Predictions (LSTM)
+              </h3>
+              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                {mlPredictions.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8 text-sm">No predictions available</p>
+                ) : (
+                  mlPredictions.map((pred) => <MLPredictionCard key={pred.id} prediction={pred} />)
+                )}
+              </div>
+            </div>
+
+            {/* ML Anomalies */}
+            <div className="bg-[#111827]/60 rounded-xl border border-pink-500/20 p-4">
+              <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-pink-400" />
+                ML-Detected Anomalies (Isolation Forest)
+              </h3>
+              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                {mlAnomalies.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8 text-sm">No ML anomalies detected</p>
+                ) : (
+                  mlAnomalies.slice(0, 10).map((anomaly) => <MLAnomalyCard key={anomaly.id} anomaly={anomaly} />)
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Filter Tabs */}
@@ -556,6 +731,97 @@ function AnomalyCard({ anomaly }: { anomaly: Anomaly }) {
       </p>
       <p className="text-xs text-gray-500">
         Value: {anomaly.detectedValue} | Expected: {anomaly.expectedRange}
+      </p>
+    </div>
+  );
+}
+
+function MLPredictionCard({ prediction }: { prediction: MLPrediction }) {
+  const riskColors = {
+    LOW: "#4CAF50",
+    MEDIUM: "#FF9800",
+    HIGH: "#F44336",
+    CRITICAL: "#B71C1C",
+  };
+
+  const riskColor = riskColors[prediction.failureRisk];
+
+  return (
+    <div className="bg-[#0B1220] rounded-xl border border-purple-500/20 p-3">
+      <div className="flex items-center justify-between mb-2">
+        <span
+          className="text-xs font-mono px-2 py-1 rounded"
+          style={{
+            backgroundColor: riskColor + "20",
+            color: riskColor,
+          }}
+        >
+          {prediction.failureRisk}
+        </span>
+        {prediction.predictedFailure24h && (
+          <span className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded animate-pulse">
+            ⚠️ 24h Alert
+          </span>
+        )}
+      </div>
+      <p className="font-bold text-sm text-white">{prediction.structure.name}</p>
+      <p className="text-xs text-gray-400">{prediction.structure.type}</p>
+      <div className="mt-2 flex items-center gap-2">
+        <div className="flex-1 bg-[#1F2937] rounded-full h-2 overflow-hidden">
+          <div
+            className="h-full transition-all duration-300"
+            style={{
+              width: `${prediction.failureProbability * 100}%`,
+              backgroundColor: riskColor,
+            }}
+          />
+        </div>
+        <span className="text-xs font-mono text-gray-400">
+          {(prediction.failureProbability * 100).toFixed(1)}%
+        </span>
+      </div>
+      <p className="text-xs text-gray-500 mt-2">
+        Confidence: {(prediction.confidenceScore * 100).toFixed(0)}% | {prediction.modelVersion}
+      </p>
+    </div>
+  );
+}
+
+function MLAnomalyCard({ anomaly }: { anomaly: MLAnomaly }) {
+  const scoreColor = anomaly.anomalyScore > 0.7 ? "#F44336" : anomaly.anomalyScore > 0.5 ? "#FF9800" : "#FFC107";
+
+  return (
+    <div className="bg-[#0B1220] rounded-xl border border-pink-500/20 p-3">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-mono px-2 py-1 rounded bg-purple-500/20 text-purple-400">
+          {anomaly.readingType}
+        </span>
+        <span className="text-xs text-gray-500">
+          {new Date(anomaly.detectedAt).toLocaleTimeString()}
+        </span>
+      </div>
+      <p className="font-bold text-sm text-white">{anomaly.sensor.structure.name}</p>
+      <p className="text-xs text-gray-400 mb-2">Sensor: {anomaly.sensor.sensorCode}</p>
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-gray-500">Anomaly Score:</span>
+        <div className="flex-1 bg-[#1F2937] rounded-full h-2 overflow-hidden">
+          <div
+            className="h-full transition-all duration-300"
+            style={{
+              width: `${anomaly.anomalyScore * 100}%`,
+              backgroundColor: scoreColor,
+            }}
+          />
+        </div>
+        <span
+          className="text-xs font-mono font-bold"
+          style={{ color: scoreColor }}
+        >
+          {anomaly.anomalyScore.toFixed(3)}
+        </span>
+      </div>
+      <p className="text-xs text-gray-500 mt-2">
+        Value: {anomaly.value.toFixed(2)} | {anomaly.modelVersion}
       </p>
     </div>
   );

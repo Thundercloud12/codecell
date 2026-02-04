@@ -7,6 +7,7 @@ import { KafkaMessage } from 'kafkajs';
 import { createKafkaConsumer } from "./kafkaConfig";
 import { PrismaClient } from '../generated/prisma';
 import { PrismaPg } from "@prisma/adapter-pg";
+import { MLService } from '../services/ml.service';
 
 // Create Prisma client with adapter for Neon
 const adapter = new PrismaPg({
@@ -40,6 +41,9 @@ interface TelemetryMessage {
 class KafkaConsumerWorker {
   private consumer;
   private isRunning = false;
+  // ML batching: collect 6+ readings per structure for LSTM
+  private telemetryBatch: Map<string, TelemetryMessage[]> = new Map();
+  private readonly BATCH_SIZE = 6;
 
   constructor() {
     this.consumer = createKafkaConsumer('iot-telemetry-consumer');
@@ -115,6 +119,158 @@ class KafkaConsumerWorker {
   }
 
   /**
+   * Call ML Anomaly Detection (Isolation Forest) for a single reading
+   */
+  private async callMLAnomalyDetection(
+    telemetryId: string,
+    sensorId: string,
+    message: TelemetryMessage
+  ): Promise<void> {
+    try {
+      // Map IoT reading type to ML model type
+      const mlReadingType = MLService.mapReadingType(message.readingType);
+      if (!mlReadingType) {
+        // Skip reading types not supported by ML model (e.g., VOLTAGE, CURRENT)
+        return;
+      }
+
+      // Call Isolation Forest API (wraps single reading in array)
+      const result = await MLService.detectAnomaly({
+        readings: [{
+          value: message.value,
+          readingType: mlReadingType,
+        }],
+      });
+
+      // Extract first result
+      const anomalyResult = result.results[0];
+
+      // Store ML anomaly detection result (use original IoT reading type, not mapped ML type)
+      await prisma.mLAnomalyDetection.create({
+        data: {
+          telemetryId,
+          sensorId,
+          readingType: message.readingType, // Store original IoT type (FLOW_RATE, TEMPERATURE, etc.)
+          value: message.value,
+          isAnomaly: anomalyResult.isAnomaly,
+          anomalyScore: anomalyResult.anomalyScore,
+          modelVersion: 'isolation_forest_v1',
+          detectedAt: new Date(message.timestamp),
+        },
+      });
+
+      if (anomalyResult.isAnomaly) {
+        console.log(
+          `🤖 ML ANOMALY DETECTED: ${mlReadingType} = ${message.value}, score: ${anomalyResult.anomalyScore.toFixed(3)}`
+        );
+      }
+    } catch (error) {
+      console.error(`❌ ML Anomaly Detection failed for ${message.sensorCode}:`, error);
+      // Don't throw - allow message processing to continue
+    }
+  }
+
+  /**
+   * Batch telemetry for LSTM failure prediction
+   * Calls LSTM when we have 6+ readings for a structure
+   */
+  private async batchForFailurePrediction(
+    structureId: string,
+    message: TelemetryMessage
+  ): Promise<void> {
+    try {
+      // Initialize batch array for structure if needed
+      if (!this.telemetryBatch.has(structureId)) {
+        this.telemetryBatch.set(structureId, []);
+      }
+
+      const batch = this.telemetryBatch.get(structureId)!;
+      batch.push(message);
+
+      // When batch reaches 6+ readings, call LSTM
+      if (batch.length >= this.BATCH_SIZE) {
+        await this.callMLFailurePrediction(structureId, batch);
+        // Clear batch after prediction
+        this.telemetryBatch.set(structureId, []);
+      }
+    } catch (error) {
+      console.error(`❌ Batch processing failed for structure ${structureId}:`, error);
+    }
+  }
+
+  /**
+   * Call ML Failure Prediction (LSTM) with batched telemetry
+   */
+  private async callMLFailurePrediction(
+    structureId: string,
+    batch: TelemetryMessage[]
+  ): Promise<void> {
+    try {
+      // Convert batch to SensorSequence format
+      const readings = batch
+        .map(msg => {
+          const mlType = MLService.mapReadingType(msg.readingType);
+          if (!mlType) return null;
+          
+          // Transform sensor code format: SENSOR_001 -> SENSOR-001
+          const transformedSensorId = msg.sensorCode.replace(/_/g, '-');
+          
+          return {
+            timestamp: new Date(msg.timestamp).toISOString(),
+            sensorId: transformedSensorId,
+            readingType: mlType,
+            value: msg.value,
+          };
+        })
+        .filter(r => r !== null) as any[];
+
+      // Ensure we have at least 6 readings
+      if (readings.length < 6) {
+        console.warn(`⚠️ Not enough ML-compatible readings for LSTM (${readings.length}/6)`);
+        return;
+      }
+
+      // Call LSTM API
+      const result = await MLService.predictFailure({
+        readings,
+      });
+
+      // Get prediction for this structure
+      const prediction = result.predictions.find(p => p.structureId.includes(structureId.split('-').pop() || ''));
+      if (!prediction) {
+        console.warn(`⚠️ No prediction returned for structure ${structureId}`);
+        return;
+      }
+
+      // Store LSTM prediction result
+      await prisma.mLFailurePrediction.create({
+        data: {
+          structureId,
+          failureProbability: prediction.failureProbability,
+          failureRisk: prediction.failureRisk === 'UNKNOWN' ? 'LOW' : prediction.failureRisk,
+          predictedFailure24h: prediction.predictedFailureWithin24h,
+          confidenceScore: 0.85, // Default confidence
+          contributingFactors: {},
+          modelVersion: 'lstm_v1',
+          modelThreshold: result.modelThreshold,
+          predictionWindow: '24h',
+          validUntil: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        },
+      });
+
+      console.log(
+        `🔮 ML FAILURE PREDICTION: Structure ${structureId}, Risk: ${prediction.failureRisk}, Probability: ${(prediction.failureProbability * 100).toFixed(1)}%`
+      );
+
+      if (prediction.predictedFailureWithin24h) {
+        console.warn(`⚠️ FAILURE PREDICTED within 24 hours!`);
+      }
+    } catch (error) {
+      console.error(`❌ ML Failure Prediction failed for structure ${structureId}:`, error);
+    }
+  }
+
+  /**
    * Process a single telemetry message
    */
   private async processMessage(message: TelemetryMessage): Promise<void> {
@@ -159,13 +315,19 @@ class KafkaConsumerWorker {
 
       console.log(`✅ Stored telemetry: ${message.sensorCode} = ${message.value} ${message.unit}`);
 
-      // 6. Update sensor heartbeat
+      // 6. Call ML Anomaly Detection (Isolation Forest)
+      await this.callMLAnomalyDetection(telemetry.id, sensor.id, message);
+
+      // 7. Update sensor heartbeat
       await prisma.ioTSensor.update({
         where: { id: sensor.id },
         data: { lastHeartbeat: new Date() }
       });
 
-      // 7. Check for anomalies
+      // 8. Batch telemetry for LSTM failure prediction
+      await this.batchForFailurePrediction(sensor.structure.id, message);
+
+      // 9. Check for anomalies (legacy threshold-based)
       const thresholds = this.getSafeThresholds(message.readingType);
       const isOutsideThresholds = message.value < thresholds.min || message.value > thresholds.max;
 

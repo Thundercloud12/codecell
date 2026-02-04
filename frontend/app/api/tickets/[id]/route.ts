@@ -22,7 +22,7 @@ export async function GET(
     const ticket = await prisma.ticket.findUnique({
       where: { id },
       include: {
-        pothole: {
+        potholes: {
           include: {
             detection: true,
             roadInfo: true,

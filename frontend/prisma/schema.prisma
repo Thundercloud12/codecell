@@ -258,6 +258,7 @@ model Structure {
   maintenanceLogs MaintenanceLog[]
   failureEvents   FailureEvent[]
   forecasts       PredictiveForecast[]
+  mlPredictions   MLFailurePrediction[]
 }
 
 model IoTSensor {
@@ -278,8 +279,9 @@ model IoTSensor {
   lastHeartbeat DateTime?
   isSubscribed  Boolean @default(false)
 
-  telemetry SensorTelemetry[]
-  anomalies UtilityAnomaly[]
+  telemetry       SensorTelemetry[]
+  anomalies       UtilityAnomaly[]
+  mlAnomalies     MLAnomalyDetection[]
 }
 
 model SensorTelemetry {
@@ -293,6 +295,8 @@ model SensorTelemetry {
   unit        String
 
   rawPayload Json?
+  
+  mlAnomalies MLAnomalyDetection[]
   createdAt  DateTime @default(now())
 
   @@index([sensorId, timestamp])
@@ -314,6 +318,52 @@ model UtilityAnomaly {
 
   detectedAt DateTime @default(now())
   isResolved Boolean  @default(false)
+  
+  @@index([sensorId, detectedAt])
+}
+
+model MLAnomalyDetection {
+  id               String   @id @default(uuid())
+  telemetryId      String?
+  telemetry        SensorTelemetry? @relation(fields: [telemetryId], references: [id], onDelete: Cascade)
+  
+  sensorId         String
+  sensor           IoTSensor @relation(fields: [sensorId], references: [id])
+  
+  readingType      TelemetryType
+  value            Float
+  isAnomaly        Boolean
+  anomalyScore     Float
+  
+  modelVersion     String   @default("isolation_forest_v1")
+  detectedAt       DateTime @default(now())
+  
+  @@index([sensorId, detectedAt])
+  @@index([isAnomaly])
+}
+
+model MLFailurePrediction {
+  id                      String    @id @default(uuid())
+  structureId             String
+  structure               Structure @relation(fields: [structureId], references: [id])
+  
+  failureProbability      Float
+  failureRisk             String    // LOW, MEDIUM, HIGH
+  predictedFailure24h     Boolean
+  
+  confidenceScore         Float?
+  contributingFactors     Json?     // Which sensors/readings influenced prediction
+  
+  modelVersion            String    @default("lstm_v1")
+  modelThreshold          Float
+  predictionWindow        String    @default("24h")
+  
+  predictedAt             DateTime  @default(now())
+  validUntil              DateTime? // Prediction expires after 24h
+  
+  @@index([structureId, predictedAt])
+  @@index([predictedFailure24h])
+  @@index([failureRisk])
 }
 
 model FailureEvent {

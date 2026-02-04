@@ -37,30 +37,76 @@ export async function POST(req: Request) {
 
     // Convert file to base64 for Cloudinary upload
     const buffer = Buffer.from(await file.arrayBuffer());
-    const base64Data = `data:${file.type};base64,${buffer.toString('base64')}`;
+    const base64Data = `data:${file.type};base64,${buffer.toString("base64")}`;
 
     // Generate unique public_id for Cloudinary
     const timestamp = Date.now();
-    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_').replace(/\.[^/.]+$/, '');
+    const sanitizedName = file.name
+      .replace(/[^a-zA-Z0-9.-]/g, "_")
+      .replace(/\.[^/.]+$/, "");
     const publicId = `reports/${file.type.startsWith("image") ? "images" : "videos"}/${timestamp}_${sanitizedName}`;
 
     // Upload to Cloudinary
-    console.log('📤 Uploading report media to Cloudinary...');
+    console.log("📤 Uploading report media to Cloudinary...");
     const uploadResult = await cloudinary.uploader.upload(base64Data, {
       public_id: publicId,
       folder: "pothole-system/reports",
       resource_type: file.type.startsWith("image") ? "image" : "video",
-      transformation: file.type.startsWith("image") ? [
-        { quality: "auto" },
-        { fetch_format: "auto" }
-      ] : undefined,
-      tags: ["report", "user-upload"]
+      transformation: file.type.startsWith("image")
+        ? [{ quality: "auto" }, { fetch_format: "auto" }]
+        : undefined,
+      tags: ["report", "user-upload"],
     });
 
     const fileUrl = uploadResult.secure_url;
     const fullUrl = uploadResult.secure_url;
 
     console.log(`✅ Uploaded to Cloudinary: ${uploadResult.public_id}`);
+
+    // Check if image is AI-generated (only for images)
+    if (file.type.startsWith("image")) {
+      console.log("🤖 Checking for AI-generated content...");
+      try {
+        const aiDetectionRes = await fetch(
+          "http://127.0.0.1:8000/detect-ai-image",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageUrl: uploadResult.secure_url }),
+          },
+        );
+
+        if (aiDetectionRes.ok) {
+          const aiResult = await aiDetectionRes.json();
+          console.log(
+            `🔍 AI Detection: ${aiResult.label} (confidence: ${aiResult.confidence})`,
+          );
+
+          if (aiResult.isAI) {
+            // Delete the uploaded image from Cloudinary
+            await cloudinary.uploader.destroy(uploadResult.public_id);
+            console.log("🗑️ AI-generated image deleted from Cloudinary");
+
+            return NextResponse.json(
+              {
+                success: false,
+                error: "AI_GENERATED_IMAGE",
+                message: aiResult.message,
+                isAI: true,
+                confidence: aiResult.confidence,
+              },
+              { status: 400 },
+            );
+          }
+        }
+      } catch (aiError) {
+        console.error(
+          "⚠️ AI detection failed (proceeding with upload):",
+          aiError,
+        );
+        // Continue with upload even if AI detection fails
+      }
+    }
 
     // Ensure report exists
     const report = await prisma.report.findUnique({ where: { id: reportId } });
@@ -165,24 +211,32 @@ export async function POST(req: Request) {
     if (pothole) {
       try {
         console.log("[OSM] Fetching road info for pothole:", pothole.id);
-        
+
         roadInfo = await fetchRoadInfo(report.latitude, report.longitude);
 
         if (roadInfo) {
           // Calculate traffic importance and priority factor
           const trafficImportance =
-            roadInfo.roadType === "motorway" ? 5 :
-            roadInfo.roadType === "trunk" ? 4 :
-            roadInfo.roadType === "primary" ? 3 :
-            roadInfo.roadType === "secondary" ? 2 :
-            1;
+            roadInfo.roadType === "motorway"
+              ? 5
+              : roadInfo.roadType === "trunk"
+                ? 4
+                : roadInfo.roadType === "primary"
+                  ? 3
+                  : roadInfo.roadType === "secondary"
+                    ? 2
+                    : 1;
 
           const priorityFactor =
-            roadInfo.roadType === "motorway" ? 2.5 :
-            roadInfo.roadType === "trunk" ? 2.0 :
-            roadInfo.roadType === "primary" ? 1.5 :
-            roadInfo.roadType === "secondary" ? 1.2 :
-            1.0;
+            roadInfo.roadType === "motorway"
+              ? 2.5
+              : roadInfo.roadType === "trunk"
+                ? 2.0
+                : roadInfo.roadType === "primary"
+                  ? 1.5
+                  : roadInfo.roadType === "secondary"
+                    ? 1.2
+                    : 1.0;
 
           await prisma.roadInfo.create({
             data: {
@@ -196,7 +250,10 @@ export async function POST(req: Request) {
             },
           });
 
-          console.log("[OSM] Road info saved:", roadInfo.roadName || roadInfo.roadType);
+          console.log(
+            "[OSM] Road info saved:",
+            roadInfo.roadName || roadInfo.roadType,
+          );
         } else {
           console.log("[OSM] No road data found nearby");
         }

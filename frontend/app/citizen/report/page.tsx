@@ -5,6 +5,14 @@ import Link from "next/link";
 import { useState } from "react";
 import { MapPin, Upload, Loader2, ArrowLeft, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+import toast from "react-hot-toast";
+
+// Dynamically import map to avoid SSR issues
+const LocationPickerMap = dynamic(
+  () => import("@/components/LocationPickerMap"),
+  { ssr: false },
+);
 
 export default function ReportPotholePage() {
   const { user } = useUser();
@@ -21,6 +29,7 @@ export default function ReportPotholePage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [gettingLocation, setGettingLocation] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -88,7 +97,6 @@ export default function ReportPotholePage() {
         return;
       }
       console.log(reportData);
-      
 
       const reportId = reportData.report.id;
 
@@ -107,11 +115,32 @@ export default function ReportPotholePage() {
         const uploadData = await uploadRes.json();
 
         if (!uploadData.success) {
+          // Check if it's an AI-generated image
+          if (uploadData.error === "AI_GENERATED_IMAGE") {
+            toast.error(`🤖 ${uploadData.message}`, {
+              duration: 5000,
+              style: {
+                background: "#D32F2F",
+                color: "#fff",
+                fontWeight: "bold",
+              },
+            });
+            throw new Error(uploadData.message);
+          }
           console.warn(
             "Image upload failed, but report was created:",
             uploadData,
           );
           // Don't fail the whole operation if image upload fails
+        } else {
+          toast.success(`✅ Image verified and uploaded successfully!`, {
+            duration: 3000,
+            style: {
+              background: "#2E7D32",
+              color: "#fff",
+              fontWeight: "bold",
+            },
+          });
         }
       }
 
@@ -133,18 +162,20 @@ export default function ReportPotholePage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[#050B16] flex items-center justify-center p-4">
-        <div className="bg-[#0B1220] border border-[#00E676] rounded-xl shadow-[0_0_50px_rgba(0,230,118,0.2)] p-8 max-w-md text-center">
-          <div className="w-20 h-20 bg-[#00E676]/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-            <CheckCircle className="w-12 h-12 text-[#00E676]" />
+      <div className="min-h-screen bg-[#F8F6F1] flex items-center justify-center p-4">
+        <div className="bg-white border-2 border-[#2E7D32] rounded-xl shadow-lg p-8 max-w-md text-center">
+          <div className="w-20 h-20 bg-[#E8F5E9] border-2 border-[#C8E6C9] rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-12 h-12 text-[#2E7D32]" />
           </div>
-          <h2 className="text-3xl font-black italic text-white mb-2 uppercase tracking-tighter">Transmission Complete</h2>
-          <p className="text-[#94A3B8] mb-8 font-mono text-sm leading-relaxed">
-            Data packet received. Central Command is analyzing the telemetry.
-            Thank you for your contribution to the grid safety protocols.
+          <h2 className="text-2xl font-bold text-[#1E3A5F] mb-2">
+            Report Submitted Successfully!
+          </h2>
+          <p className="text-[#5A6C7D] mb-8 leading-relaxed">
+            Thank you for your contribution. Your report has been received and
+            will be reviewed by our team shortly.
           </p>
-          <div className="text-xs text-[#00E676] font-mono animate-pulse">
-            REDIRECTING_TO_ARCHIVES...
+          <div className="text-sm text-[#1E3A5F] font-medium">
+            Redirecting to your reports...
           </div>
         </div>
       </div>
@@ -152,125 +183,180 @@ export default function ReportPotholePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050B16] text-white">
-      <nav className="bg-[#050B16]/90 border-b border-[#1F2937] backdrop-blur sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div className="min-h-screen bg-[#F8F6F1] text-[#1E3A5F]">
+      {/* Header */}
+      <nav className="bg-[#1E3A5F] shadow-md sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <Link
               href="/citizen"
-              className="text-[#94A3B8] hover:text-[#00E676] flex items-center gap-2 transition"
+              className="text-[#A8C5E2] hover:text-white flex items-center gap-2 transition"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="font-bold uppercase text-xs tracking-wider">Abort Mission</span>
+              <span className="font-medium text-sm">Back to Dashboard</span>
             </Link>
-            <h1 className="text-xl font-bold uppercase tracking-widest text-[#00E676]">
-              New Hazard Report
-            </h1>
+            <div className="h-6 w-px bg-[#A8C5E2]/30"></div>
+            <h1 className="text-xl font-bold text-white">New Report</h1>
           </div>
           <UserButton afterSignOutUrl="/" />
         </div>
       </nav>
 
-      <div className="max-w-3xl mx-auto p-4 md:p-8">
-        <div className="bg-[#0B1220] border border-[#1F2937] rounded-xl p-8 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#00E676] to-transparent"></div>
-          
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-2 uppercase tracking-wide">Hazard Data Entry</h2>
-            <p className="text-[#94A3B8] text-sm font-mono">
-              ENTER COORDINATES AND VISUAL EVIDENCE FOR ANALYSIS
+      <div className="max-w-3xl mx-auto p-6 md:p-8">
+        <div className="bg-white border-2 border-[#E5E1D8] rounded-xl p-8 shadow-sm">
+          <div className="border-b border-[#E5E1D8] pb-6 mb-6">
+            <h2 className="text-2xl font-bold text-[#1E3A5F] mb-2">
+              Report a Road Issue
+            </h2>
+            <p className="text-[#5A6C7D]">
+              Please provide the location and details of the road hazard you've
+              identified.
             </p>
           </div>
 
           {error && (
-            <div className="mb-8 bg-[#FF1744]/10 border border-[#FF1744]/30 rounded p-4 text-[#FF1744] font-mono text-sm">
-              ERROR: {error}
+            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-sm">
+              <strong>Error:</strong> {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
-                Event Title (Optional)
+              <label className="block text-sm font-medium text-[#1E3A5F] mb-2">
+                Title{" "}
+                <span className="text-[#5A6C7D] font-normal">(Optional)</span>
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. SECTOR 7 ROAD DAMAGE"
-                className="w-full px-4 py-3 bg-[#050B16] border border-[#1F2937] text-white rounded focus:border-[#00E676] focus:ring-1 focus:ring-[#00E676] outline-none font-mono text-sm placeholder:text-[#94A3B8]/30 transition"
+                placeholder="e.g. Pothole on Main Street"
+                className="w-full px-4 py-3 bg-[#F8F6F1] border border-[#E5E1D8] text-[#1E3A5F] rounded-lg focus:border-[#1E3A5F] focus:ring-2 focus:ring-[#1E3A5F]/20 outline-none text-sm placeholder:text-[#94A3B8] transition"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
-                Description (Optional)
+              <label className="block text-sm font-medium text-[#1E3A5F] mb-2">
+                Description{" "}
+                <span className="text-[#5A6C7D] font-normal">(Optional)</span>
               </label>
               <textarea
-                 value={description}
-                 onChange={(e) => setDescription(e.target.value)}
-                 placeholder="PROVIDE ADDITIONAL CONTEXT..."
-                 rows={4}
-                 className="w-full px-4 py-3 bg-[#050B16] border border-[#1F2937] text-white rounded focus:border-[#00E676] focus:ring-1 focus:ring-[#00E676] outline-none font-mono text-sm placeholder:text-[#94A3B8]/30 transition resize-none"
-               />
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Provide additional details about the issue..."
+                rows={4}
+                className="w-full px-4 py-3 bg-[#F8F6F1] border border-[#E5E1D8] text-[#1E3A5F] rounded-lg focus:border-[#1E3A5F] focus:ring-2 focus:ring-[#1E3A5F]/20 outline-none text-sm placeholder:text-[#94A3B8] transition resize-none"
+              />
             </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
-                   Latitude *
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  value={latitude}
-                  onChange={(e) => setLatitude(e.target.value)}
-                  required
-                  placeholder="00.0000"
-                  className="w-full px-4 py-3 bg-[#050B16] border border-[#1F2937] text-[#00E676] rounded focus:border-[#00E676] focus:ring-1 focus:ring-[#00E676] outline-none font-mono text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
-                   Longitude *
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  value={longitude}
-                  onChange={(e) => setLongitude(e.target.value)}
-                  required
-                  placeholder="00.0000"
-                  className="w-full px-4 py-3 bg-[#050B16] border border-[#1F2937] text-[#00E676] rounded focus:border-[#00E676] focus:ring-1 focus:ring-[#00E676] outline-none font-mono text-sm"
-                />
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={getCurrentLocation}
-              disabled={gettingLocation}
-              className="flex items-center gap-2 px-4 py-2 bg-[#00B8D4]/10 text-[#00B8D4] border border-[#00B8D4]/30 rounded hover:bg-[#00B8D4]/20 transition disabled:opacity-50 disabled:cursor-not-allowed font-mono text-xs font-bold uppercase tracking-wider"
-            >
-              {gettingLocation ? (
-                 <>
-                   <Loader2 className="w-4 h-4 animate-spin" />
-                   ACQUIRING_SATELLITE_LOCK...
-                 </>
-               ) : (
-                 <>
-                   <MapPin className="w-4 h-4" />
-                   AUTO_DETECT_COORDS
-                 </>
-               )}
-            </button>
 
             <div>
-              <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
-                 Visual Evidence (Optional)
+              <label className="block text-sm font-medium text-[#1E3A5F] mb-3">
+                Location <span className="text-red-500">*</span>
               </label>
-              <div className="border-2 border-dashed border-[#1F2937] bg-[#050B16]/50 rounded-xl p-8 text-center hover:border-[#00E676]/50 transition cursor-pointer group">
+
+              {/* Toggle Map Button */}
+              <button
+                type="button"
+                onClick={() => setShowMap(!showMap)}
+                className="w-full mb-4 flex items-center justify-center gap-2 px-4 py-3 bg-[#E8F4FD] text-[#1565C0] border border-[#B8D4E8] rounded-lg hover:bg-[#D4E8F8] transition text-sm font-medium"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                  />
+                </svg>
+                {showMap ? "Hide Map" : "📍 Pick Location on Map"}
+              </button>
+
+              {/* Interactive Map */}
+              {showMap && (
+                <div className="mb-4 animate-fadeIn">
+                  <LocationPickerMap
+                    latitude={latitude}
+                    longitude={longitude}
+                    onLocationSelect={(lat, lng) => {
+                      setLatitude(lat.toFixed(6));
+                      setLongitude(lng.toFixed(6));
+                    }}
+                    height="450px"
+                  />
+                </div>
+              )}
+
+              {/* OR Divider */}
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-[#E5E1D8]"></div>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white px-2 text-[#94A3B8]">
+                    Or Enter Manually
+                  </span>
+                </div>
+              </div>
+
+              {/* Coordinate Inputs */}
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <input
+                    type="number"
+                    step="any"
+                    value={latitude}
+                    onChange={(e) => setLatitude(e.target.value)}
+                    required
+                    placeholder="Latitude (e.g. 28.6139)"
+                    className="w-full px-4 py-3 bg-[#F8F6F1] border border-[#E5E1D8] text-[#1E3A5F] rounded-lg focus:border-[#1E3A5F] focus:ring-2 focus:ring-[#1E3A5F]/20 outline-none text-sm"
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="number"
+                    step="any"
+                    value={longitude}
+                    onChange={(e) => setLongitude(e.target.value)}
+                    required
+                    placeholder="Longitude (e.g. 77.2090)"
+                    className="w-full px-4 py-3 bg-[#F8F6F1] border border-[#E5E1D8] text-[#1E3A5F] rounded-lg focus:border-[#1E3A5F] focus:ring-2 focus:ring-[#1E3A5F]/20 outline-none text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Use Current Location Button */}
+              <button
+                type="button"
+                onClick={getCurrentLocation}
+                disabled={gettingLocation}
+                className="flex items-center gap-2 px-4 py-2 bg-[#2DD4BF]/10 text-[#0D9488] border border-[#2DD4BF]/30 rounded-lg hover:bg-[#2DD4BF]/20 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+              >
+                {gettingLocation ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Getting your location...
+                  </>
+                ) : (
+                  <>
+                    <MapPin className="w-4 h-4" />
+                    Use My Current GPS Location
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[#1E3A5F] mb-2">
+                Photo Evidence{" "}
+                <span className="text-[#5A6C7D] font-normal">(Optional)</span>
+              </label>
+              <div className="border-2 border-dashed border-[#E5E1D8] bg-[#F8F6F1] rounded-xl p-8 text-center hover:border-[#1E3A5F] transition cursor-pointer group">
                 <input
                   type="file"
                   accept="image/*"
@@ -284,57 +370,57 @@ export default function ReportPotholePage() {
                 >
                   {imagePreview ? (
                     <div className="relative w-full">
-                       <img
-                         src={imagePreview}
-                         alt="Pre-transmission"
-                         className="max-h-64 rounded-lg border border-[#00E676]/30 mx-auto"
-                       />
-                       <button
-                         type="button"
-                         onClick={(e) => {
-                           e.preventDefault();
-                           setImageFile(null);
-                           setImagePreview("");
-                         }}
-                         className="absolute top-2 right-2 bg-red-500/80 text-white rounded-full p-2 hover:bg-red-600 transition backdrop-blur"
-                       >
-                         ✕
-                       </button>
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="max-h-64 rounded-lg border border-[#E5E1D8] mx-auto"
+                      />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setImageFile(null);
+                          setImagePreview("");
+                        }}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition"
+                      >
+                        ✕
+                      </button>
                     </div>
                   ) : (
                     <>
-                       <Upload className="w-12 h-12 text-[#94A3B8] mb-4 group-hover:text-[#00E676] group-hover:scale-110 transition duration-300" />
-                       <span className="text-white font-bold uppercase tracking-wide group-hover:text-[#00E676] transition">
-                         Initiate File Upload
-                       </span>
-                       <span className="text-xs text-[#94A3B8] font-mono mt-2">
-                         SUPPORTED FORMATS: PNG, JPG (MAX 10MB)
-                       </span>
+                      <Upload className="w-12 h-12 text-[#94A3B8] mb-4 group-hover:text-[#1E3A5F] group-hover:scale-105 transition duration-300" />
+                      <span className="text-[#1E3A5F] font-medium group-hover:text-[#1E3A5F] transition">
+                        Click to upload a photo
+                      </span>
+                      <span className="text-xs text-[#5A6C7D] mt-2">
+                        PNG, JPG up to 10MB
+                      </span>
                     </>
                   )}
                 </label>
               </div>
             </div>
 
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-4 pt-4 border-t border-[#E5E1D8]">
               <button
                 type="submit"
                 disabled={loading || !latitude || !longitude}
-                className="flex-1 bg-[#00E676] text-black px-6 py-4 rounded font-bold hover:bg-[#00E676]/80 disabled:bg-[#1F2937] disabled:text-[#94A3B8] disabled:cursor-not-allowed transition flex items-center justify-center gap-2 uppercase tracking-wider text-sm"
+                className="flex-1 bg-[#1E3A5F] text-white px-6 py-4 rounded-lg font-medium hover:bg-[#2A4A6F] disabled:bg-[#E5E1D8] disabled:text-[#94A3B8] disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    TRANSMITTING...
+                    Submitting...
                   </>
                 ) : (
-                  "CONFIRM TRANSMISSION"
+                  "Submit Report"
                 )}
               </button>
 
               <Link
                 href="/citizen"
-                className="px-6 py-4 border border-[#374151] text-[#94A3B8] rounded font-bold hover:border-white hover:text-white transition text-center uppercase tracking-wider text-sm"
+                className="px-6 py-4 border-2 border-[#E5E1D8] text-[#5A6C7D] rounded-lg font-medium hover:border-[#1E3A5F] hover:text-[#1E3A5F] transition text-center"
               >
                 Cancel
               </Link>

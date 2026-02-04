@@ -309,6 +309,33 @@ exports.Prisma.UtilityAnomalyScalarFieldEnum = {
   isResolved: 'isResolved'
 };
 
+exports.Prisma.MLAnomalyDetectionScalarFieldEnum = {
+  id: 'id',
+  telemetryId: 'telemetryId',
+  sensorId: 'sensorId',
+  readingType: 'readingType',
+  value: 'value',
+  isAnomaly: 'isAnomaly',
+  anomalyScore: 'anomalyScore',
+  modelVersion: 'modelVersion',
+  detectedAt: 'detectedAt'
+};
+
+exports.Prisma.MLFailurePredictionScalarFieldEnum = {
+  id: 'id',
+  structureId: 'structureId',
+  failureProbability: 'failureProbability',
+  failureRisk: 'failureRisk',
+  predictedFailure24h: 'predictedFailure24h',
+  confidenceScore: 'confidenceScore',
+  contributingFactors: 'contributingFactors',
+  modelVersion: 'modelVersion',
+  modelThreshold: 'modelThreshold',
+  predictionWindow: 'predictionWindow',
+  predictedAt: 'predictedAt',
+  validUntil: 'validUntil'
+};
+
 exports.Prisma.FailureEventScalarFieldEnum = {
   id: 'id',
   structureId: 'structureId',
@@ -466,6 +493,8 @@ exports.Prisma.ModelName = {
   IoTSensor: 'IoTSensor',
   SensorTelemetry: 'SensorTelemetry',
   UtilityAnomaly: 'UtilityAnomaly',
+  MLAnomalyDetection: 'MLAnomalyDetection',
+  MLFailurePrediction: 'MLFailurePrediction',
   FailureEvent: 'FailureEvent',
   PredictiveForecast: 'PredictiveForecast',
   MaintenanceLog: 'MaintenanceLog'
